@@ -29,13 +29,13 @@
           "id": "t1_1",
           "name": "Perfil de Negocio Digital",
           "subtopics": [
-            "Nombre, UVP y diferenciación",
-            "Categorías de negocio digital",
-            "Propuesta de valor única"
+            "Nombre, UVP y diferenciaciÃ³n",
+            "CategorÃ­as de negocio digital",
+            "Propuesta de valor Ãºnica"
           ],
           "microLogros": [
-            "Definir propuesta de valor única del negocio",
-            "Identificar categoría digital y segmento objetivo",
+            "Definir propuesta de valor Ãºnica del negocio",
+            "Identificar categorÃ­a digital y segmento objetivo",
             "Articular diferenciadores frente a la competencia"
           ]
         },
@@ -43,19 +43,19 @@
           "id": "t1_2",
           "name": "Buyer Persona y Avatar del Cliente",
           "subtopics": [
-            "Datos demográficos y psicográficos",
+            "Datos demogrÃ¡ficos y psicogrÃ¡ficos",
             "Pain points e intereses",
             "Jobs to be done"
           ],
           "microLogros": [
             "Construir avatar del cliente ideal con datos reales",
             "Mapear 3 pain points y motivadores clave",
-            "Aplicar metodología de entrevistas a usuarios"
+            "Aplicar metodologÃ­a de entrevistas a usuarios"
           ]
         },
         {
           "id": "t1_3",
-          "name": "Análisis de Competencia Digital",
+          "name": "AnÃ¡lisis de Competencia Digital",
           "subtopics": [
             "Benchmarking digital",
             "Ventajas competitivas",
@@ -63,7 +63,7 @@
           ],
           "microLogros": [
             "Analizar 3 competidores en canales digitales",
-            "Identificar oportunidades de diferenciación",
+            "Identificar oportunidades de diferenciaciÃ³n",
             "Construir matriz comparativa de competidores"
           ]
         }
@@ -71,7 +71,7 @@
     },
     {
       "id": "u2",
-      "name": "Unidad 2: Estrategia y Planeación Digital",
+      "name": "Unidad 2: Estrategia y PlaneaciÃ³n Digital",
       "weeks": "5-9",
       "color": "#4A148C",
       "topics": [
@@ -79,13 +79,13 @@
           "id": "t2_1",
           "name": "Ecosistema Digital",
           "subtopics": [
-            "Selección y jerarquía de canales",
-            "Integración multicanal",
+            "SelecciÃ³n y jerarquÃ­a de canales",
+            "IntegraciÃ³n multicanal",
             "Arquitectura digital"
           ],
           "microLogros": [
             "Seleccionar y justificar 3 canales digitales clave",
-            "Diseñar arquitectura del ecosistema del negocio",
+            "DiseÃ±ar arquitectura del ecosistema del negocio",
             "Mapear flujo de usuario entre canales"
           ]
         },
@@ -93,14 +93,14 @@
           "id": "t2_2",
           "name": "Customer Journey Map",
           "subtopics": [
-            "Fases awareness → decisión → lealtad",
+            "Fases awareness â decisiÃ³n â lealtad",
             "Touchpoints digitales",
             "Momentos de verdad"
           ],
           "microLogros": [
             "Mapear customer journey completo en 5 etapas",
-            "Identificar touchpoints críticos y fricciones",
-            "Diseñar CJM visual para el proyecto"
+            "Identificar touchpoints crÃ­ticos y fricciones",
+            "DiseÃ±ar CJM visual para el proyecto"
           ]
         },
         {
@@ -108,27 +108,27 @@
           "name": "Objetivos SMART y OKRs",
           "subtopics": [
             "Metas SMART digitales",
-            "KPIs y métricas",
+            "KPIs y mÃ©tricas",
             "OKRs para negocio digital"
           ],
           "microLogros": [
-            "Formular mínimo 3 objetivos SMART",
+            "Formular mÃ­nimo 3 objetivos SMART",
             "Definir KPIs medibles para cada canal",
             "Establecer OKR para el semestre"
           ]
         },
         {
           "id": "t2_4",
-          "name": "Planeación de Campañas Digitales",
+          "name": "PlaneaciÃ³n de CampaÃ±as Digitales",
           "subtopics": [
-            "Brief de campaña",
+            "Brief de campaÃ±a",
             "Calendario de medios",
             "Presupuesto digital"
           ],
           "microLogros": [
-            "Crear brief completo de campaña digital",
+            "Crear brief completo de campaÃ±a digital",
             "Construir calendario editorial mensual",
-            "Estimar presupuesto básico de campaña"
+            "Estimar presupuesto bÃ¡sico de campaÃ±a"
           ]
         }
       ]
@@ -158,26 +158,26 @@
           "name": "Social Media Marketing",
           "subtopics": [
             "Plataformas por nicho",
-            "Algoritmos y alcance orgánico",
+            "Algoritmos y alcance orgÃ¡nico",
             "Estrategias de engagement"
           ],
           "microLogros": [
             "Optimizar perfil en 2 redes sociales clave",
             "Implementar estrategia de hashtags",
-            "Analizar métricas de alcance e interacción"
+            "Analizar mÃ©tricas de alcance e interacciÃ³n"
           ]
         },
         {
           "id": "t3_3",
-          "name": "Email Marketing y Automatización",
+          "name": "Email Marketing y AutomatizaciÃ³n",
           "subtopics": [
-            "Listas y segmentación",
+            "Listas y segmentaciÃ³n",
             "Secuencias automatizadas",
-            "Funnels de conversión"
+            "Funnels de conversiÃ³n"
           ],
           "microLogros": [
-            "Diseñar secuencia de emails de bienvenida",
-            "Configurar funnel básico de captación",
+            "DiseÃ±ar secuencia de emails de bienvenida",
+            "Configurar funnel bÃ¡sico de captaciÃ³n",
             "Segmentar base de contactos por comportamiento"
           ]
         },
@@ -186,62 +186,62 @@
           "name": "Influencer y Marketing de Comunidad",
           "subtopics": [
             "Tipos de influencers",
-            "Co-creación de contenido",
+            "Co-creaciÃ³n de contenido",
             "Comunidades digitales"
           ],
           "microLogros": [
             "Identificar influencers clave para el nicho",
-            "Diseñar propuesta de colaboración",
-            "Estrategia de construcción de comunidad"
+            "DiseÃ±ar propuesta de colaboraciÃ³n",
+            "Estrategia de construcciÃ³n de comunidad"
           ]
         }
       ]
     },
     {
       "id": "u4",
-      "name": "Unidad 4: Analítica, Optimización y Cierre",
+      "name": "Unidad 4: AnalÃ­tica, OptimizaciÃ³n y Cierre",
       "weeks": "14-16",
       "color": "#B71C1C",
       "topics": [
         {
           "id": "t4_1",
-          "name": "Analítica Web y Social",
+          "name": "AnalÃ­tica Web y Social",
           "subtopics": [
             "Google Analytics 4",
             "Meta Business Suite",
-            "Dashboard de métricas"
+            "Dashboard de mÃ©tricas"
           ],
           "microLogros": [
             "Configurar e interpretar GA4",
-            "Calcular ROI básico de canales digitales",
+            "Calcular ROI bÃ¡sico de canales digitales",
             "Crear dashboard personalizado de KPIs"
           ]
         },
         {
           "id": "t4_2",
-          "name": "Optimización y A/B Testing",
+          "name": "OptimizaciÃ³n y A/B Testing",
           "subtopics": [
-            "CRO y optimización",
+            "CRO y optimizaciÃ³n",
             "Pruebas A/B",
             "Growth hacking"
           ],
           "microLogros": [
-            "Diseñar e implementar prueba A/B básica",
-            "Identificar 3 palancas de optimización",
+            "DiseÃ±ar e implementar prueba A/B bÃ¡sica",
+            "Identificar 3 palancas de optimizaciÃ³n",
             "Aplicar framework de growth hacking"
           ]
         },
         {
           "id": "t4_3",
-          "name": "Presentación Estrategia Digital Final",
+          "name": "PresentaciÃ³n Estrategia Digital Final",
           "subtopics": [
-            "Síntesis del proyecto integrador",
+            "SÃ­ntesis del proyecto integrador",
             "Pitch deck profesional",
             "Defensa con datos"
           ],
           "microLogros": [
             "Construir pitch deck completo (10 diapositivas)",
-            "Defender estrategia con métricas y resultados",
+            "Defender estrategia con mÃ©tricas y resultados",
             "Demostrar dominio integral del ecosistema digital"
           ]
         }
