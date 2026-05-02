@@ -1,0 +1,255 @@
+{
+  "config": {
+    "courseName": "Curso Importado V1",
+    "code": "V1",
+    "group": "",
+    "institution": "EAN",
+    "room": "",
+    "schedule": "",
+    "professor": "",
+    "totalWeeks": 16,
+    "maxAbsences": 3,
+    "students": []
+  },
+  "sessions": [],
+  "activities": [],
+  "grades": {},
+  "sustentaciones": [],
+  "sustScores": {},
+  "groups": {},
+  "notes": [],
+  "syllabus": [
+    {
+      "id": "u1",
+      "name": "Unidad 1: Identidad de Negocio Digital",
+      "weeks": "1-4",
+      "color": "#1565C0",
+      "topics": [
+        {
+          "id": "t1_1",
+          "name": "Perfil de Negocio Digital",
+          "subtopics": [
+            "Nombre, UVP y diferenciación",
+            "Categorías de negocio digital",
+            "Propuesta de valor única"
+          ],
+          "microLogros": [
+            "Definir propuesta de valor única del negocio",
+            "Identificar categoría digital y segmento objetivo",
+            "Articular diferenciadores frente a la competencia"
+          ]
+        },
+        {
+          "id": "t1_2",
+          "name": "Buyer Persona y Avatar del Cliente",
+          "subtopics": [
+            "Datos demográficos y psicográficos",
+            "Pain points e intereses",
+            "Jobs to be done"
+          ],
+          "microLogros": [
+            "Construir avatar del cliente ideal con datos reales",
+            "Mapear 3 pain points y motivadores clave",
+            "Aplicar metodología de entrevistas a usuarios"
+          ]
+        },
+        {
+          "id": "t1_3",
+          "name": "Análisis de Competencia Digital",
+          "subtopics": [
+            "Benchmarking digital",
+            "Ventajas competitivas",
+            "Gaps del mercado"
+          ],
+          "microLogros": [
+            "Analizar 3 competidores en canales digitales",
+            "Identificar oportunidades de diferenciación",
+            "Construir matriz comparativa de competidores"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "u2",
+      "name": "Unidad 2: Estrategia y Planeación Digital",
+      "weeks": "5-9",
+      "color": "#4A148C",
+      "topics": [
+        {
+          "id": "t2_1",
+          "name": "Ecosistema Digital",
+          "subtopics": [
+            "Selección y jerarquía de canales",
+            "Integración multicanal",
+            "Arquitectura digital"
+          ],
+          "microLogros": [
+            "Seleccionar y justificar 3 canales digitales clave",
+            "Diseñar arquitectura del ecosistema del negocio",
+            "Mapear flujo de usuario entre canales"
+          ]
+        },
+        {
+          "id": "t2_2",
+          "name": "Customer Journey Map",
+          "subtopics": [
+            "Fases awareness → decisión → lealtad",
+            "Touchpoints digitales",
+            "Momentos de verdad"
+          ],
+          "microLogros": [
+            "Mapear customer journey completo en 5 etapas",
+            "Identificar touchpoints críticos y fricciones",
+            "Diseñar CJM visual para el proyecto"
+          ]
+        },
+        {
+          "id": "t2_3",
+          "name": "Objetivos SMART y OKRs",
+          "subtopics": [
+            "Metas SMART digitales",
+            "KPIs y métricas",
+            "OKRs para negocio digital"
+          ],
+          "microLogros": [
+            "Formular mínimo 3 objetivos SMART",
+            "Definir KPIs medibles para cada canal",
+            "Establecer OKR para el semestre"
+          ]
+        },
+        {
+          "id": "t2_4",
+          "name": "Planeación de Campañas Digitales",
+          "subtopics": [
+            "Brief de campaña",
+            "Calendario de medios",
+            "Presupuesto digital"
+          ],
+          "microLogros": [
+            "Crear brief completo de campaña digital",
+            "Construir calendario editorial mensual",
+            "Estimar presupuesto básico de campaña"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "u3",
+      "name": "Unidad 3: Comunidad, Contenido y Social Media",
+      "weeks": "10-13",
+      "color": "#1B5E20",
+      "topics": [
+        {
+          "id": "t3_1",
+          "name": "Estrategia de Contenido",
+          "subtopics": [
+            "Pilares de contenido",
+            "Formatos y narrativas",
+            "Calendarios editoriales"
+          ],
+          "microLogros": [
+            "Definir 3 pilares de contenido alineados al negocio",
+            "Planificar calendario editorial semanal",
+            "Crear 5 piezas de contenido diferenciadas"
+          ]
+        },
+        {
+          "id": "t3_2",
+          "name": "Social Media Marketing",
+          "subtopics": [
+            "Plataformas por nicho",
+            "Algoritmos y alcance orgánico",
+            "Estrategias de engagement"
+          ],
+          "microLogros": [
+            "Optimizar perfil en 2 redes sociales clave",
+            "Implementar estrategia de hashtags",
+            "Analizar métricas de alcance e interacción"
+          ]
+        },
+        {
+          "id": "t3_3",
+          "name": "Email Marketing y Automatización",
+          "subtopics": [
+            "Listas y segmentación",
+            "Secuencias automatizadas",
+            "Funnels de conversión"
+          ],
+          "microLogros": [
+            "Diseñar secuencia de emails de bienvenida",
+            "Configurar funnel básico de captación",
+            "Segmentar base de contactos por comportamiento"
+          ]
+        },
+        {
+          "id": "t3_4",
+          "name": "Influencer y Marketing de Comunidad",
+          "subtopics": [
+            "Tipos de influencers",
+            "Co-creación de contenido",
+            "Comunidades digitales"
+          ],
+          "microLogros": [
+            "Identificar influencers clave para el nicho",
+            "Diseñar propuesta de colaboración",
+            "Estrategia de construcción de comunidad"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "u4",
+      "name": "Unidad 4: Analítica, Optimización y Cierre",
+      "weeks": "14-16",
+      "color": "#B71C1C",
+      "topics": [
+        {
+          "id": "t4_1",
+          "name": "Analítica Web y Social",
+          "subtopics": [
+            "Google Analytics 4",
+            "Meta Business Suite",
+            "Dashboard de métricas"
+          ],
+          "microLogros": [
+            "Configurar e interpretar GA4",
+            "Calcular ROI básico de canales digitales",
+            "Crear dashboard personalizado de KPIs"
+          ]
+        },
+        {
+          "id": "t4_2",
+          "name": "Optimización y A/B Testing",
+          "subtopics": [
+            "CRO y optimización",
+            "Pruebas A/B",
+            "Growth hacking"
+          ],
+          "microLogros": [
+            "Diseñar e implementar prueba A/B básica",
+            "Identificar 3 palancas de optimización",
+            "Aplicar framework de growth hacking"
+          ]
+        },
+        {
+          "id": "t4_3",
+          "name": "Presentación Estrategia Digital Final",
+          "subtopics": [
+            "Síntesis del proyecto integrador",
+            "Pitch deck profesional",
+            "Defensa con datos"
+          ],
+          "microLogros": [
+            "Construir pitch deck completo (10 diapositivas)",
+            "Defender estrategia con métricas y resultados",
+            "Demostrar dominio integral del ecosistema digital"
+          ]
+        }
+      ]
+    }
+  ],
+  "coveredTopics": [],
+  "activityFiles": {},
+  "customTabs": [],
+  "courseFiles": []
+}
