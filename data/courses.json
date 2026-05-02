@@ -1,0 +1,25 @@
+[
+  {
+    "id": "curso_cd360",
+    "name": "COMUNICACIÓN DIGITAL 360 MARKETING",
+    "code": "AFPN0093",
+    "group": "S1G1 2026-001",
+    "institution": "EAN",
+    "color": "#1B5E20",
+    "lastModified": "2026-05-02T22:53:21.068Z",
+    "studentCount": 36,
+    "sessionCount": 3,
+    "sustCount": 1
+  },
+  {
+    "id": "curso_v1_mooupp07",
+    "name": "Curso Importado V1",
+    "code": "V1",
+    "institution": "EAN",
+    "color": "#37474F",
+    "lastModified": "2026-05-02T21:26:01.687Z",
+    "studentCount": 0,
+    "sessionCount": 0,
+    "sustCount": 0
+  }
+]
