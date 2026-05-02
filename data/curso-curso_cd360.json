@@ -1,0 +1,473 @@
+{
+  "config": {
+    "courseName": "COMUNICACIÓN DIGITAL 360 MARKETING",
+    "code": "AFPN0093",
+    "group": "S1G1 2026-001",
+    "room": "N412",
+    "schedule": "Martes 14:00–16:00",
+    "professor": "Prof. Jorge Hugo Pérez Gaona",
+    "totalWeeks": 16,
+    "maxAbsences": 3,
+    "students": [
+      {
+        "id": "1000077541",
+        "name": "Tinoco Ruiz Sofía"
+      },
+      {
+        "id": "1000350624",
+        "name": "Rondón Leguizamo Guillermo Andrés"
+      },
+      {
+        "id": "1011100245",
+        "name": "Villa Fajardo Zarith Juliana"
+      },
+      {
+        "id": "1013106028",
+        "name": "Muriel Salgado Juan Sebastián"
+      },
+      {
+        "id": "1013256390",
+        "name": "Cifuentes Martínez Camila Alejandra"
+      },
+      {
+        "id": "1013263957",
+        "name": "Garzón Moya Juan Jerónimo"
+      },
+      {
+        "id": "1014861582",
+        "name": "Mahecha Lázaro Sebastián"
+      },
+      {
+        "id": "1014997827",
+        "name": "Hernández Muñoz María José"
+      },
+      {
+        "id": "1016596401",
+        "name": "Lozano Álvarez Yesenia Sophia"
+      },
+      {
+        "id": "1016951985",
+        "name": "Pérez Cortés María José"
+      },
+      {
+        "id": "1019764949",
+        "name": "Norato Burgos Valerie"
+      },
+      {
+        "id": "1019843108",
+        "name": "Romero Rojas Juliana Sofía"
+      },
+      {
+        "id": "1021397707",
+        "name": "Martínez Martínez Laura Juliana"
+      },
+      {
+        "id": "1021675662",
+        "name": "Riaño Pachón Laura Andrea"
+      },
+      {
+        "id": "1023369961",
+        "name": "Rodríguez Salcedo Karol Valentina"
+      },
+      {
+        "id": "1023375110",
+        "name": "Segura Rojas Ninny Carolina"
+      },
+      {
+        "id": "1023891376",
+        "name": "Trujillo Ríos Andrea Catalina"
+      },
+      {
+        "id": "1027151839",
+        "name": "Acevedo Caro Juan Diego"
+      },
+      {
+        "id": "1028663002",
+        "name": "Galvis Triana Michel Fernanda"
+      },
+      {
+        "id": "1028863347",
+        "name": "Aragón Calderón Verónica Ester"
+      },
+      {
+        "id": "1029143351",
+        "name": "Castillo Vargas Karen Stefanny"
+      },
+      {
+        "id": "1029144591",
+        "name": "Fernández Rueda Laura Natalia"
+      },
+      {
+        "id": "1029660441",
+        "name": "Chica Vega Sara Alejandra"
+      },
+      {
+        "id": "1030557501",
+        "name": "Aunta Munar Danna Valentina"
+      },
+      {
+        "id": "1031541266",
+        "name": "Camacho Rico Juan Esteban"
+      },
+      {
+        "id": "1031805029",
+        "name": "Ángel Rojas Nashua Silvana"
+      },
+      {
+        "id": "1032877570",
+        "name": "Vila Peña Laura Sofía"
+      },
+      {
+        "id": "1033102053",
+        "name": "Dávila González Sara Lucía"
+      },
+      {
+        "id": "1033102176",
+        "name": "Lopera Cristiano Valentina"
+      },
+      {
+        "id": "1033710696",
+        "name": "Brand Mendieta Gabriela"
+      },
+      {
+        "id": "1034577536",
+        "name": "Díaz Moreno Juliana"
+      },
+      {
+        "id": "1040874338",
+        "name": "Urrea Ramírez Mariana"
+      },
+      {
+        "id": "1070007994",
+        "name": "Canastero Venegas Isabel Sofía"
+      },
+      {
+        "id": "1141317881",
+        "name": "Laverde Vargas Sara Valentina"
+      },
+      {
+        "id": "1013108778",
+        "name": "Castelblanco Moreno Paula Alejandra"
+      },
+      {
+        "id": "1127242102",
+        "name": "Niño Díaz Lucas Eduardo"
+      }
+    ]
+  },
+  "sessions": [
+    {
+      "id": "moopglz2dx8b",
+      "date": "2026-05-02",
+      "week": 1,
+      "topic": "",
+      "objectives": "",
+      "notes": "",
+      "covered": "",
+      "attendance": {
+        "1127242102": {
+          "obs": "JorgeHugoPErez@gmail.com"
+        }
+      },
+      "resources": []
+    },
+    {
+      "id": "mooplgg8fy6n",
+      "date": "2026-05-02",
+      "week": 2,
+      "topic": "",
+      "objectives": "",
+      "materials": "",
+      "notes": "",
+      "covered": "",
+      "attendance": {
+        "1127242102": {
+          "obs": "JorgeHugoPErez@gmail.com"
+        }
+      }
+    },
+    {
+      "id": "moovgq7etms7",
+      "date": "2026-05-02",
+      "week": 3,
+      "topicId": "",
+      "topic": "",
+      "objectives": "",
+      "notes": "",
+      "attendance": {
+        "1127242102": {
+          "obs": "JorgeHugoPErez@gmail.com"
+        }
+      },
+      "resources": []
+    }
+  ],
+  "activities": [
+    {
+      "id": "mooptqe4et92",
+      "name": "QUIZ 3",
+      "weight": 0,
+      "type": "quiz"
+    },
+    {
+      "id": "imooxo33p7a0o",
+      "name": "prueba 2",
+      "weight": 10,
+      "date": "2026-04-29"
+    }
+  ],
+  "grades": {
+    "mooptqe4et92": {
+      "1000077541": 0
+    }
+  },
+  "sustentaciones": [
+    {
+      "id": "imooxpjishe47",
+      "name": "prueba 1",
+      "date": "2026-05-02",
+      "target": "grupos",
+      "criteria": [
+        {
+          "name": "teoeria",
+          "pts": 5,
+          "desc": "s"
+        },
+        {
+          "name": "tecnica",
+          "pts": 5,
+          "desc": "sss"
+        }
+      ]
+    }
+  ],
+  "sustScores": {
+    "imooxpjishe47": {
+      "g_01": {
+        "0": 4,
+        "1": 2
+      }
+    }
+  },
+  "groups": {
+    "g_01": {
+      "id": "g_01",
+      "name": "Yoga Serena",
+      "members": [
+        "1016596401",
+        "1029143351",
+        "1031541266",
+        "1029660441",
+        "1019764949"
+      ]
+    },
+    "g_02": {
+      "id": "g_02",
+      "name": "Renacer Vital",
+      "members": [
+        "1031805029",
+        "1021397707",
+        "1028663002",
+        "1141317881",
+        "1023369961"
+      ]
+    },
+    "g_03": {
+      "id": "g_03",
+      "name": "Aura Studio",
+      "members": [
+        "1033710696",
+        "1023891376",
+        "1014997827",
+        "1029144591",
+        "1021675662"
+      ]
+    },
+    "g_04": {
+      "id": "g_04",
+      "name": "Canta y Come",
+      "members": [
+        "1000077541",
+        "1016951985",
+        "1011100245",
+        "1000350624",
+        "1040874338",
+        "1013108778"
+      ]
+    },
+    "g_05": {
+      "id": "g_05",
+      "name": "Axis",
+      "members": [
+        "1013106028",
+        "1032877570",
+        "1014861582",
+        "1027151839",
+        "1127242102"
+      ]
+    },
+    "g_06": {
+      "id": "g_06",
+      "name": "Nara Nails",
+      "members": [
+        "1023375110",
+        "1070007994",
+        "1013256390",
+        "1019843108"
+      ]
+    },
+    "g_07": {
+      "id": "g_07",
+      "name": "Armonía Lashes",
+      "members": [
+        "1028863347",
+        "1030557501",
+        "1033102176",
+        "1013263957",
+        "1034577536"
+      ]
+    }
+  },
+  "notes": [],
+  "syllabus": [
+    {
+      "id": "u3",
+      "name": "Unidad 3: Comunidad, Contenido y Social Media",
+      "weeks": "10-13",
+      "color": "#1B5E20",
+      "topics": [
+        {
+          "id": "t3_1",
+          "name": "Estrategia de Contenido",
+          "subtopics": [
+            "Pilares de contenido",
+            "Formatos y narrativas",
+            "Calendarios editoriales"
+          ],
+          "microLogros": [
+            "Definir 3 pilares de contenido alineados al negocio",
+            "Planificar calendario editorial semanal",
+            "Crear 5 piezas de contenido diferenciadas"
+          ]
+        },
+        {
+          "id": "t3_2",
+          "name": "Social Media Marketing",
+          "subtopics": [
+            "Plataformas por nicho",
+            "Algoritmos y alcance orgánico",
+            "Estrategias de engagement"
+          ],
+          "microLogros": [
+            "Optimizar perfil en 2 redes sociales clave",
+            "Implementar estrategia de hashtags",
+            "Analizar métricas de alcance e interacción"
+          ]
+        },
+        {
+          "id": "t3_3",
+          "name": "Email Marketing y Automatización",
+          "subtopics": [
+            "Listas y segmentación",
+            "Secuencias automatizadas",
+            "Funnels de conversión"
+          ],
+          "microLogros": [
+            "Diseñar secuencia de emails de bienvenida",
+            "Configurar funnel básico de captación",
+            "Segmentar base de contactos por comportamiento"
+          ]
+        },
+        {
+          "id": "t3_4",
+          "name": "Influencer y Marketing de Comunidad",
+          "subtopics": [
+            "Tipos de influencers",
+            "Co-creación de contenido",
+            "Comunidades digitales"
+          ],
+          "microLogros": [
+            "Identificar influencers clave para el nicho",
+            "Diseñar propuesta de colaboración",
+            "Estrategia de construcción de comunidad"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "u4",
+      "name": "Unidad 4: Analítica, Optimización y Cierre",
+      "weeks": "14-16",
+      "color": "#B71C1C",
+      "topics": [
+        {
+          "id": "t4_1",
+          "name": "Analítica Web y Social",
+          "subtopics": [
+            "Google Analytics 4",
+            "Meta Business Suite",
+            "Dashboard de métricas"
+          ],
+          "microLogros": [
+            "Configurar e interpretar GA4",
+            "Calcular ROI básico de canales digitales",
+            "Crear dashboard personalizado de KPIs"
+          ]
+        },
+        {
+          "id": "t4_2",
+          "name": "Optimización y A/B Testing",
+          "subtopics": [
+            "CRO y optimización",
+            "Pruebas A/B",
+            "Growth hacking"
+          ],
+          "microLogros": [
+            "Diseñar e implementar prueba A/B básica",
+            "Identificar 3 palancas de optimización",
+            "Aplicar framework de growth hacking"
+          ]
+        },
+        {
+          "id": "t4_3",
+          "name": "Presentación Estrategia Digital Final",
+          "subtopics": [
+            "Síntesis del proyecto integrador",
+            "Pitch deck profesional",
+            "Defensa con datos"
+          ],
+          "microLogros": [
+            "Construir pitch deck completo (10 diapositivas)",
+            "Defender estrategia con métricas y resultados",
+            "Demostrar dominio integral del ecosistema digital"
+          ]
+        }
+      ]
+    }
+  ],
+  "coveredTopics": [],
+  "activityFiles": {},
+  "customTabs": [
+    {
+      "id": "ctab_moovi1lo00jb",
+      "name": "pRUEBA 1",
+      "icon": "📌",
+      "content": "quiero un cuadro "
+    },
+    {
+      "id": "ctab_imooxsb8miafe",
+      "icon": "✏️",
+      "name": "prueba 2"
+    }
+  ],
+  "courseFiles": [
+    {
+      "id": "imooxr9h7e56m",
+      "name": "✏️ M3P2 — Question Set revisado (ML8).pdf",
+      "type": "application/pdf",
+      "size": 108455,
+      "uploadDate": "2026-05-02T22:51:13.724Z",
+      "githubUrl": "https://jorgeicone.github.io/docadmin-clase-v2/files/curso_cd360/___M3P2___Question_Set_revisado__ML8_.pdf"
+    }
+  ]
+}
