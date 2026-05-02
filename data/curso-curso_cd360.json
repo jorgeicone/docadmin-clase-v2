@@ -1,21 +1,21 @@
 {
   "config": {
-    "courseName": "COMUNICACIÃN DIGITAL 360 MARKETING",
+    "courseName": "COMUNICACIÃÂN DIGITAL 360 MARKETING",
     "code": "AFPN0093",
     "group": "S1G1 2026-001",
     "room": "N412",
-    "schedule": "Martes 14:00â16:00",
-    "professor": "Prof. Jorge Hugo PÃ©rez Gaona",
+    "schedule": "Martes 14:00Ã¢ÂÂ16:00",
+    "professor": "Prof. Jorge Hugo PÃÂ©rez Gaona",
     "totalWeeks": 16,
     "maxAbsences": 3,
     "students": [
       {
         "id": "1000077541",
-        "name": "Tinoco Ruiz SofÃ­a"
+        "name": "Tinoco Ruiz SofÃÂ­a"
       },
       {
         "id": "1000350624",
-        "name": "RondÃ³n Leguizamo Guillermo AndrÃ©s"
+        "name": "RondÃÂ³n Leguizamo Guillermo AndrÃÂ©s"
       },
       {
         "id": "1011100245",
@@ -23,31 +23,31 @@
       },
       {
         "id": "1013106028",
-        "name": "Muriel Salgado Juan SebastiÃ¡n"
+        "name": "Muriel Salgado Juan SebastiÃÂ¡n"
       },
       {
         "id": "1013256390",
-        "name": "Cifuentes MartÃ­nez Camila Alejandra"
+        "name": "Cifuentes MartÃÂ­nez Camila Alejandra"
       },
       {
         "id": "1013263957",
-        "name": "GarzÃ³n Moya Juan JerÃ³nimo"
+        "name": "GarzÃÂ³n Moya Juan JerÃÂ³nimo"
       },
       {
         "id": "1014861582",
-        "name": "Mahecha LÃ¡zaro SebastiÃ¡n"
+        "name": "Mahecha LÃÂ¡zaro SebastiÃÂ¡n"
       },
       {
         "id": "1014997827",
-        "name": "HernÃ¡ndez MuÃ±oz MarÃ­a JosÃ©"
+        "name": "HernÃÂ¡ndez MuÃÂ±oz MarÃÂ­a JosÃÂ©"
       },
       {
         "id": "1016596401",
-        "name": "Lozano Ãlvarez Yesenia Sophia"
+        "name": "Lozano ÃÂlvarez Yesenia Sophia"
       },
       {
         "id": "1016951985",
-        "name": "PÃ©rez CortÃ©s MarÃ­a JosÃ©"
+        "name": "PÃÂ©rez CortÃÂ©s MarÃÂ­a JosÃÂ©"
       },
       {
         "id": "1019764949",
@@ -55,19 +55,19 @@
       },
       {
         "id": "1019843108",
-        "name": "Romero Rojas Juliana SofÃ­a"
+        "name": "Romero Rojas Juliana SofÃÂ­a"
       },
       {
         "id": "1021397707",
-        "name": "MartÃ­nez MartÃ­nez Laura Juliana"
+        "name": "MartÃÂ­nez MartÃÂ­nez Laura Juliana"
       },
       {
         "id": "1021675662",
-        "name": "RiaÃ±o PachÃ³n Laura Andrea"
+        "name": "RiaÃÂ±o PachÃÂ³n Laura Andrea"
       },
       {
         "id": "1023369961",
-        "name": "RodrÃ­guez Salcedo Karol Valentina"
+        "name": "RodrÃÂ­guez Salcedo Karol Valentina"
       },
       {
         "id": "1023375110",
@@ -75,7 +75,7 @@
       },
       {
         "id": "1023891376",
-        "name": "Trujillo RÃ­os Andrea Catalina"
+        "name": "Trujillo RÃÂ­os Andrea Catalina"
       },
       {
         "id": "1027151839",
@@ -87,7 +87,7 @@
       },
       {
         "id": "1028863347",
-        "name": "AragÃ³n CalderÃ³n VerÃ³nica Ester"
+        "name": "AragÃÂ³n CalderÃÂ³n VerÃÂ³nica Ester"
       },
       {
         "id": "1029143351",
@@ -95,7 +95,7 @@
       },
       {
         "id": "1029144591",
-        "name": "FernÃ¡ndez Rueda Laura Natalia"
+        "name": "FernÃÂ¡ndez Rueda Laura Natalia"
       },
       {
         "id": "1029660441",
@@ -111,15 +111,15 @@
       },
       {
         "id": "1031805029",
-        "name": "Ãngel Rojas Nashua Silvana"
+        "name": "ÃÂngel Rojas Nashua Silvana"
       },
       {
         "id": "1032877570",
-        "name": "Vila PeÃ±a Laura SofÃ­a"
+        "name": "Vila PeÃÂ±a Laura SofÃÂ­a"
       },
       {
         "id": "1033102053",
-        "name": "DÃ¡vila GonzÃ¡lez Sara LucÃ­a"
+        "name": "DÃÂ¡vila GonzÃÂ¡lez Sara LucÃÂ­a"
       },
       {
         "id": "1033102176",
@@ -131,15 +131,15 @@
       },
       {
         "id": "1034577536",
-        "name": "DÃ­az Moreno Juliana"
+        "name": "DÃÂ­az Moreno Juliana"
       },
       {
         "id": "1040874338",
-        "name": "Urrea RamÃ­rez Mariana"
+        "name": "Urrea RamÃÂ­rez Mariana"
       },
       {
         "id": "1070007994",
-        "name": "Canastero Venegas Isabel SofÃ­a"
+        "name": "Canastero Venegas Isabel SofÃÂ­a"
       },
       {
         "id": "1141317881",
@@ -151,7 +151,7 @@
       },
       {
         "id": "1127242102",
-        "name": "NiÃ±o DÃ­az Lucas Eduardo"
+        "name": "NiÃÂ±o DÃÂ­az Lucas Eduardo"
       }
     ]
   },
@@ -318,7 +318,7 @@
     },
     "g_07": {
       "id": "g_07",
-      "name": "ArmonÃ­a Lashes",
+      "name": "ArmonÃÂ­a Lashes",
       "members": [
         "1028863347",
         "1030557501",
@@ -355,26 +355,26 @@
           "name": "Social Media Marketing",
           "subtopics": [
             "Plataformas por nicho",
-            "Algoritmos y alcance orgÃ¡nico",
+            "Algoritmos y alcance orgÃÂ¡nico",
             "Estrategias de engagement"
           ],
           "microLogros": [
             "Optimizar perfil en 2 redes sociales clave",
             "Implementar estrategia de hashtags",
-            "Analizar mÃ©tricas de alcance e interacciÃ³n"
+            "Analizar mÃÂ©tricas de alcance e interacciÃÂ³n"
           ]
         },
         {
           "id": "t3_3",
-          "name": "Email Marketing y AutomatizaciÃ³n",
+          "name": "Email Marketing y AutomatizaciÃÂ³n",
           "subtopics": [
-            "Listas y segmentaciÃ³n",
+            "Listas y segmentaciÃÂ³n",
             "Secuencias automatizadas",
-            "Funnels de conversiÃ³n"
+            "Funnels de conversiÃÂ³n"
           ],
           "microLogros": [
-            "DiseÃ±ar secuencia de emails de bienvenida",
-            "Configurar funnel bÃ¡sico de captaciÃ³n",
+            "DiseÃÂ±ar secuencia de emails de bienvenida",
+            "Configurar funnel bÃÂ¡sico de captaciÃÂ³n",
             "Segmentar base de contactos por comportamiento"
           ]
         },
@@ -383,62 +383,62 @@
           "name": "Influencer y Marketing de Comunidad",
           "subtopics": [
             "Tipos de influencers",
-            "Co-creaciÃ³n de contenido",
+            "Co-creaciÃÂ³n de contenido",
             "Comunidades digitales"
           ],
           "microLogros": [
             "Identificar influencers clave para el nicho",
-            "DiseÃ±ar propuesta de colaboraciÃ³n",
-            "Estrategia de construcciÃ³n de comunidad"
+            "DiseÃÂ±ar propuesta de colaboraciÃÂ³n",
+            "Estrategia de construcciÃÂ³n de comunidad"
           ]
         }
       ]
     },
     {
       "id": "u4",
-      "name": "Unidad 4: AnalÃ­tica, OptimizaciÃ³n y Cierre",
+      "name": "Unidad 4: AnalÃÂ­tica, OptimizaciÃÂ³n y Cierre",
       "weeks": "14-16",
       "color": "#B71C1C",
       "topics": [
         {
           "id": "t4_1",
-          "name": "AnalÃ­tica Web y Social",
+          "name": "AnalÃÂ­tica Web y Social",
           "subtopics": [
             "Google Analytics 4",
             "Meta Business Suite",
-            "Dashboard de mÃ©tricas"
+            "Dashboard de mÃÂ©tricas"
           ],
           "microLogros": [
             "Configurar e interpretar GA4",
-            "Calcular ROI bÃ¡sico de canales digitales",
+            "Calcular ROI bÃÂ¡sico de canales digitales",
             "Crear dashboard personalizado de KPIs"
           ]
         },
         {
           "id": "t4_2",
-          "name": "OptimizaciÃ³n y A/B Testing",
+          "name": "OptimizaciÃÂ³n y A/B Testing",
           "subtopics": [
-            "CRO y optimizaciÃ³n",
+            "CRO y optimizaciÃÂ³n",
             "Pruebas A/B",
             "Growth hacking"
           ],
           "microLogros": [
-            "DiseÃ±ar e implementar prueba A/B bÃ¡sica",
-            "Identificar 3 palancas de optimizaciÃ³n",
+            "DiseÃÂ±ar e implementar prueba A/B bÃÂ¡sica",
+            "Identificar 3 palancas de optimizaciÃÂ³n",
             "Aplicar framework de growth hacking"
           ]
         },
         {
           "id": "t4_3",
-          "name": "PresentaciÃ³n Estrategia Digital Final",
+          "name": "PresentaciÃÂ³n Estrategia Digital Final",
           "subtopics": [
-            "SÃ­ntesis del proyecto integrador",
+            "SÃÂ­ntesis del proyecto integrador",
             "Pitch deck profesional",
             "Defensa con datos"
           ],
           "microLogros": [
             "Construir pitch deck completo (10 diapositivas)",
-            "Defender estrategia con mÃ©tricas y resultados",
+            "Defender estrategia con mÃÂ©tricas y resultados",
             "Demostrar dominio integral del ecosistema digital"
           ]
         }
@@ -451,19 +451,19 @@
     {
       "id": "ctab_moovi1lo00jb",
       "name": "pRUEBA 1",
-      "icon": "ð",
+      "icon": "Ã°ÂÂÂ",
       "content": "quiero un cuadro "
     },
     {
       "id": "ctab_imooxsb8miafe",
-      "icon": "âï¸",
+      "icon": "Ã¢ÂÂÃ¯Â¸Â",
       "name": "prueba 2"
     }
   ],
   "courseFiles": [
     {
       "id": "imooxr9h7e56m",
-      "name": "âï¸ M3P2 â Question Set revisado (ML8).pdf",
+      "name": "Ã¢ÂÂÃ¯Â¸Â M3P2 Ã¢ÂÂ Question Set revisado (ML8).pdf",
       "type": "application/pdf",
       "size": 108455,
       "uploadDate": "2026-05-02T22:51:13.724Z",
