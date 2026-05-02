@@ -6,18 +6,10 @@
 <title>DocAdmin Pro · Seguimiento de Clase</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root {
-  --g1:#1B5E20;--g2:#2E7D32;--g3:#388E3C;--g4:#66BB6A;--g5:#C8E6C9;
-  --accent:#92D050;--bg:#F1F8E9;--white:#fff;--gray:#546E7A;--border:#A5D6A7;
-  --red:#C62828;--orange:#E65100;--yellow:#F9A825;--blue:#1565C0;
-  --r:8px;--sh:0 2px 8px rgba(0,0,0,.12);
-}
+:root{--g1:#1B5E20;--g2:#2E7D32;--g3:#388E3C;--g4:#66BB6A;--g5:#C8E6C9;--accent:#92D050;--bg:#F1F8E9;--white:#fff;--gray:#546E7A;--border:#A5D6A7;--red:#C62828;--orange:#E65100;--yellow:#F9A825;--blue:#1565C0;--r:8px;--sh:0 2px 8px rgba(0,0,0,.12)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#212121;font-size:14px}
-
-/* HEADER */
-.hdr{background:linear-gradient(135deg,var(--g1),var(--g3));color:#fff;padding:12px 20px;
-  display:flex;align-items:center;gap:14px;box-shadow:0 3px 10px rgba(0,0,0,.3);position:sticky;top:0;z-index:100}
+.hdr{background:linear-gradient(135deg,var(--g1),var(--g3));color:#fff;padding:12px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 3px 10px rgba(0,0,0,.3);position:sticky;top:0;z-index:100}
 .hdr-logo{font-size:26px;font-weight:900;color:var(--accent);letter-spacing:-1px;cursor:pointer}
 .hdr-info h1{font-size:15px;font-weight:700}
 .hdr-info p{font-size:11px;opacity:.8;margin-top:2px}
@@ -26,185 +18,126 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:#212121;
 .gh-status{font-size:11px;display:flex;align-items:center;gap:5px;opacity:.85}
 .gh-dot{width:8px;height:8px;border-radius:50%;background:#f44}
 .gh-dot.ok{background:var(--accent)}
-.btn-save-gh{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);
-  padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:.2s}
+.btn-save-gh{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:.2s}
 .btn-save-gh:hover{background:rgba(255,255,255,.25)}
-
-/* NAV */
 .nav{display:flex;background:var(--g2);overflow-x:auto;gap:0}
-.nav-btn{padding:11px 18px;color:rgba(255,255,255,.7);font-size:12px;font-weight:600;
-  border:none;background:none;cursor:pointer;white-space:nowrap;
-  border-bottom:3px solid transparent;transition:.2s}
+.nav-btn{padding:11px 18px;color:rgba(255,255,255,.7);font-size:12px;font-weight:600;border:none;background:none;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:.2s}
 .nav-btn:hover{color:#fff;background:rgba(255,255,255,.08)}
 .nav-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(0,0,0,.15)}
-
-/* LAYOUT */
 .tab{display:none;padding:18px;max-width:1280px;margin:0 auto}
 .tab.active{display:block}
-
-/* CARDS */
 .card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:16px;margin-bottom:14px;border-left:4px solid var(--g3)}
 .card-title{font-size:14px;font-weight:700;color:var(--g1);margin-bottom:12px;display:flex;align-items:center;gap:7px}
-.card.warn{border-left-color:var(--orange)}
-.card.danger{border-left-color:var(--red)}
-.card.info{border-left-color:var(--blue)}
-
-/* GRID */
+.card.warn{border-left-color:var(--orange)}.card.danger{border-left-color:var(--red)}.card.info{border-left-color:var(--blue)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-
-/* KPI */
 .kpi{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:14px 16px;text-align:center;border-top:3px solid var(--g3)}
 .kpi-val{font-size:30px;font-weight:900;line-height:1;color:var(--g1)}
 .kpi-label{font-size:11px;color:var(--gray);font-weight:600;margin-top:3px}
-.kpi.warn .kpi-val{color:var(--orange)} .kpi.warn{border-top-color:var(--orange)}
-.kpi.danger .kpi-val{color:var(--red)} .kpi.danger{border-top-color:var(--red)}
-.kpi.blue .kpi-val{color:var(--blue)} .kpi.blue{border-top-color:var(--blue)}
-
-/* FORMS */
+.kpi.warn .kpi-val{color:var(--orange)}.kpi.warn{border-top-color:var(--orange)}
+.kpi.danger .kpi-val{color:var(--red)}.kpi.danger{border-top-color:var(--red)}
+.kpi.blue .kpi-val{color:var(--blue)}.kpi.blue{border-top-color:var(--blue)}
 .form-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
 .fld{display:flex;flex-direction:column;gap:4px}
 .fld label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase}
-input,select,textarea{padding:7px 10px;border:1px solid var(--border);border-radius:6px;
-  font-size:13px;outline:none;transition:border .2s;font-family:inherit}
+input,select,textarea{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;transition:border .2s;font-family:inherit}
 input:focus,select:focus,textarea:focus{border-color:var(--g3);box-shadow:0 0 0 2px var(--g5)}
-
-/* BUTTONS */
-.btn{padding:7px 14px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:600;
-  transition:.2s;display:inline-flex;align-items:center;gap:5px}
-.btn-g{background:var(--g3);color:#fff} .btn-g:hover{background:var(--g1)}
-.btn-ok{background:#43A047;color:#fff} .btn-ok:hover{background:var(--g1)}
-.btn-red{background:#e53935;color:#fff} .btn-red:hover{background:var(--red)}
-.btn-out{background:#fff;color:var(--g3);border:1px solid var(--g3)} .btn-out:hover{background:var(--g5)}
-.btn-gray{background:#eceff1;color:#455a64} .btn-gray:hover{background:#cfd8dc}
-.btn-blue{background:var(--blue);color:#fff} .btn-blue:hover{background:#0d47a1}
-.btn-sm{padding:5px 10px;font-size:12px} .btn-xs{padding:3px 7px;font-size:11px;border-radius:4px}
-
-/* TABLE */
+.btn{padding:7px 14px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:.2s;display:inline-flex;align-items:center;gap:5px}
+.btn-g{background:var(--g3);color:#fff}.btn-g:hover{background:var(--g1)}
+.btn-ok{background:#43A047;color:#fff}.btn-ok:hover{background:var(--g1)}
+.btn-red{background:#e53935;color:#fff}.btn-red:hover{background:var(--red)}
+.btn-out{background:#fff;color:var(--g3);border:1px solid var(--g3)}.btn-out:hover{background:var(--g5)}
+.btn-gray{background:#eceff1;color:#455a64}.btn-gray:hover{background:#cfd8dc}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#0d47a1}
+.btn-orange{background:var(--orange);color:#fff}.btn-orange:hover{background:#bf360c}
+.btn-sm{padding:5px 10px;font-size:12px}.btn-xs{padding:3px 7px;font-size:11px;border-radius:4px}
 .tbl-wrap{overflow-x:auto;border-radius:6px;border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse;font-size:13px}
-thead th{background:var(--g3);color:#fff;padding:8px 10px;text-align:left;font-size:12px;
-  white-space:nowrap;position:sticky;top:0;z-index:1}
+thead th{background:var(--g3);color:#fff;padding:8px 10px;text-align:left;font-size:12px;white-space:nowrap;position:sticky;top:0;z-index:1}
 tbody tr:nth-child(even){background:#f9fbf9}
 tbody tr:hover{background:var(--g5)}
 td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
-
-/* ATTENDANCE */
 .att-group{display:flex;gap:3px}
 .att-btn{padding:4px 8px;border-radius:4px;border:1px solid #ccc;font-size:11px;font-weight:700;cursor:pointer;background:#f5f5f5;transition:.15s}
 .att-btn.P.active{background:#43A047;color:#fff;border-color:#2e7d32}
 .att-btn.T.active{background:#FB8C00;color:#fff;border-color:#e65100}
 .att-btn.A.active{background:#e53935;color:#fff;border-color:#b71c1c}
 .att-btn:not(.active):hover{background:#e0e0e0}
-
-/* PROGRESS */
 .prog-wrap{background:#e0e0e0;border-radius:20px;height:8px;overflow:hidden;flex:1}
 .prog-bar{height:100%;border-radius:20px;transition:width .5s}
 .prog-g{background:linear-gradient(90deg,#43A047,#92D050)}
 .prog-y{background:linear-gradient(90deg,#FB8C00,#FFD54F)}
 .prog-r{background:linear-gradient(90deg,#e53935,#FF8A80)}
-
-/* RISK BADGES */
 .risk{display:inline-block;border-radius:12px;padding:2px 8px;font-size:11px;font-weight:700}
-.risk-ok{background:#C8E6C9;color:#1B5E20}
-.risk-warn{background:#FFE0B2;color:#E65100}
-.risk-hi{background:#FFCDD2;color:#B71C1C}
-.risk-none{background:#E3F2FD;color:#1565C0}
-
-/* SEMAPHORE INDICATOR */
+.risk-ok{background:#C8E6C9;color:#1B5E20}.risk-warn{background:#FFE0B2;color:#E65100}
+.risk-hi{background:#FFCDD2;color:#B71C1C}.risk-none{background:#E3F2FD;color:#1565C0}
 .semaforo{width:12px;height:12px;border-radius:50%;display:inline-block;flex-shrink:0}
 .sem-g{background:#43A047}.sem-y{background:#FB8C00}.sem-r{background:#e53935}.sem-b{background:#90A4AE}
-
-/* SESSION LIST */
 .sess-list{list-style:none;max-height:500px;overflow-y:auto}
-.sess-item{display:flex;justify-content:space-between;align-items:center;
-  padding:9px 12px;border:1px solid var(--border);border-radius:6px;
-  margin-bottom:5px;background:#fff;cursor:pointer;transition:.15s}
-.sess-item:hover{background:var(--g5)}
-.sess-item.sel{background:var(--g5);border-color:var(--g3);font-weight:600}
-.sess-num{background:var(--g3);color:#fff;border-radius:50%;width:22px;height:22px;
-  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-
-/* STUDENT CARD */
-.stu-row{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--border);
-  border-radius:6px;background:#fff;margin-bottom:5px;cursor:pointer;transition:.15s}
+.sess-item{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border:1px solid var(--border);border-radius:6px;margin-bottom:5px;background:#fff;cursor:pointer;transition:.15s}
+.sess-item:hover{background:var(--g5)}.sess-item.sel{background:var(--g5);border-color:var(--g3);font-weight:600}
+.sess-num{background:var(--g3);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.stu-row{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--border);border-radius:6px;background:#fff;margin-bottom:5px;cursor:pointer;transition:.15s}
 .stu-row:hover{background:var(--g5)}
-.stu-avatar{width:34px;height:34px;border-radius:50%;background:var(--g3);color:#fff;
-  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
-.stu-name{font-weight:600;font-size:13px}
-.stu-meta{font-size:11px;color:var(--gray)}
-
-/* RUBRIC */
-.crit-row{display:flex;justify-content:space-between;align-items:center;
-  padding:10px 12px;border:1px solid var(--border);border-radius:6px;margin-bottom:7px;background:#FAFAFA}
-.crit-name{font-weight:600;color:var(--g1);flex:1}
-.crit-desc{font-size:11px;color:var(--gray)}
+.stu-avatar{width:34px;height:34px;border-radius:50%;background:var(--g3);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+.stu-name{font-weight:600;font-size:13px}.stu-meta{font-size:11px;color:var(--gray)}
+.crit-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:6px;margin-bottom:7px;background:#FAFAFA}
+.crit-name{font-weight:600;color:var(--g1);flex:1}.crit-desc{font-size:11px;color:var(--gray)}
 .pts-group{display:flex;gap:4px}
-.pts-btn{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);
-  background:#fff;font-weight:700;font-size:13px;cursor:pointer;transition:.15s}
+.pts-btn{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);background:#fff;font-weight:700;font-size:13px;cursor:pointer;transition:.15s}
 .pts-btn.sel{background:var(--g3);color:#fff;border-color:var(--g1)}
 .pts-btn:hover:not(.sel){background:var(--g5)}
-
-/* PROFILE */
-.profile-header{background:linear-gradient(135deg,var(--g1),var(--g3));color:#fff;
-  padding:20px;border-radius:var(--r);margin-bottom:14px;display:flex;align-items:center;gap:16px}
-.profile-avatar{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);
-  display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;flex-shrink:0}
-.profile-name{font-size:18px;font-weight:700}
-.profile-meta{font-size:12px;opacity:.85;margin-top:3px}
-
-/* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--g1);color:#fff;
-  padding:10px 18px;border-radius:8px;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.3);
-  z-index:9999;transition:opacity .4s;opacity:0;pointer-events:none}
+.profile-header{background:linear-gradient(135deg,var(--g1),var(--g3));color:#fff;padding:20px;border-radius:var(--r);margin-bottom:14px;display:flex;align-items:center;gap:16px}
+.profile-avatar{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;flex-shrink:0}
+.profile-name{font-size:18px;font-weight:700}.profile-meta{font-size:12px;opacity:.85;margin-top:3px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--g1);color:#fff;padding:10px 18px;border-radius:8px;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:9999;transition:opacity .4s;opacity:0;pointer-events:none}
 .toast.show{opacity:1}
-
-/* MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;
-  align-items:center;justify-content:center}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center}
 .modal-bg.open{display:flex}
-.modal{background:#fff;border-radius:12px;padding:24px;width:90%;max-width:560px;
-  max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.3)}
-.modal-title{font-size:16px;font-weight:700;color:var(--g1);margin-bottom:16px;
-  display:flex;justify-content:space-between;align-items:center}
+.modal{background:#fff;border-radius:12px;padding:24px;width:90%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.modal-title{font-size:16px;font-weight:700;color:var(--g1);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
 .modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray)}
-
-/* TABS within panels */
 .ptabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
-.ptab{padding:6px 14px;border-radius:20px;border:1px solid var(--border);
-  font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:var(--gray)}
+.ptab{padding:6px 14px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:var(--gray)}
 .ptab.active{background:var(--g3);color:#fff;border-color:var(--g3)}
-
-/* MISC */
 .sep{border:none;border-top:1px solid var(--border);margin:14px 0}
 .empty{text-align:center;color:var(--gray);padding:30px;font-style:italic}
-.tag{display:inline-block;background:var(--g5);color:var(--g1);border-radius:10px;
-  padding:2px 8px;font-size:11px;font-weight:600;margin:2px}
-.tag.blue{background:#E3F2FD;color:var(--blue)}
-.tag.orange{background:#FFF3E0;color:var(--orange)}
-.tag.red{background:#FFEBEE;color:var(--red)}
+.tag{display:inline-block;background:var(--g5);color:var(--g1);border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600;margin:2px}
+.tag.blue{background:#E3F2FD;color:var(--blue)}.tag.orange{background:#FFF3E0;color:var(--orange)}.tag.red{background:#FFEBEE;color:var(--red)}
 .flex{display:flex}.gap8{gap:8px}.gap4{gap:4px}.items-center{align-items:center}
 .mt8{margin-top:8px}.mt12{margin-top:12px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}
 .w100{width:100%}.fw7{font-weight:700}.text-sm{font-size:12px}.text-gray{color:var(--gray)}
 .scroll-y{overflow-y:auto;max-height:420px}
-
-/* ALERT BANNER */
-.alert-banner{display:flex;gap:8px;align-items:flex-start;padding:10px 14px;
-  border-radius:6px;margin-bottom:10px;font-size:13px}
+.alert-banner{display:flex;gap:8px;align-items:flex-start;padding:10px 14px;border-radius:6px;margin-bottom:10px;font-size:13px}
 .alert-banner.ok{background:#E8F5E9;border-left:4px solid #43A047}
 .alert-banner.warn{background:#FFF3E0;border-left:4px solid var(--orange)}
 .alert-banner.danger{background:#FFEBEE;border-left:4px solid var(--red)}
-
-@media(max-width:700px){
-  .grid2,.grid3,.grid4{grid-template-columns:1fr}
-  .hdr{flex-wrap:wrap}.hdr-right{margin-left:0;width:100%}
-}
+/* SYLLABUS */
+.syl-unit{background:#fff;border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}
+.syl-unit-hdr{background:linear-gradient(90deg,var(--g2),var(--g3));color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.syl-unit-hdr h3{font-size:14px;font-weight:700}
+.syl-unit-body{padding:14px}
+.syl-topic{display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;background:#fafafa;transition:.2s}
+.syl-topic.covered{background:#E8F5E9;border-color:#A5D6A7}
+.syl-topic-check{width:20px;height:20px;cursor:pointer;flex-shrink:0;margin-top:2px;accent-color:var(--g3)}
+.syl-topic-info{flex:1}
+.syl-topic-name{font-weight:700;font-size:13px;color:var(--g1)}
+.syl-subtopics{font-size:11px;color:var(--gray);margin-top:4px}
+.syl-micros{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+.micro-tag{background:#E8F5E9;color:#1B5E20;border:1px solid #A5D6A7;border-radius:10px;padding:2px 8px;font-size:11px}
+/* RESOURCES */
+.res-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;margin-bottom:4px;background:#fff}
+.res-icon{font-size:16px;flex-shrink:0}
+.res-name{flex:1;font-size:12px;word-break:break-all}
+/* CONFIG SECTIONS */
+.cfg-section{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:16px;margin-bottom:14px;border-left:4px solid var(--g3)}
+.cfg-section-title{font-size:14px;font-weight:700;color:var(--g1);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.custom-tab-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border:1px solid var(--border);border-radius:6px;margin-bottom:6px;background:#fafafa}
+@media(max-width:700px){.grid2,.grid3,.grid4{grid-template-columns:1fr}.hdr{flex-wrap:wrap}.hdr-right{margin-left:0;width:100%}}
 </style>
 </head>
 <body>
-
-<!-- HEADER -->
 <div class="hdr">
   <div class="hdr-logo" onclick="goTab('panel')">EAN</div>
   <div class="hdr-info">
@@ -217,10 +150,9 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
     <span class="badge" id="hdr-badge">36 Est.</span>
   </div>
 </div>
-
-<!-- NAV -->
 <nav class="nav">
   <button class="nav-btn active" data-tab="panel">🏠 Panel</button>
+  <button class="nav-btn" data-tab="syllabus">📚 Syllabus</button>
   <button class="nav-btn" data-tab="sesiones">📅 Sesiones</button>
   <button class="nav-btn" data-tab="evaluaciones">📝 Evaluaciones</button>
   <button class="nav-btn" data-tab="sustentaciones">🏆 Sustentaciones</button>
@@ -230,9 +162,7 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
   <button class="nav-btn" data-tab="config">⚙️ Config</button>
 </nav>
 
-<!-- ══════════════════════════════════════════════════
-     TAB 1: PANEL (Dashboard Overview)
-══════════════════════════════════════════════════ -->
+<!-- TAB: PANEL -->
 <div class="tab active" id="tab-panel">
   <div class="grid4 mb12">
     <div class="kpi"><div class="kpi-val" id="kpi-students">36</div><div class="kpi-label">Estudiantes</div></div>
@@ -240,38 +170,50 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
     <div class="kpi" id="kpi-att-card"><div class="kpi-val" id="kpi-att">—</div><div class="kpi-label">% Asistencia Prom.</div></div>
     <div class="kpi warn" id="kpi-risk-card"><div class="kpi-val" id="kpi-risk">0</div><div class="kpi-label">En Riesgo</div></div>
   </div>
-
   <div class="grid2">
-    <!-- Próxima / Última sesión -->
     <div class="card">
       <div class="card-title">📅 Estado de Sesiones</div>
       <div id="panel-sessions-summary"><div class="empty">Sin sesiones registradas aún.</div></div>
     </div>
-    <!-- Alertas de riesgo -->
     <div class="card warn">
       <div class="card-title">🚨 Alertas de Riesgo</div>
       <div id="panel-alerts"><div class="empty">Sin alertas — ¡todo en regla!</div></div>
     </div>
   </div>
-
   <div class="grid2">
     <div class="card">
-      <div class="card-title">📊 Distribución de Asistencia (última sesión)</div>
+      <div class="card-title">📊 Distribución Asistencia (última sesión)</div>
       <canvas id="chart-att-pie" height="180"></canvas>
     </div>
     <div class="card">
-      <div class="card-title">📈 Tendencia de Asistencia por Sesión</div>
+      <div class="card-title">📈 Tendencia de Asistencia</div>
       <canvas id="chart-att-line" height="180"></canvas>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════
-     TAB 2: SESIONES
-══════════════════════════════════════════════════ -->
+<!-- TAB: SYLLABUS -->
+<div class="tab" id="tab-syllabus">
+  <div class="card" style="border-left-color:var(--blue)">
+    <div class="card-title">📚 Avance del Syllabus — <span id="syl-course-name">CD360 Marketing</span></div>
+    <div class="grid4 mb12">
+      <div class="kpi blue"><div class="kpi-val" id="syl-covered">0</div><div class="kpi-label">Temas cubiertos</div></div>
+      <div class="kpi"><div class="kpi-val" id="syl-total">0</div><div class="kpi-label">Total temas</div></div>
+      <div class="kpi" id="syl-pct-card"><div class="kpi-val" id="syl-pct">0%</div><div class="kpi-label">% Avance</div></div>
+      <div class="kpi warn"><div class="kpi-val" id="syl-weeks-left">—</div><div class="kpi-label">Semanas restantes</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <span class="text-sm fw7 text-gray">Progreso general</span>
+      <div class="prog-wrap"><div class="prog-bar prog-g" id="syl-prog-bar" style="width:0%"></div></div>
+      <span class="text-sm fw7" id="syl-prog-pct">0%</span>
+    </div>
+  </div>
+  <div id="syl-units-container"></div>
+</div>
+
+<!-- TAB: SESIONES -->
 <div class="tab" id="tab-sesiones">
   <div class="grid2" style="align-items:start">
-    <!-- Left: Session list -->
     <div>
       <div class="card" style="margin-bottom:0">
         <div class="card-title" style="justify-content:space-between">
@@ -281,17 +223,13 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
         <ul class="sess-list" id="sess-list"></ul>
       </div>
     </div>
-
-    <!-- Right: Session detail -->
     <div id="sess-detail">
       <div class="card"><div class="empty">Selecciona o crea una sesión.</div></div>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════
-     TAB 3: EVALUACIONES
-══════════════════════════════════════════════════ -->
+<!-- TAB: EVALUACIONES -->
 <div class="tab" id="tab-evaluaciones">
   <div class="grid2" style="align-items:start">
     <div>
@@ -314,7 +252,7 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
             <button class="btn btn-g" onclick="addActivity()">Agregar</button></div>
         </div>
         <div id="act-list-wrap">
-          <div class="empty" id="act-empty">Sin actividades. Crea la primera.</div>
+          <div class="empty">Sin actividades. Crea la primera.</div>
         </div>
       </div>
     </div>
@@ -331,13 +269,10 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════
-     TAB 4: SUSTENTACIONES
-══════════════════════════════════════════════════ -->
+<!-- TAB: SUSTENTACIONES -->
 <div class="tab" id="tab-sustentaciones">
   <div class="grid2" style="align-items:start">
     <div>
-      <!-- List of rubrics / sustentaciones -->
       <div class="card">
         <div class="card-title" style="justify-content:space-between">
           🏆 Sustentaciones
@@ -352,9 +287,7 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════
-     TAB 5: GRUPOS
-══════════════════════════════════════════════════ -->
+<!-- TAB: GRUPOS -->
 <div class="tab" id="tab-grupos">
   <div class="card">
     <div class="card-title">➕ Crear / Editar Grupos</div>
@@ -377,9 +310,7 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
   <div class="groups-grid" id="groups-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px"></div>
 </div>
 
-<!-- ══════════════════════════════════════════════════
-     TAB 6: ESTUDIANTES
-══════════════════════════════════════════════════ -->
+<!-- TAB: ESTUDIANTES -->
 <div class="tab" id="tab-estudiantes">
   <div class="grid2" style="align-items:start">
     <div>
@@ -395,9 +326,7 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════
-     TAB 7: ANALYTICS
-══════════════════════════════════════════════════ -->
+<!-- TAB: ANALYTICS -->
 <div class="tab" id="tab-analytics">
   <div class="grid2 mb12">
     <div class="card">
@@ -421,14 +350,13 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════
-     TAB 8: CONFIG
-══════════════════════════════════════════════════ -->
+<!-- TAB: CONFIG -->
 <div class="tab" id="tab-config">
   <div class="grid2">
     <div>
-      <div class="card">
-        <div class="card-title">🎓 Datos del Curso</div>
+      <!-- Datos del curso -->
+      <div class="cfg-section">
+        <div class="cfg-section-title">🎓 Datos del Curso</div>
         <div class="form-row"><div class="fld w100"><label>Nombre del Curso</label>
           <input id="cfg-name" value="COMUNICACIÓN DIGITAL 360 MARKETING"></div></div>
         <div class="form-row">
@@ -443,13 +371,13 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
           <input id="cfg-prof" value="Prof. Jorge Hugo Pérez Gaona"></div></div>
         <div class="form-row">
           <div class="fld" style="flex:1"><label>Semanas totales</label><input id="cfg-weeks" type="number" value="16"></div>
-          <div class="fld" style="flex:1"><label>Faltas máx permitidas</label><input id="cfg-maxabs" type="number" value="3"></div>
+          <div class="fld" style="flex:1"><label>Faltas máx</label><input id="cfg-maxabs" type="number" value="3"></div>
         </div>
         <button class="btn btn-g mt8" onclick="saveCourseConfig()">💾 Guardar Configuración</button>
       </div>
-
-      <div class="card info">
-        <div class="card-title">🔑 GitHub — Base de Datos</div>
+      <!-- GitHub -->
+      <div class="cfg-section" style="border-left-color:var(--blue)">
+        <div class="cfg-section-title">🔑 GitHub — Base de Datos</div>
         <div class="form-row"><div class="fld w100"><label>Token de GitHub</label>
           <input id="cfg-token" type="password" placeholder="ghp_xxxxxxxxxxxx">
           <small class="text-gray text-sm">Se guarda en el navegador, nunca en el archivo.</small></div></div>
@@ -457,25 +385,51 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
           <div class="fld" style="flex:1"><label>Owner</label><input id="cfg-gh-owner" value="jorgeicone"></div>
           <div class="fld" style="flex:1"><label>Repo</label><input id="cfg-gh-repo" value="docadmin-clase-v2"></div>
         </div>
-        <button class="btn btn-blue" onclick="testGhConnection()">🔗 Probar Conexión</button>
-        <button class="btn btn-g" style="margin-left:8px" onclick="ghSaveAll()">☁️ Guardar Todo en GitHub</button>
-        <button class="btn btn-gray" style="margin-left:8px" onclick="ghLoad()">⬇️ Cargar desde GitHub</button>
+        <div class="flex gap8 flex-wrap">
+          <button class="btn btn-blue" onclick="testGhConnection()">🔗 Probar Conexión</button>
+          <button class="btn btn-g" onclick="ghSaveAll()">☁️ Guardar Todo</button>
+          <button class="btn btn-gray" onclick="ghLoad()">⬇️ Cargar desde GitHub</button>
+        </div>
+      </div>
+      <!-- Migración V1 -->
+      <div class="cfg-section" style="border-left-color:var(--orange)">
+        <div class="cfg-section-title">🔄 Migración desde App Anterior (V1)</div>
+        <p class="text-sm text-gray mb8">Importa sesiones y datos del dashboard anterior (eandash_*) guardados en este navegador.</p>
+        <div class="flex gap8">
+          <button class="btn btn-orange" onclick="migrateFromV1()">📥 Buscar e Importar Datos V1</button>
+          <button class="btn btn-out btn-sm" onclick="showV1Keys()">🔍 Ver datos disponibles</button>
+        </div>
+        <div id="v1-preview" class="mt8"></div>
       </div>
     </div>
-
     <div>
-      <div class="card">
-        <div class="card-title" style="justify-content:space-between">
+      <!-- Lista de Estudiantes -->
+      <div class="cfg-section">
+        <div class="cfg-section-title" style="justify-content:space-between">
           👥 Lista de Estudiantes
           <span class="tag" id="stu-count-tag">36 estudiantes</span>
         </div>
-        <textarea id="cfg-students" style="width:100%;height:320px;font-size:12px;font-family:monospace;resize:vertical"
+        <textarea id="cfg-students" style="width:100%;height:260px;font-size:12px;font-family:monospace;resize:vertical"
           placeholder="CC|Nombre completo (uno por línea)"></textarea>
         <button class="btn btn-g mt8" onclick="saveStudentList()">💾 Actualizar Lista</button>
       </div>
-
-      <div class="card">
-        <div class="card-title">💾 Exportar / Importar</div>
+      <!-- Pestañas personalizadas -->
+      <div class="cfg-section" style="border-left-color:var(--blue)">
+        <div class="cfg-section-title">🧩 Pestañas Adicionales</div>
+        <p class="text-sm text-gray mb8">Agrega pestañas personalizadas con contenido libre (notas, recursos extra, rúbricas especiales, etc.)</p>
+        <div class="form-row">
+          <div class="fld" style="flex:2"><label>Nombre de la pestaña</label>
+            <input id="ctab-name" placeholder="Ej: Laboratorio, Rúbrica Final..."></div>
+          <div class="fld"><label>Ícono</label>
+            <input id="ctab-icon" placeholder="🔬" style="width:60px"></div>
+          <div class="fld"><label>&nbsp;</label>
+            <button class="btn btn-blue" onclick="addCustomTab()">＋ Agregar</button></div>
+        </div>
+        <div id="custom-tabs-list"></div>
+      </div>
+      <!-- Exportar / Importar -->
+      <div class="cfg-section">
+        <div class="cfg-section-title">💾 Exportar / Importar</div>
         <div class="flex gap8 flex-wrap">
           <button class="btn btn-out btn-sm" onclick="exportJSON()">⬇️ Exportar JSON</button>
           <button class="btn btn-out btn-sm" onclick="exportCSV()">⬇️ Exportar CSV</button>
@@ -487,7 +441,10 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
   </div>
 </div>
 
-<!-- ══ MODAL: Nueva Sustentación ══ -->
+<!-- Custom tab containers (generated dynamically) -->
+<div id="custom-tabs-content"></div>
+
+<!-- Modal: Nueva Sustentación -->
 <div class="modal-bg" id="modal-sust">
   <div class="modal">
     <div class="modal-title">🏆 Nueva Sustentación
@@ -512,156 +469,131 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+<!-- Hidden file input for resources -->
+<input type="file" id="res-file-input" multiple style="display:none" accept="*/*">
+<input type="file" id="act-file-input" multiple style="display:none" accept="*/*">
 
+<div class="toast" id="toast"></div>
 <script>
-// ═══════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════
-const DEFAULT_STUDENTS = [
-  {id:"1000077541",name:"Tinoco Ruiz Sofía"},
-  {id:"1000350624",name:"Rondón Leguizamo Guillermo Andrés"},
-  {id:"1011100245",name:"Villa Fajardo Zarith Juliana"},
-  {id:"1013106028",name:"Muriel Salgado Juan Sebastián"},
-  {id:"1013256390",name:"Cifuentes Martínez Camila Alejandra"},
-  {id:"1013263957",name:"Garzón Moya Juan Jerónimo"},
-  {id:"1014861582",name:"Mahecha Lázaro Sebastián"},
-  {id:"1014997827",name:"Hernández Muñoz María José"},
-  {id:"1016596401",name:"Lozano Álvarez Yesenia Sophia"},
-  {id:"1016951985",name:"Pérez Cortés María José"},
-  {id:"1019764949",name:"Norato Burgos Valerie"},
-  {id:"1019843108",name:"Romero Rojas Juliana Sofía"},
-  {id:"1021397707",name:"Martínez Martínez Laura Juliana"},
-  {id:"1021675662",name:"Riaño Pachón Laura Andrea"},
-  {id:"1023369961",name:"Rodríguez Salcedo Karol Valentina"},
-  {id:"1023375110",name:"Segura Rojas Ninny Carolina"},
-  {id:"1023891376",name:"Trujillo Ríos Andrea Catalina"},
-  {id:"1027151839",name:"Acevedo Caro Juan Diego"},
-  {id:"1028663002",name:"Galvis Triana Michel Fernanda"},
-  {id:"1028863347",name:"Aragón Calderón Verónica Ester"},
-  {id:"1029143351",name:"Castillo Vargas Karen Stefanny"},
-  {id:"1029144591",name:"Fernández Rueda Laura Natalia"},
-  {id:"1029660441",name:"Chica Vega Sara Alejandra"},
-  {id:"1030557501",name:"Aunta Munar Danna Valentina"},
-  {id:"1031541266",name:"Camacho Rico Juan Esteban"},
-  {id:"1031805029",name:"Ángel Rojas Nashua Silvana"},
-  {id:"1032877570",name:"Vila Peña Laura Sofía"},
-  {id:"1033102053",name:"Dávila González Sara Lucía"},
-  {id:"1033102176",name:"Lopera Cristiano Valentina"},
-  {id:"1033710696",name:"Brand Mendieta Gabriela"},
-  {id:"1034577536",name:"Díaz Moreno Juliana"},
-  {id:"1040874338",name:"Urrea Ramírez Mariana"},
-  {id:"1070007994",name:"Canastero Venegas Isabel Sofía"},
-  {id:"1141317881",name:"Laverde Vargas Sara Valentina"},
-  {id:"1013108778",name:"Castelblanco Moreno Paula Alejandra"},
-  {id:"1127242102",name:"Niño Díaz Lucas Eduardo"}
+// ═══════════ DEFAULT SYLLABUS ═══════════
+const DEFAULT_SYLLABUS=[
+  {id:'u1',name:'Unidad 1: Identidad de Negocio Digital',weeks:'1-4',color:'#1565C0',topics:[
+    {id:'t1_1',name:'Perfil de Negocio Digital',subtopics:['Nombre, UVP y diferenciación','Categorías de negocio digital','Propuesta de valor única'],microLogros:['Definir propuesta de valor única del negocio','Identificar categoría digital y segmento objetivo','Articular diferenciadores frente a la competencia']},
+    {id:'t1_2',name:'Buyer Persona y Avatar del Cliente',subtopics:['Datos demográficos y psicográficos','Pain points e intereses','Jobs to be done'],microLogros:['Construir avatar del cliente ideal con datos reales','Mapear 3 pain points y motivadores clave','Aplicar metodología de entrevistas a usuarios']},
+    {id:'t1_3',name:'Análisis de Competencia Digital',subtopics:['Benchmarking digital','Ventajas competitivas','Gaps del mercado'],microLogros:['Analizar 3 competidores en canales digitales','Identificar oportunidades de diferenciación','Construir matriz comparativa de competidores']}
+  ]},
+  {id:'u2',name:'Unidad 2: Estrategia y Planeación Digital',weeks:'5-9',color:'#4A148C',topics:[
+    {id:'t2_1',name:'Ecosistema Digital',subtopics:['Selección y jerarquía de canales','Integración multicanal','Arquitectura digital'],microLogros:['Seleccionar y justificar 3 canales digitales clave','Diseñar arquitectura del ecosistema del negocio','Mapear flujo de usuario entre canales']},
+    {id:'t2_2',name:'Customer Journey Map',subtopics:['Fases awareness → decisión → lealtad','Touchpoints digitales','Momentos de verdad'],microLogros:['Mapear customer journey completo en 5 etapas','Identificar touchpoints críticos y fricciones','Diseñar CJM visual para el proyecto']},
+    {id:'t2_3',name:'Objetivos SMART y OKRs',subtopics:['Metas SMART digitales','KPIs y métricas','OKRs para negocio digital'],microLogros:['Formular mínimo 3 objetivos SMART','Definir KPIs medibles para cada canal','Establecer OKR para el semestre']},
+    {id:'t2_4',name:'Planeación de Campañas Digitales',subtopics:['Brief de campaña','Calendario de medios','Presupuesto digital'],microLogros:['Crear brief completo de campaña digital','Construir calendario editorial mensual','Estimar presupuesto básico de campaña']}
+  ]},
+  {id:'u3',name:'Unidad 3: Comunidad, Contenido y Social Media',weeks:'10-13',color:'#1B5E20',topics:[
+    {id:'t3_1',name:'Estrategia de Contenido',subtopics:['Pilares de contenido','Formatos y narrativas','Calendarios editoriales'],microLogros:['Definir 3 pilares de contenido alineados al negocio','Planificar calendario editorial semanal','Crear 5 piezas de contenido diferenciadas']},
+    {id:'t3_2',name:'Social Media Marketing',subtopics:['Plataformas por nicho','Algoritmos y alcance orgánico','Estrategias de engagement'],microLogros:['Optimizar perfil en 2 redes sociales clave','Implementar estrategia de hashtags','Analizar métricas de alcance e interacción']},
+    {id:'t3_3',name:'Email Marketing y Automatización',subtopics:['Listas y segmentación','Secuencias automatizadas','Funnels de conversión'],microLogros:['Diseñar secuencia de emails de bienvenida','Configurar funnel básico de captación','Segmentar base de contactos por comportamiento']},
+    {id:'t3_4',name:'Influencer y Marketing de Comunidad',subtopics:['Tipos de influencers','Co-creación de contenido','Comunidades digitales'],microLogros:['Identificar influencers clave para el nicho','Diseñar propuesta de colaboración','Estrategia de construcción de comunidad']}
+  ]},
+  {id:'u4',name:'Unidad 4: Analítica, Optimización y Cierre',weeks:'14-16',color:'#B71C1C',topics:[
+    {id:'t4_1',name:'Analítica Web y Social',subtopics:['Google Analytics 4','Meta Business Suite','Dashboard de métricas'],microLogros:['Configurar e interpretar GA4','Calcular ROI básico de canales digitales','Crear dashboard personalizado de KPIs']},
+    {id:'t4_2',name:'Optimización y A/B Testing',subtopics:['CRO y optimización','Pruebas A/B','Growth hacking'],microLogros:['Diseñar e implementar prueba A/B básica','Identificar 3 palancas de optimización','Aplicar framework de growth hacking']},
+    {id:'t4_3',name:'Presentación Estrategia Digital Final',subtopics:['Síntesis del proyecto integrador','Pitch deck profesional','Defensa con datos'],microLogros:['Construir pitch deck completo (10 diapositivas)','Defender estrategia con métricas y resultados','Demostrar dominio integral del ecosistema digital']}
+  ]}
 ];
 
-const DEFAULT_GROUPS = {
-  g_01:{id:"g_01",name:"Yoga Serena",   members:["1016596401","1029143351","1031541266","1029660441","1019764949"]},
-  g_02:{id:"g_02",name:"Renacer Vital", members:["1031805029","1021397707","1028663002","1141317881","1023369961"]},
-  g_03:{id:"g_03",name:"Aura Studio",   members:["1033710696","1023891376","1014997827","1029144591","1021675662"]},
-  g_04:{id:"g_04",name:"Canta y Come",  members:["1000077541","1016951985","1011100245","1000350624","1040874338","1013108778"]},
-  g_05:{id:"g_05",name:"Axis",          members:["1013106028","1032877570","1014861582","1027151839","1127242102"]},
-  g_06:{id:"g_06",name:"Nara Nails",    members:["1023375110","1070007994","1013256390","1019843108"]},
+const DEFAULT_STUDENTS=[
+  {id:"1000077541",name:"Tinoco Ruiz Sofía"},{id:"1000350624",name:"Rondón Leguizamo Guillermo Andrés"},
+  {id:"1011100245",name:"Villa Fajardo Zarith Juliana"},{id:"1013106028",name:"Muriel Salgado Juan Sebastián"},
+  {id:"1013256390",name:"Cifuentes Martínez Camila Alejandra"},{id:"1013263957",name:"Garzón Moya Juan Jerónimo"},
+  {id:"1014861582",name:"Mahecha Lázaro Sebastián"},{id:"1014997827",name:"Hernández Muñoz María José"},
+  {id:"1016596401",name:"Lozano Álvarez Yesenia Sophia"},{id:"1016951985",name:"Pérez Cortés María José"},
+  {id:"1019764949",name:"Norato Burgos Valerie"},{id:"1019843108",name:"Romero Rojas Juliana Sofía"},
+  {id:"1021397707",name:"Martínez Martínez Laura Juliana"},{id:"1021675662",name:"Riaño Pachón Laura Andrea"},
+  {id:"1023369961",name:"Rodríguez Salcedo Karol Valentina"},{id:"1023375110",name:"Segura Rojas Ninny Carolina"},
+  {id:"1023891376",name:"Trujillo Ríos Andrea Catalina"},{id:"1027151839",name:"Acevedo Caro Juan Diego"},
+  {id:"1028663002",name:"Galvis Triana Michel Fernanda"},{id:"1028863347",name:"Aragón Calderón Verónica Ester"},
+  {id:"1029143351",name:"Castillo Vargas Karen Stefanny"},{id:"1029144591",name:"Fernández Rueda Laura Natalia"},
+  {id:"1029660441",name:"Chica Vega Sara Alejandra"},{id:"1030557501",name:"Aunta Munar Danna Valentina"},
+  {id:"1031541266",name:"Camacho Rico Juan Esteban"},{id:"1031805029",name:"Ángel Rojas Nashua Silvana"},
+  {id:"1032877570",name:"Vila Peña Laura Sofía"},{id:"1033102053",name:"Dávila González Sara Lucía"},
+  {id:"1033102176",name:"Lopera Cristiano Valentina"},{id:"1033710696",name:"Brand Mendieta Gabriela"},
+  {id:"1034577536",name:"Díaz Moreno Juliana"},{id:"1040874338",name:"Urrea Ramírez Mariana"},
+  {id:"1070007994",name:"Canastero Venegas Isabel Sofía"},{id:"1141317881",name:"Laverde Vargas Sara Valentina"},
+  {id:"1013108778",name:"Castelblanco Moreno Paula Alejandra"},{id:"1127242102",name:"Niño Díaz Lucas Eduardo"}
+];
+
+const DEFAULT_GROUPS={
+  g_01:{id:"g_01",name:"Yoga Serena",members:["1016596401","1029143351","1031541266","1029660441","1019764949"]},
+  g_02:{id:"g_02",name:"Renacer Vital",members:["1031805029","1021397707","1028663002","1141317881","1023369961"]},
+  g_03:{id:"g_03",name:"Aura Studio",members:["1033710696","1023891376","1014997827","1029144591","1021675662"]},
+  g_04:{id:"g_04",name:"Canta y Come",members:["1000077541","1016951985","1011100245","1000350624","1040874338","1013108778"]},
+  g_05:{id:"g_05",name:"Axis",members:["1013106028","1032877570","1014861582","1027151839","1127242102"]},
+  g_06:{id:"g_06",name:"Nara Nails",members:["1023375110","1070007994","1013256390","1019843108"]},
   g_07:{id:"g_07",name:"Armonía Lashes",members:["1028863347","1030557501","1033102176","1013263957","1034577536"]}
 };
 
-let S = {
-  config:{
-    courseName:"COMUNICACIÓN DIGITAL 360 MARKETING",
-    code:"AFPN0093", group:"S1G1 2026-001", room:"N412",
-    schedule:"Martes 14:00–16:00", professor:"Prof. Jorge Hugo Pérez Gaona",
-    totalWeeks:16, maxAbsences:3,
-    students: DEFAULT_STUDENTS
-  },
-  sessions:[],
-  activities:[],
-  grades:{},
-  sustentaciones:[],
-  sustScores:{},
-  groups: DEFAULT_GROUPS,
-  notes:[]
+let S={
+  config:{courseName:"COMUNICACIÓN DIGITAL 360 MARKETING",code:"AFPN0093",group:"S1G1 2026-001",room:"N412",schedule:"Martes 14:00–16:00",professor:"Prof. Jorge Hugo Pérez Gaona",totalWeeks:16,maxAbsences:3,students:DEFAULT_STUDENTS},
+  sessions:[],activities:[],grades:{},sustentaciones:[],sustScores:{},groups:DEFAULT_GROUPS,notes:[],
+  syllabus:DEFAULT_SYLLABUS,coveredTopics:[],activityFiles:{},customTabs:[]
 };
 
-let currentSessId = null;
-let currentSustId = null;
-let currentStudentId = null;
-let msNewCriteria = [];
-let chartPie=null, chartLine=null, chartAnaLine=null, chartSustBar=null;
+let currentSessId=null,currentSustId=null,currentStudentId=null,msNewCriteria=[];
+let chartPie=null,chartLine=null,chartAnaLine=null,chartSustBar=null;
 
-// ═══════════════════════════════════════════════
-//  GITHUB PERSISTENCE
-// ═══════════════════════════════════════════════
-function ghToken(){ return localStorage.getItem('docadmin_gh_token')||''; }
-function ghOwner(){ return (document.getElementById('cfg-gh-owner')||{}).value||'jorgeicone'; }
-function ghRepo(){  return (document.getElementById('cfg-gh-repo')||{}).value||'docadmin-clase-v2'; }
+// ═══════════ GITHUB ═══════════
+function ghToken(){return localStorage.getItem('docadmin_gh_token')||'';}
+function ghOwner(){return(document.getElementById('cfg-gh-owner')||{}).value||'jorgeicone';}
+function ghRepo(){return(document.getElementById('cfg-gh-repo')||{}).value||'docadmin-clase-v2';}
 
 async function ghSaveAll(){
-  const tk = ghToken();
-  if(!tk){ toast('⚠️ Configura tu token de GitHub primero.',true); return; }
-  const owner=ghOwner(), repo=ghRepo(), file='data.json';
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(S,null,2))));
-  try {
+  const tk=ghToken();
+  if(!tk){toast('⚠️ Configura tu token primero.',true);return;}
+  const owner=ghOwner(),repo=ghRepo(),file='data.json';
+  // Exclude large base64 data from cloud save to keep file small
+  const saveState=JSON.parse(JSON.stringify(S));
+  saveState.sessions.forEach(s=>{if(s.resources)s.resources=s.resources.map(r=>r.type==='file'?{...r,content:'[archivo-local]'}:r);});
+  const content=btoa(unescape(encodeURIComponent(JSON.stringify(saveState,null,2))));
+  try{
     toast('☁️ Guardando en GitHub…');
-    // check if file exists
     let sha=null;
-    try{
-      const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}`,
-        {headers:{Authorization:'token '+tk}});
-      if(r.ok){ const d=await r.json(); sha=d.sha; }
-    }catch(e){}
-    // ensure repo exists
-    const rr=await fetch(`https://api.github.com/repos/${owner}/${repo}`,
-      {headers:{Authorization:'token '+tk}});
-    if(!rr.ok){
-      await fetch('https://api.github.com/user/repos',{
-        method:'POST',headers:{Authorization:'token '+tk,'Content-Type':'application/json'},
-        body:JSON.stringify({name:repo,description:'DocAdmin Clase V2',auto_init:true,private:false})
-      });
-      await new Promise(r=>setTimeout(r,2000));
-    }
-    const body={message:`Update data ${new Date().toISOString()}`,content};
-    if(sha) body.sha=sha;
-    const up=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}`,
-      {method:'PUT',headers:{Authorization:'token '+tk,'Content-Type':'application/json'},
-       body:JSON.stringify(body)});
-    if(up.ok){
-      setGhStatus(true);
-      toast('✅ Guardado en GitHub correctamente');
-    } else throw new Error(await up.text());
-  } catch(e){ toast('❌ Error: '+e.message,true); setGhStatus(false); }
+    try{const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}`,{headers:{Authorization:'token '+tk}});if(r.ok){const d=await r.json();sha=d.sha;}}catch(e){}
+    const rr=await fetch(`https://api.github.com/repos/${owner}/${repo}`,{headers:{Authorization:'token '+tk}});
+    if(!rr.ok){await fetch('https://api.github.com/user/repos',{method:'POST',headers:{Authorization:'token '+tk,'Content-Type':'application/json'},body:JSON.stringify({name:repo,auto_init:true,private:false})});await new Promise(r=>setTimeout(r,2000));}
+    const body={message:`Update ${new Date().toISOString()}`,content};
+    if(sha)body.sha=sha;
+    const up=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}`,{method:'PUT',headers:{Authorization:'token '+tk,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(up.ok){setGhStatus(true);toast('✅ Guardado en GitHub');}
+    else throw new Error(await up.text());
+  }catch(e){toast('❌ Error: '+e.message,true);setGhStatus(false);}
 }
 
 async function ghLoad(){
-  const tk=ghToken();
-  if(!tk){ toast('⚠️ Sin token.',true); return; }
-  const owner=ghOwner(), repo=ghRepo(), file='data.json';
-  try {
+  const tk=ghToken();if(!tk){toast('⚠️ Sin token.',true);return;}
+  const owner=ghOwner(),repo=ghRepo(),file='data.json';
+  try{
     toast('⬇️ Cargando desde GitHub…');
-    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}`,
-      {headers:{Authorization:'token '+tk}});
-    if(!r.ok) throw new Error('No se encontró el archivo.');
+    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${file}`,{headers:{Authorization:'token '+tk}});
+    if(!r.ok)throw new Error('Archivo no encontrado.');
     const d=await r.json();
     const decoded=JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))));
     S={...S,...decoded};
-    setGhStatus(true);
-    renderAll();
-    toast('✅ Datos cargados desde GitHub');
-  } catch(e){ toast('❌ '+e.message,true); }
+    if(!S.syllabus||!S.syllabus.length)S.syllabus=DEFAULT_SYLLABUS;
+    if(!S.coveredTopics)S.coveredTopics=[];
+    if(!S.activityFiles)S.activityFiles={};
+    if(!S.customTabs)S.customTabs=[];
+    setGhStatus(true);renderAll();toast('✅ Datos cargados desde GitHub');
+  }catch(e){toast('❌ '+e.message,true);}
 }
 
 async function testGhConnection(){
   const tk=document.getElementById('cfg-token').value.trim();
-  if(tk) localStorage.setItem('docadmin_gh_token',tk);
-  const owner=ghOwner(), repo=ghRepo();
-  try {
-    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}`,
-      {headers:{Authorization:'token '+ghToken()}});
-    if(r.ok){ setGhStatus(true); toast('✅ Conexión exitosa'); }
-    else{ setGhStatus(false); toast('⚠️ Repo no existe aún — se creará al guardar',true); }
-  } catch(e){ toast('❌ '+e.message,true); }
+  if(tk)localStorage.setItem('docadmin_gh_token',tk);
+  try{
+    const r=await fetch(`https://api.github.com/repos/${ghOwner()}/${ghRepo()}`,{headers:{Authorization:'token '+ghToken()}});
+    if(r.ok){setGhStatus(true);toast('✅ Conexión exitosa');}
+    else{setGhStatus(false);toast('⚠️ Repo no existe aún — se creará al guardar',true);}
+  }catch(e){toast('❌ '+e.message,true);}
 }
 
 function setGhStatus(ok){
@@ -669,163 +601,225 @@ function setGhStatus(ok){
   document.getElementById('gh-label').textContent=ok?'GitHub ✓':'Sin conectar';
 }
 
-// ═══════════════════════════════════════════════
-//  HELPERS
-// ═══════════════════════════════════════════════
+// ═══════════ HELPERS ═══════════
 function toast(msg,warn=false){
   const t=document.getElementById('toast');
-  t.textContent=msg; t.style.background=warn?'#bf360c':'#1B5E20';
-  t.classList.add('show'); clearTimeout(t._to);
-  t._to=setTimeout(()=>t.classList.remove('show'),2800);
+  t.textContent=msg;t.style.background=warn?'#bf360c':'#1B5E20';
+  t.classList.add('show');clearTimeout(t._to);t._to=setTimeout(()=>t.classList.remove('show'),2800);
 }
-function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-function fmtDate(d){ if(!d)return''; try{return new Date(d+'T12:00:00').toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'2-digit'})}catch{return d} }
-function stu(id){ return S.config.students.find(s=>s.id===id)||{id,name:'Desconocido'}; }
-function stuInitials(name){ return name.split(' ').slice(-2).map(n=>n[0]||'').join('').toUpperCase(); }
-function goTab(tab){ document.querySelector(`[data-tab="${tab}"]`)?.click(); }
-function openModal(id){ document.getElementById(id).classList.add('open'); }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-function ls(k){ try{return JSON.parse(localStorage.getItem('da2_'+k))||null}catch{return null} }
-function ss(k,v){ localStorage.setItem('da2_'+k,JSON.stringify(v)); }
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function fmtDate(d){if(!d)return'';try{return new Date(d+'T12:00:00').toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'2-digit'})}catch{return d}}
+function stu(id){return S.config.students.find(s=>s.id===id)||{id,name:'Desconocido'};}
+function stuInitials(name){return name.split(' ').slice(-2).map(n=>n[0]||'').join('').toUpperCase();}
+function goTab(tab){document.querySelector(`[data-tab="${tab}"]`)?.click();}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function ssLocal(){localStorage.setItem('docadmin_v2_state',JSON.stringify(S));}
+function getGroupOfStudent(sid){return Object.values(S.groups).find(g=>g.members.includes(sid));}
 
-function getGroupOfStudent(sid){
-  return Object.values(S.groups).find(g=>g.members.includes(sid));
-}
-
-// Risk calculation: green=0 risk, yellow=1-2 absences, red=3+
 function calcRisk(sid){
-  const maxAbs = S.config.maxAbsences||3;
-  let abs=0, sessions=S.sessions.filter(s=>s.attendance&&s.attendance[sid]);
-  sessions.forEach(s=>{
-    const st=s.attendance[sid]?.status;
-    if(st==='A') abs++;
-    else if(st==='T') abs+=0.5;
-  });
-  if(sessions.length===0) return {level:'none',abs,sessions:0};
-  const pct = sessions.length>0?Math.round(((sessions.length-abs)/sessions.length)*100):100;
-  if(abs>=maxAbs) return {level:'hi',abs,pct,sessions:sessions.length};
-  if(abs>=maxAbs-1) return {level:'warn',abs,pct,sessions:sessions.length};
-  return {level:'ok',abs,pct,sessions:sessions.length};
+  const maxAbs=S.config.maxAbsences||3;
+  let abs=0,sessions=S.sessions.filter(s=>s.attendance&&s.attendance[sid]);
+  sessions.forEach(s=>{const st=s.attendance[sid]?.status;if(st==='A')abs++;else if(st==='T')abs+=0.5;});
+  if(!sessions.length)return{level:'none',abs,sessions:0};
+  const pct=Math.round(((sessions.length-abs)/sessions.length)*100);
+  if(abs>=maxAbs)return{level:'hi',abs,pct,sessions:sessions.length};
+  if(abs>=maxAbs-1)return{level:'warn',abs,pct,sessions:sessions.length};
+  return{level:'ok',abs,pct,sessions:sessions.length};
 }
 
 function avgAtt(){
-  if(!S.sessions.length) return null;
-  const students=S.config.students;
+  if(!S.sessions.length)return null;
   let total=0,count=0;
-  students.forEach(s=>{ const r=calcRisk(s.id); if(r.sessions>0){total+=r.pct;count++;} });
+  S.config.students.forEach(s=>{const r=calcRisk(s.id);if(r.sessions>0){total+=r.pct;count++;}});
   return count>0?Math.round(total/count):null;
 }
 
-// ═══════════════════════════════════════════════
-//  NAVIGATION
-// ═══════════════════════════════════════════════
+function attPct(sess){
+  if(!sess.attendance)return 0;
+  const n=S.config.students.length;
+  const p=Object.values(sess.attendance).filter(a=>a.status==='P'||a.status==='T').length;
+  return Math.round((p/n)*100);
+}
+
+// ═══════════ SYLLABUS HELPERS ═══════════
+function getAllTopics(){
+  const topics=[];
+  (S.syllabus||[]).forEach(u=>(u.topics||[]).forEach(t=>topics.push({...t,unitId:u.id,unitName:u.name})));
+  return topics;
+}
+
+function findTopicById(id){
+  for(const u of(S.syllabus||[])){for(const t of(u.topics||[])){if(t.id===id)return{topic:t,unit:u};}}
+  return null;
+}
+
+function buildTopicOptions(selected=''){
+  let opts='<option value="">— Selecciona tema del syllabus —</option>';
+  (S.syllabus||[]).forEach(u=>{
+    opts+=`<optgroup label="${u.name} (Sem. ${u.weeks})">`;
+    (u.topics||[]).forEach(t=>{
+      const cov=(S.coveredTopics||[]).includes(t.id)?'✓ ':'';
+      opts+=`<option value="${t.id}"${selected===t.id?' selected':''}>${cov}${t.name}</option>`;
+    });
+    opts+='</optgroup>';
+  });
+  return opts;
+}
+
+// ═══════════ NAVIGATION ═══════════
 document.querySelectorAll('.nav-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    const tabEl=document.getElementById('tab-'+btn.dataset.tab);
+    if(tabEl)tabEl.classList.add('active');
     renderTab(btn.dataset.tab);
   });
 });
 
 function renderTab(tab){
-  if(tab==='panel') renderPanel();
-  else if(tab==='sesiones') renderSessionList();
-  else if(tab==='evaluaciones') renderActivities();
-  else if(tab==='sustentaciones') renderSustList();
-  else if(tab==='grupos') renderGroups();
-  else if(tab==='estudiantes') renderStudentList();
-  else if(tab==='analytics') renderAnalytics();
-  else if(tab==='config') renderConfig();
+  if(tab==='panel')renderPanel();
+  else if(tab==='syllabus')renderSyllabus();
+  else if(tab==='sesiones')renderSessionList();
+  else if(tab==='evaluaciones')renderActivities();
+  else if(tab==='sustentaciones')renderSustList();
+  else if(tab==='grupos')renderGroups();
+  else if(tab==='estudiantes')renderStudentList();
+  else if(tab==='analytics')renderAnalytics();
+  else if(tab==='config')renderConfig();
 }
 
-// ═══════════════════════════════════════════════
-//  PANEL
-// ═══════════════════════════════════════════════
+// ═══════════ PANEL ═══════════
 function renderPanel(){
   const n=S.config.students.length;
   document.getElementById('kpi-students').textContent=n;
   document.getElementById('hdr-badge').textContent=n+' Est.';
   document.getElementById('kpi-sessions').textContent=S.sessions.length;
-
   const att=avgAtt();
-  const attEl=document.getElementById('kpi-att');
-  attEl.textContent=att!==null?att+'%':'—';
-  const attCard=document.getElementById('kpi-att-card');
-  attCard.className='kpi'+(att<70?' danger':att<85?' warn':'');
-
+  document.getElementById('kpi-att').textContent=att!==null?att+'%':'—';
+  document.getElementById('kpi-att-card').className='kpi'+(att!==null&&att<70?' danger':att!==null&&att<85?' warn':'');
   const atRisk=S.config.students.filter(s=>calcRisk(s.id).level==='hi').length;
   document.getElementById('kpi-risk').textContent=atRisk;
   document.getElementById('kpi-risk-card').className='kpi'+(atRisk>0?' danger':' warn');
-
-  // Session summary
   const ss=S.sessions.slice(-3).reverse();
-  document.getElementById('panel-sessions-summary').innerHTML=ss.length?
-    ss.map(s=>`<div class="sess-item" onclick="goTab('sesiones')">
+  document.getElementById('panel-sessions-summary').innerHTML=ss.length?ss.map(s=>`
+    <div class="sess-item" onclick="goTab('sesiones')">
       <span class="sess-num">${S.sessions.indexOf(s)+1}</span>
       <div style="flex:1;margin-left:10px">
         <div class="fw7">${s.topic||'Sin tema'}</div>
         <div class="text-sm text-gray">${fmtDate(s.date)} · Semana ${s.week||'?'}</div>
       </div>
       <span class="risk risk-ok">${attPct(s)}% pres.</span>
-    </div>`).join('')
-    :'<div class="empty">Sin sesiones aún.</div>';
-
-  // Alerts
-  const risks=S.config.students
-    .map(s=>({s,r:calcRisk(s.id)}))
-    .filter(x=>x.r.level!=='ok'&&x.r.level!=='none')
-    .sort((a,b)=>b.r.abs-a.r.abs);
+    </div>`).join(''):'<div class="empty">Sin sesiones aún.</div>';
+  const risks=S.config.students.map(s=>({s,r:calcRisk(s.id)})).filter(x=>x.r.level!=='ok'&&x.r.level!=='none').sort((a,b)=>b.r.abs-a.r.abs);
   document.getElementById('panel-alerts').innerHTML=risks.length?
-    risks.map(({s,r})=>`
-      <div class="alert-banner ${r.level==='hi'?'danger':'warn'}">
-        <span class="semaforo ${r.level==='hi'?'sem-r':'sem-y'}"></span>
-        <div><strong>${s.name}</strong> — ${r.abs} falta(s) · ${r.pct}% asist.
-        <span class="risk ${r.level==='hi'?'risk-hi':'risk-warn'}">${r.level==='hi'?'EN RIESGO':'ATENCIÓN'}</span></div>
-      </div>`).join('')
+    risks.map(({s,r})=>`<div class="alert-banner ${r.level==='hi'?'danger':'warn'}"><span class="semaforo ${r.level==='hi'?'sem-r':'sem-y'}"></span><div><strong>${s.name}</strong> — ${r.abs} falta(s) · ${r.pct}% asist. <span class="risk ${r.level==='hi'?'risk-hi':'risk-warn'}">${r.level==='hi'?'EN RIESGO':'ATENCIÓN'}</span></div></div>`).join('')
     :'<div class="empty">¡Sin alertas — todos en regla! 🎉</div>';
-
-  renderPieChart(); renderLineChart();
-}
-
-function attPct(sess){
-  if(!sess.attendance) return 0;
-  const n=S.config.students.length;
-  const p=Object.values(sess.attendance).filter(a=>a.status==='P'||a.status==='T').length;
-  return Math.round((p/n)*100);
+  renderPieChart();renderLineChart();
 }
 
 function renderPieChart(){
   const last=S.sessions[S.sessions.length-1];
   let P=0,T=0,A=0,N=0;
-  if(last?.attendance){
-    S.config.students.forEach(s=>{
-      const st=last.attendance[s.id]?.status;
-      if(st==='P')P++; else if(st==='T')T++; else if(st==='A')A++; else N++;
-    });
-  }
+  if(last?.attendance){S.config.students.forEach(s=>{const st=last.attendance[s.id]?.status;if(st==='P')P++;else if(st==='T')T++;else if(st==='A')A++;else N++;});}
   const ctx=document.getElementById('chart-att-pie').getContext('2d');
-  if(chartPie) chartPie.destroy();
-  chartPie=new Chart(ctx,{type:'doughnut',data:{labels:['Presentes','Tardanza','Ausentes','Sin reg.'],
-    datasets:[{data:[P,T,A,N],backgroundColor:['#43A047','#FB8C00','#e53935','#90A4AE']}]},
-    options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
+  if(chartPie)chartPie.destroy();
+  chartPie=new Chart(ctx,{type:'doughnut',data:{labels:['Presentes','Tardanza','Ausentes','Sin reg.'],datasets:[{data:[P,T,A,N],backgroundColor:['#43A047','#FB8C00','#e53935','#90A4AE']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
 }
 
 function renderLineChart(){
   const labels=S.sessions.map((s,i)=>'S'+(i+1));
   const data=S.sessions.map(s=>attPct(s));
   const ctx=document.getElementById('chart-att-line').getContext('2d');
-  if(chartLine) chartLine.destroy();
-  chartLine=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'% Asistencia',
-    data,borderColor:'#43A047',backgroundColor:'rgba(67,160,71,.1)',fill:true,tension:.4}]},
-    options:{responsive:true,scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}},
-      plugins:{legend:{display:false}}}});
+  if(chartLine)chartLine.destroy();
+  chartLine=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'% Asistencia',data,borderColor:'#43A047',backgroundColor:'rgba(67,160,71,.1)',fill:true,tension:.4}]},options:{responsive:true,scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}},plugins:{legend:{display:false}}}});
 }
 
-// ═══════════════════════════════════════════════
-//  SESIONES
-// ═══════════════════════════════════════════════
+// ═══════════ SYLLABUS ═══════════
+function renderSyllabus(){
+  document.getElementById('syl-course-name').textContent=S.config.courseName;
+  const allTopics=getAllTopics();
+  const total=allTopics.length;
+  const covered=(S.coveredTopics||[]).length;
+  const pct=total>0?Math.round((covered/total)*100):0;
+  const lastWeek=S.sessions.length>0?(S.sessions[S.sessions.length-1].week||S.sessions.length):0;
+  const weeksLeft=Math.max(0,(S.config.totalWeeks||16)-lastWeek);
+  document.getElementById('syl-covered').textContent=covered;
+  document.getElementById('syl-total').textContent=total;
+  document.getElementById('syl-pct').textContent=pct+'%';
+  document.getElementById('syl-weeks-left').textContent=weeksLeft;
+  document.getElementById('syl-prog-bar').style.width=pct+'%';
+  document.getElementById('syl-prog-pct').textContent=pct+'%';
+  const cls=pct>=70?'':'pct>=40?warn:danger';
+  document.getElementById('syl-pct-card').className='kpi'+(pct<40?' danger':pct<70?' warn':'');
+
+  const container=document.getElementById('syl-units-container');
+  container.innerHTML=(S.syllabus||[]).map(unit=>{
+    const unitTopics=unit.topics||[];
+    const unitCovered=unitTopics.filter(t=>(S.coveredTopics||[]).includes(t.id)).length;
+    const unitPct=unitTopics.length?Math.round((unitCovered/unitTopics.length)*100):0;
+    return `<div class="syl-unit">
+      <div class="syl-unit-hdr" onclick="toggleUnit('${unit.id}')">
+        <div>
+          <h3>${unit.name}</h3>
+          <div style="font-size:11px;opacity:.8;margin-top:3px">Semanas ${unit.weeks} · ${unitCovered}/${unitTopics.length} temas cubiertos · ${unitPct}%</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:100px;background:rgba(255,255,255,.3);border-radius:10px;height:6px;overflow:hidden">
+            <div style="height:100%;background:var(--accent);width:${unitPct}%;transition:width .5s"></div>
+          </div>
+          <span id="syl-arrow-${unit.id}" style="font-size:18px">▼</span>
+        </div>
+      </div>
+      <div class="syl-unit-body" id="syl-body-${unit.id}">
+        ${unitTopics.map(t=>{
+          const isCovered=(S.coveredTopics||[]).includes(t.id);
+          return `<div class="syl-topic${isCovered?' covered':''}" id="syl-topic-${t.id}">
+            <input type="checkbox" class="syl-topic-check" ${isCovered?'checked':''} onchange="toggleCoveredTopic('${t.id}',this.checked)">
+            <div class="syl-topic-info">
+              <div class="syl-topic-name">${t.name}</div>
+              <div class="syl-subtopics">📍 ${(t.subtopics||[]).join(' · ')}</div>
+              <div class="syl-micros">${(t.microLogros||[]).map(m=>`<span class="micro-tag">🎯 ${m}</span>`).join('')}</div>
+            </div>
+            ${isCovered?'<span class="risk risk-ok">✓ Cubierto</span>':'<span class="risk risk-none">Pendiente</span>'}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleUnit(id){
+  const body=document.getElementById('syl-body-'+id);
+  const arrow=document.getElementById('syl-arrow-'+id);
+  if(!body)return;
+  const hidden=body.style.display==='none';
+  body.style.display=hidden?'block':'none';
+  if(arrow)arrow.textContent=hidden?'▼':'▶';
+}
+
+function toggleCoveredTopic(topicId,checked){
+  if(!S.coveredTopics)S.coveredTopics=[];
+  if(checked){if(!S.coveredTopics.includes(topicId))S.coveredTopics.push(topicId);}
+  else{S.coveredTopics=S.coveredTopics.filter(id=>id!==topicId);}
+  // Update UI without full re-render
+  const el=document.getElementById('syl-topic-'+topicId);
+  if(el){el.className='syl-topic'+(checked?' covered':'');}
+  ssLocal();
+  // Update KPIs
+  const allTopics=getAllTopics();
+  const total=allTopics.length;
+  const covered=S.coveredTopics.length;
+  const pct=total>0?Math.round((covered/total)*100):0;
+  document.getElementById('syl-covered').textContent=covered;
+  document.getElementById('syl-pct').textContent=pct+'%';
+  document.getElementById('syl-prog-bar').style.width=pct+'%';
+  document.getElementById('syl-prog-pct').textContent=pct+'%';
+}
+
+// ═══════════ SESIONES ═══════════
 function renderSessionList(){
   const ul=document.getElementById('sess-list');
   if(!S.sessions.length){ul.innerHTML='<div class="empty">Sin sesiones. Crea la primera.</div>';return;}
@@ -844,7 +838,7 @@ function newSession(){
   const id=uid();
   const date=new Date().toISOString().slice(0,10);
   const week=S.sessions.length+1;
-  S.sessions.push({id,date,week,topic:'',objectives:'',materials:'',notes:'',covered:'',attendance:{}});
+  S.sessions.push({id,date,week,topicId:'',topic:'',objectives:'',notes:'',covered:'',attendance:{},resources:[]});
   openSession(id);
   renderSessionList();
 }
@@ -853,14 +847,16 @@ function openSession(id){
   currentSessId=id;
   renderSessionList();
   const s=S.sessions.find(x=>x.id===id);
-  if(!s) return;
+  if(!s)return;
+  // Migrate old materials string to resources array
+  if(!s.resources){
+    s.resources=s.materials?[{id:uid(),type:'text',name:s.materials.slice(0,60),content:s.materials}]:[];
+    delete s.materials;
+  }
   const idx=S.sessions.indexOf(s)+1;
   const att=s.attendance||{};
   let P=0,T=0,A=0;
-  S.config.students.forEach(st=>{
-    const v=att[st.id]?.status;
-    if(v==='P')P++;else if(v==='T')T++;else if(v==='A')A++;
-  });
+  S.config.students.forEach(st=>{const v=att[st.id]?.status;if(v==='P')P++;else if(v==='T')T++;else if(v==='A')A++;});
 
   document.getElementById('sess-detail').innerHTML=`
     <div class="card">
@@ -871,15 +867,31 @@ function openSession(id){
       <div class="form-row">
         <div class="fld"><label>Fecha</label><input id="sd-date" type="date" value="${s.date}"></div>
         <div class="fld"><label>Semana</label><input id="sd-week" type="number" value="${s.week}" style="width:70px"></div>
-        <div class="fld" style="flex:2"><label>Tema</label><input id="sd-topic" value="${s.topic||''}" placeholder="Tema de la sesión"></div>
       </div>
       <div class="form-row">
-        <div class="fld w100"><label>🎯 Objetivos (pre-clase)</label>
-          <textarea id="sd-obj" rows="2" style="width:100%">${s.objectives||''}</textarea></div>
+        <div class="fld w100"><label>📚 Tema (del Syllabus)</label>
+          <select id="sd-topic-sel" onchange="onTopicSelect('${id}')" style="width:100%">
+            ${buildTopicOptions(s.topicId||'')}
+          </select></div>
       </div>
       <div class="form-row">
-        <div class="fld w100"><label>📚 Materiales / Recursos</label>
-          <input id="sd-mat" value="${s.materials||''}" placeholder="Links, documentos, recursos…" class="w100"></div>
+        <div class="fld w100"><label>Tema personalizado (o complemento)</label>
+          <input id="sd-topic" value="${s.topic||''}" placeholder="Opcional: detalle adicional del tema"></div>
+      </div>
+      <div class="form-row">
+        <div class="fld w100"><label>🎯 Objetivos / Micro-logros</label>
+          <textarea id="sd-obj" rows="3" style="width:100%">${s.objectives||''}</textarea></div>
+      </div>
+      <div class="card" style="margin-bottom:0;border-left:3px solid var(--orange)">
+        <div class="card-title" style="justify-content:space-between;margin-bottom:8px">
+          📎 Materiales y Recursos
+          <div class="flex gap4">
+            <button class="btn btn-out btn-xs" onclick="addResUrl('${id}')">🔗 URL</button>
+            <button class="btn btn-out btn-xs" onclick="addResText('${id}')">📝 Texto</button>
+            <button class="btn btn-g btn-xs" onclick="triggerResUpload('${id}')">📎 Archivo</button>
+          </div>
+        </div>
+        <div id="sd-resources-${id}"></div>
       </div>
       <hr class="sep">
       <div class="card-title">📋 Asistencia</div>
@@ -899,20 +911,14 @@ function openSession(id){
               const a=att[st.id]||{status:'',obs:''};
               const grp=getGroupOfStudent(st.id);
               return `<tr>
-                <td class="num">${i+1}</td>
-                <td>
-                  <div class="fw7">${st.name}</div>
-                  ${grp?`<div class="text-sm text-gray">${grp.name}</div>`:''}
-                </td>
-                <td>
-                  <div class="att-group">
-                    <button class="att-btn P${a.status==='P'?' active':''}" onclick="setAtt('${id}','${st.id}','P',this)">P</button>
-                    <button class="att-btn T${a.status==='T'?' active':''}" onclick="setAtt('${id}','${st.id}','T',this)">T</button>
-                    <button class="att-btn A${a.status==='A'?' active':''}" onclick="setAtt('${id}','${st.id}','A',this)">A</button>
-                  </div>
-                </td>
-                <td><input class="w100" placeholder="Obs…" value="${a.obs||''}"
-                  onchange="setAttObs('${id}','${st.id}',this.value)" style="font-size:12px"></td>
+                <td>${i+1}</td>
+                <td><div class="fw7">${st.name}</div>${grp?`<div class="text-sm text-gray">${grp.name}</div>`:''}</td>
+                <td><div class="att-group">
+                  <button class="att-btn P${a.status==='P'?' active':''}" onclick="setAtt('${id}','${st.id}','P',this)">P</button>
+                  <button class="att-btn T${a.status==='T'?' active':''}" onclick="setAtt('${id}','${st.id}','T',this)">T</button>
+                  <button class="att-btn A${a.status==='A'?' active':''}" onclick="setAtt('${id}','${st.id}','A',this)">A</button>
+                </div></td>
+                <td><input class="w100" placeholder="Obs…" value="${a.obs||''}" onchange="setAttObs('${id}','${st.id}',this.value)" style="font-size:12px"></td>
               </tr>`;
             }).join('')}
           </tbody>
@@ -920,111 +926,207 @@ function openSession(id){
       </div>
       <hr class="sep">
       <div class="form-row">
-        <div class="fld w100"><label>📝 Notas post-clase (lo que se cubrió, observaciones)</label>
+        <div class="fld w100"><label>📝 Notas post-clase</label>
           <textarea id="sd-notes" rows="3" style="width:100%">${s.notes||''}</textarea></div>
       </div>
       <button class="btn btn-ok mt8" onclick="saveSession('${id}')">💾 Guardar Sesión</button>
     </div>`;
+  renderResources(id);
+}
+
+function onTopicSelect(sessId){
+  const sel=document.getElementById('sd-topic-sel');
+  if(!sel)return;
+  const topicId=sel.value;
+  const s=S.sessions.find(x=>x.id===sessId);
+  if(s)s.topicId=topicId;
+  if(!topicId)return;
+  const found=findTopicById(topicId);
+  if(!found)return;
+  const {topic}=found;
+  // Auto-fill objectives only if empty
+  const objEl=document.getElementById('sd-obj');
+  if(objEl&&!objEl.value.trim()){
+    objEl.value=(topic.microLogros||[]).map((m,i)=>`${i+1}. ${m}`).join('\n');
+  }
+  // Auto-fill topic name if empty
+  const topicNameEl=document.getElementById('sd-topic');
+  if(topicNameEl&&!topicNameEl.value.trim()){topicNameEl.value=topic.name;}
+}
+
+function saveSession(id){
+  const s=S.sessions.find(x=>x.id===id);if(!s)return;
+  s.date=document.getElementById('sd-date').value;
+  s.week=parseInt(document.getElementById('sd-week').value)||1;
+  s.topicId=document.getElementById('sd-topic-sel').value;
+  s.topic=document.getElementById('sd-topic').value||document.getElementById('sd-topic-sel').options[document.getElementById('sd-topic-sel').selectedIndex]?.text||'';
+  s.objectives=document.getElementById('sd-obj').value;
+  s.notes=document.getElementById('sd-notes').value;
+  renderSessionList();toast('✅ Sesión guardada');ssLocal();
+}
+
+function deleteSession(id){
+  if(!confirm('¿Eliminar esta sesión?'))return;
+  S.sessions=S.sessions.filter(x=>x.id!==id);
+  currentSessId=null;
+  document.getElementById('sess-detail').innerHTML='<div class="card"><div class="empty">Selecciona o crea una sesión.</div></div>';
+  renderSessionList();toast('🗑 Sesión eliminada');
 }
 
 function setAtt(sessId,stuId,status,btn){
-  const s=S.sessions.find(x=>x.id===sessId); if(!s) return;
-  if(!s.attendance) s.attendance={};
+  const s=S.sessions.find(x=>x.id===sessId);if(!s)return;
+  if(!s.attendance)s.attendance={};
   const prev=s.attendance[stuId]?.status||'';
   s.attendance[stuId]={...(s.attendance[stuId]||{}),status};
-  // toggle off
-  if(prev===status){ s.attendance[stuId].status=''; status=''; }
+  if(prev===status){s.attendance[stuId].status='';status='';}
   btn.closest('tr').querySelectorAll('.att-btn').forEach(b=>b.classList.remove('active'));
-  if(status) btn.classList.add('active');
+  if(status)btn.classList.add('active');
   updateAttCounters(sessId);
 }
 
 function setAttObs(sessId,stuId,val){
-  const s=S.sessions.find(x=>x.id===sessId); if(!s) return;
-  if(!s.attendance) s.attendance={};
+  const s=S.sessions.find(x=>x.id===sessId);if(!s)return;
+  if(!s.attendance)s.attendance={};
   s.attendance[stuId]={...(s.attendance[stuId]||{}),obs:val};
 }
 
 function updateAttCounters(sessId){
-  const s=S.sessions.find(x=>x.id===sessId); if(!s) return;
+  const s=S.sessions.find(x=>x.id===sessId);if(!s)return;
   let P=0,T=0,A=0;
-  S.config.students.forEach(st=>{
-    const v=(s.attendance||{})[st.id]?.status;
-    if(v==='P')P++;else if(v==='T')T++;else if(v==='A')A++;
-  });
-  const pEl=document.getElementById('sd-P');
-  const tEl=document.getElementById('sd-T');
-  const aEl=document.getElementById('sd-A');
-  if(pEl) pEl.textContent=P;
-  if(tEl) tEl.textContent=T;
-  if(aEl) aEl.textContent=A;
+  S.config.students.forEach(st=>{const v=(s.attendance||{})[st.id]?.status;if(v==='P')P++;else if(v==='T')T++;else if(v==='A')A++;});
+  const pEl=document.getElementById('sd-P'),tEl=document.getElementById('sd-T'),aEl=document.getElementById('sd-A');
+  if(pEl)pEl.textContent=P;if(tEl)tEl.textContent=T;if(aEl)aEl.textContent=A;
 }
 
 function massAtt(sessId,status){
-  const s=S.sessions.find(x=>x.id===sessId); if(!s) return;
-  if(!s.attendance) s.attendance={};
-  S.config.students.forEach(st=>{ s.attendance[st.id]={...(s.attendance[st.id]||{}),status}; });
+  const s=S.sessions.find(x=>x.id===sessId);if(!s)return;
+  if(!s.attendance)s.attendance={};
+  S.config.students.forEach(st=>{s.attendance[st.id]={...(s.attendance[st.id]||{}),status};});
   openSession(sessId);
 }
 
-function saveSession(id){
-  const s=S.sessions.find(x=>x.id===id); if(!s) return;
-  s.date=document.getElementById('sd-date').value;
-  s.week=parseInt(document.getElementById('sd-week').value)||1;
-  s.topic=document.getElementById('sd-topic').value;
-  s.objectives=document.getElementById('sd-obj').value;
-  s.materials=document.getElementById('sd-mat').value;
-  s.notes=document.getElementById('sd-notes').value;
-  renderSessionList();
-  toast('✅ Sesión guardada');
-  ssLocal();
+// ═══════════ RESOURCES ═══════════
+function triggerResUpload(sessId){
+  const inp=document.getElementById('res-file-input');
+  inp.onchange=e=>handleResUpload(e,sessId);
+  inp.click();
 }
 
-function deleteSession(id){
-  if(!confirm('¿Eliminar esta sesión?')) return;
-  S.sessions=S.sessions.filter(x=>x.id!==id);
-  currentSessId=null;
-  document.getElementById('sess-detail').innerHTML='<div class="card"><div class="empty">Selecciona o crea una sesión.</div></div>';
-  renderSessionList();
-  toast('🗑 Sesión eliminada');
+function handleResUpload(event,sessId){
+  const s=S.sessions.find(x=>x.id===sessId);if(!s)return;
+  if(!s.resources)s.resources=[];
+  const files=Array.from(event.target.files);
+  let done=0;
+  files.forEach(file=>{
+    if(file.size>8*1024*1024){toast(`⚠️ ${file.name} supera 8MB`,true);done++;if(done===files.length)renderResources(sessId);return;}
+    const reader=new FileReader();
+    reader.onload=e2=>{
+      s.resources.push({id:uid(),type:'file',name:file.name,content:e2.target.result,fileType:file.type});
+      done++;if(done===files.length){renderResources(sessId);ssLocal();}
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value='';
 }
 
-// ═══════════════════════════════════════════════
-//  EVALUACIONES
-// ═══════════════════════════════════════════════
+function addResUrl(sessId){
+  const url=prompt('URL del recurso (incluye https://):');if(!url)return;
+  const name=prompt('Nombre para mostrar:',url.split('/').pop()||url)||url;
+  const s=S.sessions.find(x=>x.id===sessId);if(!s)return;
+  if(!s.resources)s.resources=[];
+  s.resources.push({id:uid(),type:'url',name,content:url});
+  renderResources(sessId);ssLocal();
+}
+
+function addResText(sessId){
+  const text=prompt('Texto o nota del recurso:');if(!text)return;
+  const s=S.sessions.find(x=>x.id===sessId);if(!s)return;
+  if(!s.resources)s.resources=[];
+  s.resources.push({id:uid(),type:'text',name:text.slice(0,60)+(text.length>60?'…':''),content:text});
+  renderResources(sessId);ssLocal();
+}
+
+function renderResources(sessId){
+  const s=S.sessions.find(x=>x.id===sessId);
+  const el=document.getElementById('sd-resources-'+sessId);
+  if(!el||!s)return;
+  const res=s.resources||[];
+  if(!res.length){el.innerHTML='<div class="text-gray text-sm" style="padding:8px 0">Sin recursos adjuntos. Usa los botones de arriba para agregar.</div>';return;}
+  el.innerHTML=res.map(r=>{
+    const icon=r.type==='url'?'🔗':r.type==='file'?'📎':'📝';
+    const typeTag=r.type==='url'?'URL':r.type==='file'?(r.fileType?.split('/')[1]?.toUpperCase()||'ARCHIVO'):'TEXTO';
+    const tagCls=r.type==='url'?'blue':r.type==='file'?'orange':'';
+    return `<div class="res-item">
+      <span class="res-icon">${icon}</span>
+      ${r.type==='url'?`<a href="${r.content}" target="_blank" class="res-name" style="color:var(--blue)">${r.name}</a>`:`<span class="res-name">${r.name}</span>`}
+      <span class="tag ${tagCls}">${typeTag}</span>
+      ${r.type==='file'?`<a href="${r.content}" download="${r.name}" class="btn btn-out btn-xs">⬇</a>`:''}
+      <button class="btn btn-red btn-xs" onclick="deleteRes('${sessId}','${r.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function deleteRes(sessId,resId){
+  const s=S.sessions.find(x=>x.id===sessId);if(!s)return;
+  s.resources=(s.resources||[]).filter(r=>r.id!==resId);
+  renderResources(sessId);ssLocal();
+}
+
+// ═══════════ EVALUACIONES ═══════════
 function addActivity(){
   const name=document.getElementById('act-name').value.trim();
   const weight=parseFloat(document.getElementById('act-weight').value)||0;
   const type=document.getElementById('act-type').value;
   if(!name){toast('Ingresa el nombre de la actividad.',true);return;}
   S.activities.push({id:uid(),name,weight,type});
-  document.getElementById('act-name').value='';
-  document.getElementById('act-weight').value='';
-  renderActivities();
-  toast('✅ Actividad agregada');
+  if(!S.activityFiles)S.activityFiles={};
+  document.getElementById('act-name').value='';document.getElementById('act-weight').value='';
+  renderActivities();toast('✅ Actividad agregada');
 }
 
 function removeActivity(id){
   S.activities=S.activities.filter(a=>a.id!==id);
-  delete S.grades[id];
+  delete S.grades[id];delete (S.activityFiles||{})[id];
   renderActivities();
 }
 
 function renderActivities(){
+  if(!S.activityFiles)S.activityFiles={};
   const total=S.activities.reduce((s,a)=>s+a.weight,0);
   document.getElementById('peso-total-tag').textContent=`Peso total: ${total}%`;
-  document.getElementById('peso-total-tag').className='tag'+(total>100?' red':total===100?' ':'orange');
-
+  document.getElementById('peso-total-tag').className='tag'+(total>100?' red':total===100?'':' orange');
   const listEl=document.getElementById('act-list-wrap');
-  if(!S.activities.length){listEl.innerHTML='<div class="empty" id="act-empty">Sin actividades.</div>';return;}
+  if(!S.activities.length){listEl.innerHTML='<div class="empty">Sin actividades.</div>';return;}
   listEl.innerHTML=`<div class="tbl-wrap mt8"><table>
-    <thead><tr><th>Actividad</th><th>Tipo</th><th>Peso</th><th></th></tr></thead>
-    <tbody>${S.activities.map(a=>`<tr>
-      <td class="fw7">${a.name}</td>
-      <td><span class="tag">${a.type}</span></td>
-      <td>${a.weight}%</td>
-      <td><button class="btn btn-red btn-xs" onclick="removeActivity('${a.id}')">✕</button></td>
-    </tr>`).join('')}</tbody></table></div>`;
+    <thead><tr><th>Actividad</th><th>Tipo</th><th>Peso</th><th>Adjuntos</th><th></th></tr></thead>
+    <tbody>${S.activities.map(a=>{
+      const files=(S.activityFiles[a.id]||[]);
+      return `<tr>
+        <td class="fw7">${a.name}</td>
+        <td><span class="tag">${a.type}</span></td>
+        <td>${a.weight}%</td>
+        <td>
+          <button class="btn btn-out btn-xs" onclick="triggerActUpload('${a.id}')">📎 ${files.length?files.length+' archivo(s)':'Subir'}</button>
+        </td>
+        <td><button class="btn btn-red btn-xs" onclick="removeActivity('${a.id}')">✕</button></td>
+      </tr>`;
+    }).join('')}</tbody></table></div>`;
+  // Show attached files per activity
+  const filesHtml=S.activities.map(a=>{
+    const files=(S.activityFiles[a.id]||[]);
+    if(!files.length)return'';
+    return `<div style="margin-top:8px;padding:10px;border:1px solid var(--border);border-radius:6px;background:#fafafa">
+      <div class="fw7 text-sm mb8">📎 Adjuntos: ${a.name}</div>
+      ${files.map(f=>`<div class="res-item">
+        <span class="res-icon">📎</span>
+        <span class="res-name">${f.name}</span>
+        <span class="tag orange">${f.fileType?.split('/')[1]?.toUpperCase()||'ARCHIVO'}</span>
+        <a href="${f.content}" download="${f.name}" class="btn btn-out btn-xs">⬇</a>
+        <button class="btn btn-red btn-xs" onclick="deleteActFile('${a.id}','${f.id}')">✕</button>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+  if(filesHtml.trim())listEl.innerHTML+=filesHtml;
 
   // Grades matrix
   const gEl=document.getElementById('grades-matrix');
@@ -1035,37 +1137,57 @@ function renderActivities(){
     <tbody>${S.config.students.map(s=>{
       const grades=acts.map(a=>{
         const v=(S.grades[a.id]||{})[s.id]||'';
-        return `<td><input type="number" min="0" max="5" step="0.1"
-          style="width:50px;text-align:center;font-size:12px"
-          value="${v}" onchange="setGrade('${a.id}','${s.id}',this.value)"></td>`;
+        return `<td><input type="number" min="0" max="5" step="0.1" style="width:50px;text-align:center;font-size:12px" value="${v}" onchange="setGrade('${a.id}','${s.id}',this.value)"></td>`;
       });
       const avg=calcAvg(s.id);
-      const cls=avg===null?'':avg>=3.5?'grade-g':avg>=3.0?'grade-y':'grade-r';
+      const cls=avg===null?'':avg>=3.5?'risk-ok':avg>=3.0?'risk-warn':'risk-hi';
       return `<tr><td>${s.name}</td>${grades.join('')}<td><span class="${cls}">${avg!==null?avg:'—'}</span></td></tr>`;
     }).join('')}</tbody></table></div>`;
 }
 
+function triggerActUpload(actId){
+  const inp=document.getElementById('act-file-input');
+  inp.onchange=e=>handleActUpload(e,actId);
+  inp.click();
+}
+
+function handleActUpload(event,actId){
+  if(!S.activityFiles)S.activityFiles={};
+  if(!S.activityFiles[actId])S.activityFiles[actId]=[];
+  const files=Array.from(event.target.files);
+  let done=0;
+  files.forEach(file=>{
+    if(file.size>8*1024*1024){toast(`⚠️ ${file.name} supera 8MB`,true);done++;if(done===files.length)renderActivities();return;}
+    const reader=new FileReader();
+    reader.onload=e2=>{
+      S.activityFiles[actId].push({id:uid(),name:file.name,content:e2.target.result,fileType:file.type});
+      done++;if(done===files.length){renderActivities();ssLocal();}
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value='';
+}
+
+function deleteActFile(actId,fileId){
+  if(!S.activityFiles||!S.activityFiles[actId])return;
+  S.activityFiles[actId]=S.activityFiles[actId].filter(f=>f.id!==fileId);
+  renderActivities();ssLocal();
+}
+
 function setGrade(actId,stuId,val){
-  if(!S.grades[actId]) S.grades[actId]={};
+  if(!S.grades[actId])S.grades[actId]={};
   S.grades[actId][stuId]=val===''?null:parseFloat(val);
 }
 
 function calcAvg(stuId){
-  const total=S.activities.reduce((s,a)=>s+a.weight,0);
-  if(!total) return null;
+  const total=S.activities.reduce((s,a)=>s+a.weight,0);if(!total)return null;
   let sum=0,w=0;
-  S.activities.forEach(a=>{
-    const v=(S.grades[a.id]||{})[stuId];
-    if(v!=null&&v!==''){sum+=parseFloat(v)*a.weight;w+=a.weight;}
-  });
+  S.activities.forEach(a=>{const v=(S.grades[a.id]||{})[stuId];if(v!=null&&v!==''){sum+=parseFloat(v)*a.weight;w+=a.weight;}});
   return w>0?Math.round((sum/w)*10)/10:null;
 }
 
-function saveGrades(){ ssLocal(); toast('✅ Notas guardadas'); }
-
-// ═══════════════════════════════════════════════
-//  SUSTENTACIONES
-// ═══════════════════════════════════════════════
+function saveGrades(){ssLocal();toast('✅ Notas guardadas');}
+// ═══════════ SUSTENTACIONES ═══════════
 function openNewSustModal(){
   msNewCriteria=[
     {name:'Perfil del Negocio',desc:'Nombre, UVP, diferenciación',pts:4},
@@ -1074,10 +1196,8 @@ function openNewSustModal(){
     {name:'Customer Journey',desc:'Descubrimiento → Decisión',pts:4},
     {name:'Objetivo SMART',desc:'Específico, Medible, Alcanzable',pts:4}
   ];
-  document.getElementById('ms-name').value='';
-  document.getElementById('ms-date').value='';
-  renderMsCriteria();
-  openModal('modal-sust');
+  document.getElementById('ms-name').value='';document.getElementById('ms-date').value='';
+  renderMsCriteria();openModal('modal-sust');
 }
 
 function renderMsCriteria(){
@@ -1093,11 +1213,9 @@ function addCriteria(){
   const name=document.getElementById('ms-crit-name').value.trim();
   const pts=parseInt(document.getElementById('ms-crit-pts').value)||1;
   const desc=document.getElementById('ms-crit-desc').value.trim();
-  if(!name) return;
+  if(!name)return;
   msNewCriteria.push({name,desc,pts});
-  document.getElementById('ms-crit-name').value='';
-  document.getElementById('ms-crit-pts').value='';
-  document.getElementById('ms-crit-desc').value='';
+  document.getElementById('ms-crit-name').value='';document.getElementById('ms-crit-pts').value='';document.getElementById('ms-crit-desc').value='';
   renderMsCriteria();
 }
 
@@ -1110,10 +1228,7 @@ function saveSust(){
   const id=uid();
   S.sustentaciones.push({id,name,date,target,criteria:msNewCriteria});
   S.sustScores[id]={};
-  closeModal('modal-sust');
-  renderSustList();
-  openSust(id);
-  toast('✅ Sustentación creada');
+  closeModal('modal-sust');renderSustList();openSust(id);toast('✅ Sustentación creada');
 }
 
 function renderSustList(){
@@ -1131,28 +1246,20 @@ function renderSustList(){
 }
 
 function openSust(id){
-  currentSustId=id;
-  renderSustList();
-  const sust=S.sustentaciones.find(x=>x.id===id); if(!sust) return;
+  currentSustId=id;renderSustList();
+  const sust=S.sustentaciones.find(x=>x.id===id);if(!sust)return;
   const maxPts=sust.criteria.reduce((t,c)=>t+c.pts,0);
   const scores=S.sustScores[id]||{};
   const targets=sust.target==='grupos'?Object.values(S.groups):S.config.students;
-
   document.getElementById('sust-detail').innerHTML=`
     <div class="card">
       <div class="card-title" style="justify-content:space-between">
         🏆 ${sust.name}
-        <div class="flex gap4">
-          <span class="tag">${fmtDate(sust.date)}</span>
-          <button class="btn btn-red btn-xs" onclick="deleteSust('${id}')">🗑</button>
-        </div>
+        <div class="flex gap4"><span class="tag">${fmtDate(sust.date)}</span>
+          <button class="btn btn-red btn-xs" onclick="deleteSust('${id}')">🗑</button></div>
       </div>
-      <div class="ptabs" id="sust-tabs">
-        ${targets.map((t,i)=>`<button class="ptab${i===0?' active':''}" onclick="openSustTarget('${id}','${t.id}')">${t.name}</button>`).join('')}
-      </div>
-      <div id="sust-score-panel">
-        ${targets.length?renderSustScorePanel(id,targets[0].id):'<div class="empty">Sin grupos/estudiantes.</div>'}
-      </div>
+      <div class="ptabs">${targets.map((t,i)=>`<button class="ptab${i===0?' active':''}" onclick="openSustTarget('${id}','${t.id}')">${t.name}</button>`).join('')}</div>
+      <div id="sust-score-panel">${targets.length?renderSustScorePanel(id,targets[0].id):'<div class="empty">Sin grupos/estudiantes.</div>'}</div>
     </div>
     <div class="card mt12">
       <div class="card-title">📊 Resultados Consolidados</div>
@@ -1165,10 +1272,9 @@ function openSust(id){
           const total=sust.criteria.reduce((s,c,i)=>s+(sc[i]||0),0);
           const pct=Math.round((total/maxPts)*100);
           const lvl=total>=maxPts*.85?'Excelente':total>=maxPts*.65?'Bueno':total>=maxPts*.45?'Regular':'Insuficiente';
-          const cls=total>=maxPts*.85?'grade-g':total>=maxPts*.65?'':'grade-y';
           return `<tr><td class="fw7">${t.name}</td>
-            ${sust.criteria.map((c,i)=>`<td class="num">${sc[i]??'—'}</td>`).join('')}
-            <td><span class="${cls} grade-cell">${total}/${maxPts}</span></td>
+            ${sust.criteria.map((c,i)=>`<td>${sc[i]??'—'}</td>`).join('')}
+            <td>${total}/${maxPts}</td>
             <td><span class="risk ${total>=maxPts*.85?'risk-ok':total>=maxPts*.45?'risk-warn':'risk-hi'}">${lvl}</span></td>
           </tr>`;
         }).join('')}</tbody></table></div>
@@ -1183,21 +1289,14 @@ function renderSustScorePanel(sustId,targetId){
   const total=sust.criteria.reduce((t,c,i)=>t+(sc[i]||0),0);
   const pct=Math.round((total/maxPts)*100);
   const lvl=total>=maxPts*.85?{t:'Excelente',c:'risk-ok'}:total>=maxPts*.65?{t:'Bueno',c:''}:total>=maxPts*.45?{t:'Regular',c:'risk-warn'}:{t:'Insuficiente',c:'risk-hi'};
-
   return `<div class="grid2" style="gap:16px">
     <div>${sust.criteria.map((c,i)=>`
       <div class="crit-row">
         <div><div class="crit-name">${c.name}</div><div class="crit-desc">${c.desc}</div></div>
-        <div class="pts-group">
-          ${Array.from({length:c.pts+1},(_,v)=>`<button class="pts-btn${(sc[i]||0)===v?' sel':''}"
-            onclick="setSustScore('${sustId}','${targetId}',${i},${v})">${v}</button>`).join('')}
-        </div>
+        <div class="pts-group">${Array.from({length:c.pts+1},(_,v)=>`<button class="pts-btn${(sc[i]||0)===v?' sel':''}" onclick="setSustScore('${sustId}','${targetId}',${i},${v})">${v}</button>`).join('')}</div>
       </div>`).join('')}
-      <div class="form-row mt8">
-        <div class="fld w100"><label>Observaciones</label>
-          <textarea rows="2" style="width:100%" placeholder="Comentarios sobre la presentación…"
-            onchange="setSustObs('${sustId}','${targetId}',this.value)">${sc._obs||''}</textarea></div>
-      </div>
+      <div class="form-row mt8"><div class="fld w100"><label>Observaciones</label>
+        <textarea rows="2" style="width:100%" placeholder="Comentarios…" onchange="setSustObs('${sustId}','${targetId}',this.value)">${sc._obs||''}</textarea></div></div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center">
       <div style="font-size:56px;font-weight:900;color:var(--g1)">${total}</div>
@@ -1213,67 +1312,57 @@ function renderSustScorePanel(sustId,targetId){
 
 function openSustTarget(sustId,targetId){
   document.querySelectorAll('.ptab').forEach(b=>{
-    b.classList.toggle('active',b.textContent===(S.groups[targetId]?.name||S.config.students.find(s=>s.id===targetId)?.name));
+    const name=S.groups[targetId]?.name||S.config.students.find(s=>s.id===targetId)?.name;
+    b.classList.toggle('active',b.textContent===name);
   });
   document.getElementById('sust-score-panel').innerHTML=renderSustScorePanel(sustId,targetId);
 }
 
 function setSustScore(sustId,targetId,critIdx,pts){
-  if(!S.sustScores[sustId]) S.sustScores[sustId]={};
-  if(!S.sustScores[sustId][targetId]) S.sustScores[sustId][targetId]={};
+  if(!S.sustScores[sustId])S.sustScores[sustId]={};
+  if(!S.sustScores[sustId][targetId])S.sustScores[sustId][targetId]={};
   S.sustScores[sustId][targetId][critIdx]=pts;
-  document.getElementById('sust-score-panel').innerHTML=renderSustScorePanel(sustId,targetId);
-  openSust(sustId); // refresh results table
-  // re-open same target
+  openSust(sustId);
   document.getElementById('sust-score-panel').innerHTML=renderSustScorePanel(sustId,targetId);
   ssLocal();
 }
 
 function setSustObs(sustId,targetId,val){
-  if(!S.sustScores[sustId]) S.sustScores[sustId]={};
-  if(!S.sustScores[sustId][targetId]) S.sustScores[sustId][targetId]={};
+  if(!S.sustScores[sustId])S.sustScores[sustId]={};
+  if(!S.sustScores[sustId][targetId])S.sustScores[sustId][targetId]={};
   S.sustScores[sustId][targetId]._obs=val;
 }
 
 function deleteSust(id){
-  if(!confirm('¿Eliminar esta sustentación y sus calificaciones?')) return;
+  if(!confirm('¿Eliminar esta sustentación?'))return;
   S.sustentaciones=S.sustentaciones.filter(x=>x.id!==id);
-  delete S.sustScores[id];
-  currentSustId=null;
+  delete S.sustScores[id];currentSustId=null;
   document.getElementById('sust-detail').innerHTML='<div class="card"><div class="empty">Selecciona o crea una sustentación.</div></div>';
   renderSustList();
 }
 
-// ═══════════════════════════════════════════════
-//  GRUPOS
-// ═══════════════════════════════════════════════
+// ═══════════ GRUPOS ═══════════
 function renderGroups(){
-  const gSel=document.getElementById('grp-sel');
-  const sSel=document.getElementById('grp-stu-sel');
+  const gSel=document.getElementById('grp-sel'),sSel=document.getElementById('grp-stu-sel');
   const grps=Object.values(S.groups);
-
   gSel.innerHTML=grps.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
   sSel.innerHTML=S.config.students.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
-
   const assigned=new Set(grps.flatMap(g=>g.members));
   const grid=document.getElementById('groups-grid');
   grid.innerHTML=grps.map(g=>{
     const members=g.members.map(sid=>stu(sid)).filter(x=>x);
     return `<div style="background:#fff;border-radius:8px;box-shadow:var(--sh);border-top:4px solid var(--g3);overflow:hidden">
       <div style="background:var(--g5);padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
-        <h3 style="font-size:14px;font-weight:700;color:var(--g1)">${g.name}
-          <span class="badge" style="margin-left:6px">${members.length}</span></h3>
+        <h3 style="font-size:14px;font-weight:700;color:var(--g1)">${g.name} <span class="badge" style="margin-left:6px">${members.length}</span></h3>
         <button class="btn btn-red btn-xs" onclick="deleteGroup('${g.id}')">🗑</button>
       </div>
       <div style="padding:10px 14px">
         ${members.map(m=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #eee;font-size:12px">
-          <span>${m.name}</span>
-          <button class="btn btn-red btn-xs" onclick="removeFromGroup('${g.id}','${m.id}')">✕</button>
+          <span>${m.name}</span><button class="btn btn-red btn-xs" onclick="removeFromGroup('${g.id}','${m.id}')">✕</button>
         </div>`).join('')||'<div class="text-sm text-gray">Sin miembros</div>'}
       </div>
     </div>`;
   }).join('');
-
   const unassigned=S.config.students.filter(s=>!assigned.has(s.id));
   if(unassigned.length){
     grid.innerHTML+=`<div style="background:#fff;border-radius:8px;box-shadow:var(--sh);border-top:4px solid #90A4AE;overflow:hidden">
@@ -1284,90 +1373,58 @@ function renderGroups(){
 }
 
 function createGroup(){
-  const name=document.getElementById('grp-name').value.trim();
-  if(!name){toast('Ingresa el nombre.',true);return;}
-  const id='g_'+uid();
-  S.groups[id]={id,name,members:[]};
-  document.getElementById('grp-name').value='';
-  renderGroups();
+  const name=document.getElementById('grp-name').value.trim();if(!name){toast('Ingresa el nombre.',true);return;}
+  const id='g_'+uid();S.groups[id]={id,name,members:[]};
+  document.getElementById('grp-name').value='';renderGroups();
 }
 
 function assignToGroup(){
-  const gid=document.getElementById('grp-sel').value;
-  const sid=document.getElementById('grp-stu-sel').value;
-  if(!gid||!sid) return;
-  // Remove from existing group
-  Object.values(S.groups).forEach(g=>{ g.members=g.members.filter(m=>m!==sid); });
-  S.groups[gid].members.push(sid);
-  renderGroups();
+  const gid=document.getElementById('grp-sel').value,sid=document.getElementById('grp-stu-sel').value;
+  if(!gid||!sid)return;
+  Object.values(S.groups).forEach(g=>{g.members=g.members.filter(m=>m!==sid);});
+  S.groups[gid].members.push(sid);renderGroups();
 }
 
-function removeFromGroup(gid,sid){
-  S.groups[gid].members=S.groups[gid].members.filter(m=>m!==sid);
-  renderGroups();
-}
-
-function deleteGroup(gid){
-  if(!confirm('¿Eliminar grupo?')) return;
-  delete S.groups[gid];
-  renderGroups();
-}
+function removeFromGroup(gid,sid){S.groups[gid].members=S.groups[gid].members.filter(m=>m!==sid);renderGroups();}
+function deleteGroup(gid){if(!confirm('¿Eliminar grupo?'))return;delete S.groups[gid];renderGroups();}
 
 function autoGroups(){
-  const n=parseInt(prompt('¿Cuántos grupos?','7'));
-  if(!n||n<1) return;
+  const n=parseInt(prompt('¿Cuántos grupos?','7'));if(!n||n<1)return;
   const shuffled=[...S.config.students].sort(()=>Math.random()-.5);
   const size=Math.ceil(shuffled.length/n);
   for(let i=0;i<n;i++){
     const id='g_'+uid();
-    const members=shuffled.slice(i*size,(i+1)*size).map(s=>s.id);
-    S.groups[id]={id,name:`Grupo ${i+1}`,members};
+    S.groups[id]={id,name:`Grupo ${i+1}`,members:shuffled.slice(i*size,(i+1)*size).map(s=>s.id)};
   }
   renderGroups();
 }
 
-// ═══════════════════════════════════════════════
-//  ESTUDIANTES (360 Profile)
-// ═══════════════════════════════════════════════
+// ═══════════ ESTUDIANTES ═══════════
 function renderStudentList(){
   const q=(document.getElementById('stu-search')?.value||'').toLowerCase();
   const list=S.config.students.filter(s=>s.name.toLowerCase().includes(q)||s.id.includes(q));
   document.getElementById('stu-list').innerHTML=list.map(s=>{
-    const r=calcRisk(s.id);
-    const g=getGroupOfStudent(s.id);
+    const r=calcRisk(s.id),g=getGroupOfStudent(s.id);
     return `<div class="stu-row${currentStudentId===s.id?' sel':''}" onclick="openStudentProfile('${s.id}')">
       <div class="stu-avatar">${stuInitials(s.name)}</div>
-      <div style="flex:1">
-        <div class="stu-name">${s.name}</div>
-        <div class="stu-meta">CC ${s.id} · ${g?g.name:'Sin grupo'}</div>
-      </div>
+      <div style="flex:1"><div class="stu-name">${s.name}</div><div class="stu-meta">CC ${s.id} · ${g?g.name:'Sin grupo'}</div></div>
       <span class="semaforo ${r.level==='ok'?'sem-g':r.level==='warn'?'sem-y':r.level==='hi'?'sem-r':'sem-b'}"></span>
     </div>`;
   }).join('')||'<div class="empty">Sin resultados.</div>';
 }
 
 function openStudentProfile(sid){
-  currentStudentId=sid;
-  renderStudentList();
-  const s=stu(sid);
-  const grp=getGroupOfStudent(sid);
-  const r=calcRisk(sid);
-  const avg=calcAvg(sid);
-  const attSessions=S.sessions.filter(se=>se.attendance&&se.attendance[sid]);
-
-  // Sustentacion scores for this student
+  currentStudentId=sid;renderStudentList();
+  const s=stu(sid),grp=getGroupOfStudent(sid),r=calcRisk(sid),avg=calcAvg(sid);
   const sustResults=S.sustentaciones.map(sust=>{
-    const targetId=sust.target==='grupos'?(grp?.id||null):sid;
-    if(!targetId) return null;
+    const targetId=sust.target==='grupos'?(grp?.id||null):sid;if(!targetId)return null;
     const sc=S.sustScores[sust.id]?.[targetId]||{};
     const max=sust.criteria.reduce((t,c)=>t+c.pts,0);
     const total=sust.criteria.reduce((t,c,i)=>t+(sc[i]||0),0);
-    return {name:sust.name,total,max,date:sust.date};
+    return{name:sust.name,total,max,date:sust.date};
   }).filter(Boolean);
-
-  const riskClass=r.level==='ok'?'sem-g':r.level==='warn'?'sem-y':r.level==='hi'?'sem-r':'sem-b';
+  const riskClass=r.level==='ok'?'risk-ok':r.level==='warn'?'risk-warn':r.level==='hi'?'risk-hi':'risk-none';
   const riskLabel=r.level==='ok'?'En regla':r.level==='warn'?'Atención':r.level==='hi'?'En riesgo':'Sin datos';
-
   document.getElementById('stu-profile').innerHTML=`
     <div class="profile-header">
       <div class="profile-avatar">${stuInitials(s.name)}</div>
@@ -1375,12 +1432,11 @@ function openStudentProfile(sid){
         <div class="profile-name">${s.name}</div>
         <div class="profile-meta">CC ${s.id} · ${grp?grp.name:'Sin grupo'}</div>
         <div style="margin-top:8px;display:flex;gap:8px">
-          <span class="risk ${r.level==='ok'?'risk-ok':r.level==='warn'?'risk-warn':r.level==='hi'?'risk-hi':'risk-none'}">${riskLabel}</span>
+          <span class="risk ${riskClass}">${riskLabel}</span>
           <span class="tag" style="background:rgba(255,255,255,.2);color:#fff">${r.pct??100}% asistencia</span>
         </div>
       </div>
     </div>
-
     <div class="grid2">
       <div class="card">
         <div class="card-title">📋 Asistencia</div>
@@ -1389,58 +1445,35 @@ function openStudentProfile(sid){
           <div class="kpi danger" style="padding:10px"><div class="kpi-val" style="font-size:22px">${r.abs}</div><div class="kpi-label">Faltas</div></div>
         </div>
         <div class="tbl-wrap"><table>
-          <thead><tr><th>Sesión</th><th>Fecha</th><th>Estado</th></tr></thead>
+          <thead><tr><th>Sesión</th><th>Fecha</th><th>Tema</th><th>Estado</th></tr></thead>
           <tbody>${S.sessions.map((se,i)=>{
-            const a=se.attendance?.[sid];
-            const st=a?.status||'—';
-            const cls=st==='P'?'risk-ok':st==='T'?'risk-warn':st==='A'?'risk-hi':'risk-none';
-            return `<tr><td>S${i+1}</td><td>${fmtDate(se.date)}</td><td><span class="risk ${cls}">${st}</span></td></tr>`;
-          }).join('')||'<tr><td colspan="3" class="empty">Sin sesiones</td></tr>'}</tbody>
+            const a=se.attendance?.[sid];const st2=a?.status||'—';
+            const cls=st2==='P'?'risk-ok':st2==='T'?'risk-warn':st2==='A'?'risk-hi':'risk-none';
+            return `<tr><td>S${i+1}</td><td>${fmtDate(se.date)}</td><td style="font-size:11px">${(se.topic||'').slice(0,25)}</td><td><span class="risk ${cls}">${st2}</span></td></tr>`;
+          }).join('')||'<tr><td colspan="4" class="empty">Sin sesiones</td></tr>'}</tbody>
         </table></div>
       </div>
-
       <div>
         <div class="card">
           <div class="card-title">📝 Notas Académicas</div>
-          ${avg!==null?`<div style="font-size:28px;font-weight:900;color:var(--g1)">${avg} <span style="font-size:14px;font-weight:400">/ 5.0</span></div>`:'<div class="text-gray text-sm">Sin notas registradas</div>'}
-          ${S.activities.map(a=>{
-            const v=(S.grades[a.id]||{})[sid];
-            const cls=v>=3.5?'grade-g':v>=3.0?'grade-y':v<3.0&&v!==undefined?'grade-r':'';
-            return `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;font-size:12px">
-              <span>${a.name} <span class="tag">${a.weight}%</span></span>
-              <span class="grade-cell ${cls}">${v!=null&&v!==''?v:'—'}</span>
-            </div>`;
-          }).join('')||'<div class="empty">Sin actividades.</div>'}
+          ${avg!==null?`<div style="font-size:28px;font-weight:900;color:var(--g1)">${avg} <span style="font-size:14px;font-weight:400">/ 5.0</span></div>`:'<div class="text-gray text-sm">Sin notas</div>'}
+          ${S.activities.map(a=>{const v=(S.grades[a.id]||{})[sid];return `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #eee;font-size:12px"><span>${a.name} <span class="tag">${a.weight}%</span></span><span>${v!=null&&v!==''?v:'—'}</span></div>`;}).join('')||'<div class="empty">Sin actividades.</div>'}
         </div>
-
         <div class="card">
           <div class="card-title">🏆 Sustentaciones</div>
-          ${sustResults.map(sr=>{
-            const pct=Math.round((sr.total/sr.max)*100);
-            return `<div style="margin-bottom:8px">
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-                <span class="fw7">${sr.name}</span>
-                <span>${sr.total}/${sr.max}</span>
-              </div>
-              <div class="prog-wrap"><div class="prog-bar ${pct>=70?'prog-g':pct>=45?'prog-y':'prog-r'}" style="width:${pct}%"></div></div>
-            </div>`;
-          }).join('')||'<div class="empty">Sin sustentaciones.</div>'}
+          ${sustResults.map(sr=>{const pct=Math.round((sr.total/sr.max)*100);return `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span class="fw7">${sr.name}</span><span>${sr.total}/${sr.max}</span></div><div class="prog-wrap"><div class="prog-bar ${pct>=70?'prog-g':pct>=45?'prog-y':'prog-r'}" style="width:${pct}%"></div></div></div>`;}).join('')||'<div class="empty">Sin sustentaciones.</div>'}
         </div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title" style="justify-content:space-between">
         📌 Notas del Profesor
-        <button class="btn btn-g btn-sm" onclick="addStudentNote('${sid}')">＋ Agregar nota</button>
+        <button class="btn btn-g btn-sm" onclick="addStudentNote('${sid}')">＋ Nota</button>
       </div>
       <div id="stu-notes-${sid}">
         ${(S.notes.filter(n=>n.stuId===sid)||[]).map(n=>`
           <div class="alert-banner ${n.type==='académica'?'ok':n.type==='comportamiento'?'warn':''}">
-            <div>
-              <strong>${n.type}</strong> · <span class="text-gray text-sm">${fmtDate(n.date)}</span>
-              <div>${n.text}</div>
-            </div>
+            <div><strong>${n.type}</strong> · <span class="text-gray text-sm">${fmtDate(n.date)}</span><div>${n.text}</div></div>
             <button class="btn btn-red btn-xs" style="margin-left:auto" onclick="deleteNote('${n.id}')">✕</button>
           </div>`).join('')||'<div class="empty">Sin notas.</div>'}
       </div>
@@ -1448,57 +1481,32 @@ function openStudentProfile(sid){
 }
 
 function addStudentNote(sid){
-  const text=prompt('Nota para el estudiante:');
-  if(!text) return;
-  const type=prompt('Tipo (académica / comportamiento / general):','académica')||'general';
+  const text=prompt('Nota para el estudiante:');if(!text)return;
+  const type=prompt('Tipo (académica/comportamiento/general):','académica')||'general';
   S.notes.push({id:uid(),stuId:sid,text,type,date:new Date().toISOString().slice(0,10)});
-  openStudentProfile(sid);
-  toast('✅ Nota agregada');
+  openStudentProfile(sid);toast('✅ Nota agregada');
 }
 
-function deleteNote(nid){
-  S.notes=S.notes.filter(n=>n.id!==nid);
-  if(currentStudentId) openStudentProfile(currentStudentId);
-}
+function deleteNote(nid){S.notes=S.notes.filter(n=>n.id!==nid);if(currentStudentId)openStudentProfile(currentStudentId);}
 
-// ═══════════════════════════════════════════════
-//  ANALYTICS
-// ═══════════════════════════════════════════════
+// ═══════════ ANALYTICS ═══════════
 function renderAnalytics(){
-  // Line chart
-  const labels=S.sessions.map((s,i)=>`S${i+1}: ${s.topic?.slice(0,15)||'?'}`);
-  const datP=S.sessions.map(s=>attPct(s));
+  const labels=S.sessions.map((s,i)=>`S${i+1}: ${(s.topic||'?').slice(0,12)}`);
   const ctx1=document.getElementById('chart-ana-line').getContext('2d');
-  if(chartAnaLine) chartAnaLine.destroy();
-  chartAnaLine=new Chart(ctx1,{type:'line',data:{labels,datasets:[
-    {label:'% Asistencia',data:datP,borderColor:'#43A047',backgroundColor:'rgba(67,160,71,.1)',fill:true,tension:.4}
-  ]},options:{responsive:true,scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}}}});
-
-  // Sust bar chart
+  if(chartAnaLine)chartAnaLine.destroy();
+  chartAnaLine=new Chart(ctx1,{type:'line',data:{labels,datasets:[{label:'% Asistencia',data:S.sessions.map(s=>attPct(s)),borderColor:'#43A047',backgroundColor:'rgba(67,160,71,.1)',fill:true,tension:.4}]},options:{responsive:true,scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}}}});
   const sustLabels=S.sustentaciones.map(s=>s.name);
   const sustAvgData=S.sustentaciones.map(sust=>{
     const max=sust.criteria.reduce((t,c)=>t+c.pts,0);
     const targets=sust.target==='grupos'?Object.values(S.groups):S.config.students;
-    const vals=targets.map(t=>{
-      const sc=S.sustScores[sust.id]?.[t.id]||{};
-      return sust.criteria.reduce((total,c,i)=>total+(sc[i]||0),0);
-    });
-    const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
-    return Math.round((avg/max)*100);
+    const vals=targets.map(t=>{const sc=S.sustScores[sust.id]?.[t.id]||{};return sust.criteria.reduce((total,c,i)=>total+(sc[i]||0),0);});
+    return max&&vals.length?Math.round((vals.reduce((a,b)=>a+b,0)/vals.length/max)*100):0;
   });
   const ctx2=document.getElementById('chart-sust-bar').getContext('2d');
-  if(chartSustBar) chartSustBar.destroy();
-  chartSustBar=new Chart(ctx2,{type:'bar',data:{labels:sustLabels,datasets:[
-    {label:'% Promedio',data:sustAvgData,backgroundColor:'#388E3C'}
-  ]},options:{responsive:true,scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}}}});
-
-  // Risk table
+  if(chartSustBar)chartSustBar.destroy();
+  chartSustBar=new Chart(ctx2,{type:'bar',data:{labels:sustLabels,datasets:[{label:'% Promedio',data:sustAvgData,backgroundColor:'#388E3C'}]},options:{responsive:true,scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}}}});
   const risks=S.config.students.map(s=>({s,r:calcRisk(s.id)}));
-  const ok=risks.filter(x=>x.r.level==='ok').length;
-  const warn=risks.filter(x=>x.r.level==='warn').length;
-  const hi=risks.filter(x=>x.r.level==='hi').length;
-  const none=risks.filter(x=>x.r.level==='none').length;
-
+  const ok=risks.filter(x=>x.r.level==='ok').length,warn=risks.filter(x=>x.r.level==='warn').length,hi=risks.filter(x=>x.r.level==='hi').length,none=risks.filter(x=>x.r.level==='none').length;
   document.getElementById('analytics-risk-table').innerHTML=`
     <div class="grid4 mb12">
       <div class="kpi"><div class="kpi-val" style="color:#43A047">${ok}</div><div class="kpi-label">En regla</div></div>
@@ -1507,42 +1515,26 @@ function renderAnalytics(){
       <div class="kpi blue"><div class="kpi-val">${none}</div><div class="kpi-label">Sin datos</div></div>
     </div>
     ${risks.filter(x=>x.r.level!=='ok'&&x.r.level!=='none').map(({s,r})=>`
-      <div class="stu-row">
-        <div class="stu-avatar">${stuInitials(s.name)}</div>
-        <div style="flex:1">
-          <div class="stu-name">${s.name}</div>
-          <div class="stu-meta">${r.abs} falta(s) · ${r.pct}% asist.</div>
-        </div>
+      <div class="stu-row"><div class="stu-avatar">${stuInitials(s.name)}</div>
+        <div style="flex:1"><div class="stu-name">${s.name}</div><div class="stu-meta">${r.abs} falta(s) · ${r.pct}% asist.</div></div>
         <span class="risk ${r.level==='hi'?'risk-hi':'risk-warn'}">${r.level==='hi'?'EN RIESGO':'ATENCIÓN'}</span>
       </div>`).join('')||'<div class="empty">¡Todos en regla!</div>'}`;
-
-  // Top performers
-  const topped=S.config.students.map(s=>{
-    const r=calcRisk(s.id);
-    const avg=calcAvg(s.id);
-    return {s,pct:r.pct??100,avg};
-  }).sort((a,b)=>(b.pct+(b.avg||0)*10)-(a.pct+(a.avg||0)*10)).slice(0,5);
-
+  const topped=S.config.students.map(s=>({s,pct:calcRisk(s.id).pct??100,avg:calcAvg(s.id)})).sort((a,b)=>(b.pct+(b.avg||0)*10)-(a.pct+(a.avg||0)*10)).slice(0,5);
   document.getElementById('analytics-top').innerHTML=topped.map(({s,pct,avg},i)=>`
     <div class="stu-row">
       <div class="stu-avatar" style="background:${i===0?'gold':i===1?'silver':i===2?'#cd7f32':''};color:${i<3?'#333':''}">${i+1}</div>
-      <div style="flex:1">
-        <div class="stu-name">${s.name}</div>
-        <div class="stu-meta">${pct}% asist. ${avg!==null?'· Prom. '+avg:''}</div>
-      </div>
+      <div style="flex:1"><div class="stu-name">${s.name}</div><div class="stu-meta">${pct}% asist.${avg!==null?' · Prom. '+avg:''}</div></div>
       <div class="prog-wrap" style="max-width:80px"><div class="prog-bar prog-g" style="width:${pct}%"></div></div>
     </div>`).join('')||'<div class="empty">Sin datos.</div>';
 }
 
-// ═══════════════════════════════════════════════
-//  CONFIG
-// ═══════════════════════════════════════════════
+// ═══════════ CONFIG ═══════════
 function renderConfig(){
   const token=localStorage.getItem('docadmin_gh_token')||'';
   document.getElementById('cfg-token').value=token;
-  document.getElementById('cfg-students').value=
-    S.config.students.map(s=>`${s.id}|${s.name}`).join('\n');
+  document.getElementById('cfg-students').value=S.config.students.map(s=>`${s.id}|${s.name}`).join('\n');
   document.getElementById('stu-count-tag').textContent=S.config.students.length+' estudiantes';
+  renderCustomTabsList();
 }
 
 function saveCourseConfig(){
@@ -1555,100 +1547,234 @@ function saveCourseConfig(){
   S.config.totalWeeks=parseInt(document.getElementById('cfg-weeks').value)||16;
   S.config.maxAbsences=parseInt(document.getElementById('cfg-maxabs').value)||3;
   const token=document.getElementById('cfg-token').value.trim();
-  if(token) localStorage.setItem('docadmin_gh_token',token);
+  if(token)localStorage.setItem('docadmin_gh_token',token);
   document.getElementById('hdr-name').textContent=S.config.courseName;
-  document.getElementById('hdr-meta').textContent=
-    `${S.config.code} · ${S.config.group} · Sala ${S.config.room} · ${S.config.schedule} · ${S.config.professor}`;
-  ssLocal(); toast('✅ Configuración guardada');
+  document.getElementById('hdr-meta').textContent=`${S.config.code} · ${S.config.group} · Sala ${S.config.room} · ${S.config.schedule} · ${S.config.professor}`;
+  ssLocal();toast('✅ Configuración guardada');
 }
 
 function saveStudentList(){
   const lines=document.getElementById('cfg-students').value.trim().split('\n').filter(Boolean);
-  S.config.students=lines.map(l=>{
-    const [id,...rest]=l.split('|');
-    return {id:id.trim(),name:rest.join('|').trim()};
-  }).filter(s=>s.id&&s.name);
+  S.config.students=lines.map(l=>{const[id,...rest]=l.split('|');return{id:id.trim(),name:rest.join('|').trim()};}).filter(s=>s.id&&s.name);
   document.getElementById('stu-count-tag').textContent=S.config.students.length+' estudiantes';
   document.getElementById('hdr-badge').textContent=S.config.students.length+' Est.';
-  ssLocal(); toast('✅ Lista actualizada: '+S.config.students.length+' estudiantes');
+  ssLocal();toast('✅ Lista actualizada: '+S.config.students.length+' estudiantes');
 }
 
-// ═══════════════════════════════════════════════
-//  EXPORT / IMPORT
-// ═══════════════════════════════════════════════
+// ═══════════ CUSTOM TABS ═══════════
+function addCustomTab(){
+  const name=document.getElementById('ctab-name').value.trim();
+  const icon=document.getElementById('ctab-icon').value.trim()||'📌';
+  if(!name){toast('Ingresa el nombre de la pestaña.',true);return;}
+  if(!S.customTabs)S.customTabs=[];
+  const id='ctab_'+uid();
+  S.customTabs.push({id,name,icon,content:''});
+  document.getElementById('ctab-name').value='';document.getElementById('ctab-icon').value='';
+  renderCustomTabsList();
+  addCustomTabToNav(id,icon,name);
+  ssLocal();toast('✅ Pestaña "'+name+'" agregada');
+}
+
+function renderCustomTabsList(){
+  const el=document.getElementById('custom-tabs-list');
+  if(!S.customTabs||!S.customTabs.length){el.innerHTML='<div class="text-gray text-sm mt8">No hay pestañas personalizadas aún.</div>';return;}
+  el.innerHTML=S.customTabs.map(t=>`
+    <div class="custom-tab-item">
+      <span>${t.icon} ${t.name}</span>
+      <div class="flex gap4">
+        <button class="btn btn-blue btn-xs" onclick="goTab('${t.id}')">Ver</button>
+        <button class="btn btn-red btn-xs" onclick="removeCustomTab('${t.id}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function addCustomTabToNav(id,icon,name){
+  const nav=document.querySelector('.nav');
+  if(document.querySelector(`[data-tab="${id}"]`))return;
+  const btn=document.createElement('button');
+  btn.className='nav-btn';btn.dataset.tab=id;btn.textContent=icon+' '+name;
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    ensureCustomTabEl(id,icon,name);
+  });
+  nav.appendChild(btn);
+}
+
+function ensureCustomTabEl(id,icon,name){
+  let el=document.getElementById('tab-'+id);
+  if(!el){
+    el=document.createElement('div');el.className='tab';el.id='tab-'+id;
+    const t=S.customTabs&&S.customTabs.find(x=>x.id===id);
+    el.innerHTML=`<div class="card"><div class="card-title">${icon} ${name}</div>
+      <div class="fld w100 mb8"><label>Contenido / Notas</label>
+        <textarea style="width:100%;min-height:300px;font-size:13px;resize:vertical" onchange="saveCustomTabContent('${id}',this.value)">${t?t.content:''}</textarea></div>
+      <button class="btn btn-ok btn-sm" onclick="this.previousElementSibling.previousElementSibling.querySelector('textarea')&&saveCustomTabContent('${id}',this.parentElement.querySelector('textarea').value)">💾 Guardar</button>
+    </div>`;
+    document.getElementById('custom-tabs-content').appendChild(el);
+  }
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function saveCustomTabContent(id,val){
+  const t=S.customTabs&&S.customTabs.find(x=>x.id===id);
+  if(t){t.content=val;ssLocal();}
+}
+
+function removeCustomTab(id){
+  if(!confirm('¿Eliminar esta pestaña y su contenido?'))return;
+  S.customTabs=(S.customTabs||[]).filter(t=>t.id!==id);
+  const btn=document.querySelector(`[data-tab="${id}"]`);if(btn)btn.remove();
+  const el=document.getElementById('tab-'+id);if(el)el.remove();
+  renderCustomTabsList();ssLocal();toast('🗑 Pestaña eliminada');
+}
+
+// ═══════════ MIGRACIÓN V1 ═══════════
+function showV1Keys(){
+  const keys=Object.keys(localStorage).filter(k=>k.startsWith('eandash_'));
+  const el=document.getElementById('v1-preview');
+  if(!keys.length){el.innerHTML='<div class="alert-banner warn">⚠️ No se encontraron datos del app anterior en este navegador.</div>';return;}
+  el.innerHTML=`<div class="alert-banner ok">✅ Se encontraron ${keys.length} clave(s) del app anterior:</div>
+    <div style="background:#f5f5f5;border-radius:6px;padding:10px;font-size:12px;font-family:monospace;max-height:200px;overflow-y:auto">
+      ${keys.map(k=>{
+        let val;try{val=JSON.parse(localStorage.getItem(k));}catch{val=localStorage.getItem(k);}
+        const desc=Array.isArray(val)?`Array[${val.length}]`:typeof val==='object'?`Objeto{${Object.keys(val||{}).length}}`:String(val).slice(0,60);
+        return `<div style="padding:3px 0;border-bottom:1px solid #ddd"><strong>${k}</strong>: ${desc}</div>`;
+      }).join('')}
+    </div>`;
+}
+
+function migrateFromV1(){
+  const keys=Object.keys(localStorage).filter(k=>k.startsWith('eandash_'));
+  if(!keys.length){toast('No se encontraron datos del app anterior.',true);return;}
+  let found={};
+  keys.forEach(k=>{try{found[k]=JSON.parse(localStorage.getItem(k));}catch{found[k]=localStorage.getItem(k);}});
+  
+  const summary=keys.map(k=>{
+    const val=found[k];
+    return `• ${k}: ${Array.isArray(val)?val.length+' registros':typeof val==='object'?Object.keys(val||{}).length+' claves':'dato'}`;
+  }).join('\n');
+  
+  if(!confirm(`Datos encontrados del app anterior:\n\n${summary}\n\n¿Intentar importar al app nuevo?`))return;
+  
+  let imported=0;
+  
+  // Try to find sessions array
+  const sessKey=keys.find(k=>k.toLowerCase().includes('session')||k.toLowerCase().includes('sesion'));
+  if(sessKey&&Array.isArray(found[sessKey])){
+    found[sessKey].forEach(os=>{
+      const date=os.date||os.fecha||'';
+      if(!S.sessions.find(s=>s.date===date&&s.topic===(os.topic||os.tema||''))){
+        S.sessions.push({
+          id:uid(),date,week:os.week||os.semana||os.numero||S.sessions.length+1,
+          topicId:'',topic:os.topic||os.tema||os.titulo||'',objectives:os.objectives||os.objetivo||'',
+          notes:os.notes||os.notas||'',covered:'',attendance:os.attendance||os.asistencia||{},resources:[]
+        });
+        imported++;
+      }
+    });
+  }
+  
+  // Try any key that might have attendance data
+  keys.forEach(k=>{
+    const val=found[k];
+    if(Array.isArray(val)&&k!==sessKey&&val.length>0&&val[0]&&(val[0].date||val[0].fecha||val[0].id)){
+      if(!S.sessions.length){
+        val.forEach(os=>{
+          S.sessions.push({
+            id:uid(),date:os.date||os.fecha||'',week:os.week||os.semana||S.sessions.length+1,
+            topicId:'',topic:os.topic||os.tema||'',objectives:'',notes:'',attendance:os.attendance||os.asistencia||{},resources:[]
+          });
+          imported++;
+        });
+      }
+    }
+  });
+  
+  if(imported>0){
+    ssLocal();renderAll();
+    document.getElementById('v1-preview').innerHTML=`<div class="alert-banner ok">✅ Se importaron ${imported} registros. Revisa la pestaña Sesiones.</div>`;
+    toast('✅ Migración completada: '+imported+' registros');
+  } else {
+    document.getElementById('v1-preview').innerHTML=`<div class="alert-banner warn">⚠️ Datos encontrados pero no se pudo mapear la estructura automáticamente. Los datos del app anterior tienen un formato diferente. Puedes exportar el JSON del app anterior e importarlo manualmente con el botón "Importar JSON".</div>`;
+    toast('⚠️ No se pudo migrar automáticamente.',true);
+  }
+}
+
+// ═══════════ EXPORT / IMPORT ═══════════
 function exportJSON(){
   const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=`docadmin-${S.config.code}-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`docadmin-${S.config.code}-${new Date().toISOString().slice(0,10)}.json`;a.click();
 }
 
 function exportCSV(){
-  const rows=[['Estudiante','CC','Grupo','% Asistencia','Faltas']
-    .concat(S.activities.map(a=>a.name))
-    .concat(S.sustentaciones.map(s=>s.name))
-  ];
+  const rows=[['Estudiante','CC','Grupo','% Asistencia','Faltas'].concat(S.activities.map(a=>a.name)).concat(S.sustentaciones.map(s=>s.name))];
   S.config.students.forEach(st=>{
-    const r=calcRisk(st.id);
-    const grp=getGroupOfStudent(st.id);
+    const r=calcRisk(st.id),grp=getGroupOfStudent(st.id);
     const row=[st.name,st.id,grp?.name||'Sin grupo',r.pct??100,r.abs];
     S.activities.forEach(a=>row.push((S.grades[a.id]||{})[st.id]??''));
     S.sustentaciones.forEach(sust=>{
       const tId=sust.target==='grupos'?(grp?.id||''):st.id;
       const sc=S.sustScores[sust.id]?.[tId]||{};
       const max=sust.criteria.reduce((t,c)=>t+c.pts,0);
-      const total=sust.criteria.reduce((t,c,i)=>t+(sc[i]||0),0);
-      row.push(max?total:'');
+      row.push(max?sust.criteria.reduce((t,c,i)=>t+(sc[i]||0),0):'');
     });
     rows.push(row);
   });
   const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
-  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
-  a.download=`docadmin-${S.config.code}-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
+  a.download=`docadmin-${S.config.code}-${new Date().toISOString().slice(0,10)}.csv`;a.click();
 }
 
 function importJSON(input){
-  const file=input.files[0]; if(!file) return;
+  const file=input.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
     try{
       const d=JSON.parse(e.target.result);
-      S={...S,...d}; renderAll();
-      toast('✅ Datos importados');
+      S={...S,...d};
+      if(!S.syllabus||!S.syllabus.length)S.syllabus=DEFAULT_SYLLABUS;
+      if(!S.coveredTopics)S.coveredTopics=[];
+      if(!S.activityFiles)S.activityFiles={};
+      if(!S.customTabs)S.customTabs=[];
+      renderAll();toast('✅ Datos importados');
     }catch{toast('❌ Archivo inválido',true);}
   };
   reader.readAsText(file);
 }
 
-// ═══════════════════════════════════════════════
-//  LOCAL STORAGE CACHE
-// ═══════════════════════════════════════════════
-function ssLocal(){ localStorage.setItem('docadmin_v2_state',JSON.stringify(S)); }
+// ═══════════ LOCAL STORAGE ═══════════
+function ssLocal(){localStorage.setItem('docadmin_v2_state',JSON.stringify(S));}
 function loadLocal(){
   try{
     const saved=localStorage.getItem('docadmin_v2_state');
-    if(saved){ const d=JSON.parse(saved); S={...S,...d}; }
+    if(saved){
+      const d=JSON.parse(saved);S={...S,...d};
+      if(!S.syllabus||!S.syllabus.length)S.syllabus=DEFAULT_SYLLABUS;
+      if(!S.coveredTopics)S.coveredTopics=[];
+      if(!S.activityFiles)S.activityFiles={};
+      if(!S.customTabs)S.customTabs=[];
+    }
   }catch(e){}
 }
 
-// ═══════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════
+// ═══════════ INIT ═══════════
 function renderAll(){
   renderPanel();
-  // Update header
   document.getElementById('hdr-name').textContent=S.config.courseName;
-  document.getElementById('hdr-meta').textContent=
-    `${S.config.code} · ${S.config.group} · Sala ${S.config.room} · ${S.config.schedule} · ${S.config.professor}`;
+  document.getElementById('hdr-meta').textContent=`${S.config.code} · ${S.config.group} · Sala ${S.config.room} · ${S.config.schedule} · ${S.config.professor}`;
   document.getElementById('hdr-badge').textContent=S.config.students.length+' Est.';
-  // Token status
-  if(localStorage.getItem('docadmin_gh_token')) setGhStatus(true);
+  if(localStorage.getItem('docadmin_gh_token'))setGhStatus(true);
+  // Rebuild custom tab nav buttons
+  (S.customTabs||[]).forEach(t=>addCustomTabToNav(t.id,t.icon,t.name));
 }
 
 loadLocal();
 renderAll();
-
-// Auto-save to localStorage every 30s
-setInterval(ssLocal, 30000);
+setInterval(ssLocal,30000);
 </script>
 </body>
 </html>
