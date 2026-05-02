@@ -202,7 +202,32 @@ tr:hover td{background:rgba(0,212,255,.05)}
 .divider{height:1px;background:var(--border2);margin:12px 0}
 .color-dot{width:14px;height:14px;border-radius:50%;display:inline-block;flex-shrink:0}
 .obs-input{background:var(--dark3);border:1px solid var(--border2);border-radius:7px;color:var(--light);padding:8px 10px;font-size:12px;resize:vertical}
-@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}.hdr-logo{display:none}}
+/* ── SESSIONS WIDE LAYOUT ── */
+.sess-layout{display:grid;grid-template-columns:280px 1fr;gap:16px;align-items:start}
+/* ── RESOURCES / FILES IN SESSION ── */
+.res-zone{border:2px dashed var(--border2);border-radius:10px;padding:10px;min-height:68px;transition:.2s;cursor:default;outline:none}
+.res-zone.drag-over{border-color:var(--cyan);background:var(--cyan3)}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px;margin-top:6px}
+.res-item{background:var(--dark3);border:1px solid var(--border2);border-radius:8px;padding:7px;text-align:center;position:relative}
+.res-item img{width:100%;height:72px;object-fit:cover;border-radius:5px;margin-bottom:3px}
+.res-icon{font-size:26px;margin-bottom:3px;display:block}
+.res-name{font-size:10px;color:var(--gray);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res-del{position:absolute;top:3px;right:3px;background:rgba(255,68,68,.8);color:#fff;border:none;border-radius:3px;width:18px;height:18px;font-size:10px;cursor:pointer;line-height:18px;text-align:center;padding:0}
+/* ── BLOCK BUILDER ── */
+.block-toolbar{display:flex;gap:5px;flex-wrap:wrap;padding:8px;background:var(--dark3);border-radius:8px;margin-bottom:8px;border:1px solid var(--border2)}
+.btype-btn{background:var(--dark4);border:1px solid var(--border2);color:var(--gray);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;transition:.15s;font-family:inherit}
+.btype-btn:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cyan3)}
+.block-card{background:var(--dark3);border:1px solid var(--border2);border-radius:8px;padding:10px 60px 10px 12px;margin-bottom:6px;position:relative}
+.block-card:hover{border-color:var(--border)}
+.block-actions{position:absolute;top:6px;right:6px;display:flex;gap:2px}
+.block-mv,.block-del{background:none;border:none;cursor:pointer;font-size:12px;padding:2px 5px;border-radius:3px;transition:.15s;color:var(--gray2);line-height:1}
+.block-mv:hover{color:var(--cyan);background:var(--cyan3)}
+.block-del:hover{color:var(--red);background:rgba(255,68,68,.1)}
+.block-empty{text-align:center;color:var(--gray2);font-size:12px;padding:20px;font-style:italic}
+/* ── ANALYTICS CHARTS ── */
+.an-row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.an-row3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}.hdr-logo{display:none}.sess-layout{grid-template-columns:1fr}.an-row2,.an-row3{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -270,12 +295,21 @@ tr:hover td{background:rgba(0,212,255,.05)}
 </div>
 <!-- SYLLABUS -->
 <div class="tab" id="tab-syllabus">
-  <div class="card"><div class="card-title">📋 Contenido del Curso<button class="btn btn-sm btn-out" style="margin-left:auto" onclick="addSyllabusUnit()">＋ Unidad</button></div>
-    <div id="syllabus-list"></div></div>
+  <div class="card">
+    <div class="card-title">📋 Syllabus
+      <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+        <button class="btn btn-sm btn-out" onclick="document.getElementById('syl-file-inp').click()">📎 Subir Documento</button>
+        <input type="file" id="syl-file-inp" style="display:none" onchange="addSylFile(this)">
+        <button class="btn btn-sm btn-g" onclick="addSyllabusUnit()">＋ Unidad</button>
+      </div>
+    </div>
+    <div id="syl-file-area" style="margin-bottom:10px"></div>
+    <div id="syllabus-list"></div>
+  </div>
 </div>
 <!-- SESIONES -->
 <div class="tab" id="tab-sesiones">
-  <div class="grid2" style="align-items:start">
+  <div class="sess-layout">
     <div class="card"><div class="card-title">📅 Sesiones<button class="btn btn-sm btn-g" style="margin-left:auto" onclick="openModal('modal-session')">＋ Nueva</button></div>
       <ul class="sess-list" id="sess-list"></ul></div>
     <div id="sess-detail"><div class="card"><div class="empty">Selecciona o crea una sesión.</div></div></div>
@@ -287,6 +321,18 @@ tr:hover td{background:rgba(0,212,255,.05)}
     <button class="btn btn-sm btn-g" style="margin-left:auto" onclick="openAddActivityModal()">＋ Actividad</button></div>
     <div id="act-chips" class="flex gap8 flex-wrap mb8"></div>
     <div id="grades-table"></div></div>
+  <div class="card" id="eval-files-card" style="display:none">
+    <div class="card-title">📎 Adjuntos de Evaluaciones
+      <span class="text-sm text-gray" style="margin-left:8px;font-weight:400">por actividad / estudiante</span>
+    </div>
+    <div id="eval-files-list"></div>
+    <div class="flex gap8 mt8">
+      <select id="eval-act-sel" style="min-width:160px"></select>
+      <select id="eval-stu-sel" style="min-width:200px"></select>
+      <button class="btn btn-orange btn-sm" onclick="document.getElementById('eval-file-inp').click()">📎 Adjuntar</button>
+      <input type="file" id="eval-file-inp" multiple style="display:none" onchange="addEvalFile(this)">
+    </div>
+  </div>
 </div>
 <!-- SUSTENTACIONES -->
 <div class="tab" id="tab-sustentaciones">
@@ -311,8 +357,8 @@ tr:hover td{background:rgba(0,212,255,.05)}
 <div class="tab" id="tab-estudiantes">
   <div class="card"><div class="card-title">🎓 Listado de Estudiantes
     <button class="btn btn-sm btn-g" style="margin-left:auto" onclick="openAddStudentModal()">＋ Agregar</button>
-    <button class="btn btn-sm btn-out" onclick="document.getElementById('csv-import').click()">📥 CSV</button>
-    <input type="file" id="csv-import" accept=".csv" style="display:none" onchange="importCSV(this)"></div>
+    <button class="btn btn-sm btn-out" onclick="document.getElementById('csv-import').click()">📥 Importar</button>
+    <input type="file" id="csv-import" accept="*" style="display:none" onchange="importStudentFile(this)"></div>
     <input type="text" id="stu-search" placeholder="🔍 Buscar estudiante..." oninput="renderStudents()" style="margin-bottom:12px;width:100%">
     <div id="students-table"></div></div>
 </div>
@@ -376,9 +422,9 @@ tr:hover td{background:rgba(0,212,255,.05)}
   </div>
   <div class="cfg-section">
     <div class="cfg-section-title">👥 Lista de Estudiantes</div>
-    <p class="text-sm text-gray mb8">Importa desde CSV (columnas: id,nombre) o agrega manualmente en la pestaña Estudiantes.</p>
-    <button class="btn btn-out btn-sm" onclick="document.getElementById('csv-import2').click()">📥 Importar CSV</button>
-    <input type="file" id="csv-import2" accept=".csv" style="display:none" onchange="importCSV(this)">
+    <p class="text-sm text-gray mb8">Importa CSV, Excel (.xlsx) o texto. Formato CSV: id,nombre por fila.</p>
+    <button class="btn btn-out btn-sm" onclick="document.getElementById('stu-imp-any').click()">📥 Importar Lista</button>
+    <input type="file" id="stu-imp-any" accept="*" style="display:none" onchange="importStudentFile(this)">
   </div>
   <div class="cfg-section" style="border-left-color:var(--yellow)">
     <div class="cfg-section-title">🔄 Migración de Datos V1</div>
@@ -753,6 +799,7 @@ function ensureStateFields(){
   if(!S.activityFiles)S.activityFiles={};
   if(!S.customTabs)S.customTabs=[];
   if(!S.courseFiles)S.courseFiles=[];
+  if(!S.syllabusFiles)S.syllabusFiles=[];
   if(!S.groups)S.groups={};
   if(!S.sessions)S.sessions=[];
   if(!S.activities)S.activities=[];
@@ -914,9 +961,9 @@ function switchTab(tab,btn){
 }
 function renderForTab(tab){
   if(tab==='panel')renderPanel();
-  else if(tab==='syllabus')renderSyllabus();
+  else if(tab==='syllabus'){renderSyllabus();renderSylFile();}
   else if(tab==='sesiones')renderSessionList();
-  else if(tab==='evaluaciones')renderActivities();
+  else if(tab==='evaluaciones'){renderActivities();renderEvalFiles();}
   else if(tab==='sustentaciones')renderSustList();
   else if(tab==='grupos')renderGroups();
   else if(tab==='estudiantes')renderStudents();
@@ -1120,7 +1167,23 @@ function openSess(id){
         <button class="btn btn-g btn-sm" onclick="markAllPresent('${id}')">✅ Marcar todos presentes</button>
         <button class="btn btn-out btn-sm" onclick="saveAndToast()">💾 Guardar</button>
       </div>
+      <div class="divider mt12"></div>
+      <div class="card-title2 mt8">📎 Recursos y Archivos</div>
+      <p class="text-sm text-gray mb8">Sube archivos, imágenes o pega (Ctrl+V) imágenes directamente.</p>
+      <div class="res-zone" id="res-zone-${id}" tabindex="0"
+        onpaste="handleSessResourcePaste(event,'${id}')"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleSessResourceDrop(event,'${id}')">
+        <div id="res-grid-${id}" class="res-grid"></div>
+        <div id="res-hint-${id}" class="empty" style="font-size:12px;padding:8px">📋 Pega imagen (Ctrl+V) o arrastra archivos aquí</div>
+      </div>
+      <div class="flex gap8 mt8">
+        <button class="btn btn-out btn-sm" onclick="document.getElementById('res-inp-${id}').click()">📎 Subir Archivo</button>
+        <input type="file" id="res-inp-${id}" multiple style="display:none" onchange="addSessResources('${id}',this.files)">
+      </div>
     </div>`;
+  renderSessResources('${id}');
 }
 function setAtt(sessId,stuId,val){
   const sess=S.sessions.find(x=>x.id===sessId);if(!sess)return;
@@ -1184,6 +1247,160 @@ function deleteSession(id){
   renderSessionList();ssLocal();toast('🗑 Sesión eliminada');
 }
 
+// ──────────────────────────────────────────────────────────────────
+//  SESSION RESOURCES
+// ──────────────────────────────────────────────────────────────────
+function addSessResources(sessId,files){
+  const sess=S.sessions.find(x=>x.id===sessId);if(!sess)return;
+  if(!sess.resources)sess.resources=[];
+  Array.from(files).forEach(f=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      sess.resources.push({id:uid(),name:f.name,type:f.type,size:f.size,data:e.target.result});
+      ssLocal();renderSessResources(sessId);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+function handleSessResourcePaste(evt,sessId){
+  const items=evt.clipboardData?.items||[];
+  let handled=false;
+  for(const item of items){
+    if(item.type.startsWith('image/')){
+      const file=item.getAsFile();if(!file)continue;
+      handled=true;
+      const reader=new FileReader();
+      reader.onload=e=>{
+        const sess=S.sessions.find(x=>x.id===sessId);if(!sess)return;
+        if(!sess.resources)sess.resources=[];
+        sess.resources.push({id:uid(),name:'imagen_'+Date.now()+'.png',type:'image/png',size:file.size,data:e.target.result});
+        ssLocal();renderSessResources(sessId);toast('🖼️ Imagen pegada');
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+  if(handled)evt.preventDefault();
+}
+function handleSessResourceDrop(evt,sessId){
+  evt.preventDefault();evt.currentTarget.classList.remove('drag-over');
+  addSessResources(sessId,evt.dataTransfer.files);
+}
+function deleteSessResource(sessId,resId){
+  const sess=S.sessions.find(x=>x.id===sessId);if(!sess)return;
+  sess.resources=(sess.resources||[]).filter(r=>r.id!==resId);
+  ssLocal();renderSessResources(sessId);
+}
+function renderSessResources(sessId){
+  const grid=document.getElementById('res-grid-'+sessId);
+  const hint=document.getElementById('res-hint-'+sessId);
+  const sess=S.sessions.find(x=>x.id===sessId);
+  if(!grid)return;
+  const res=sess?.resources||[];
+  if(!res.length){if(hint)hint.style.display='';grid.innerHTML='';return;}
+  if(hint)hint.style.display='none';
+  const EXT_ICONS={'pdf':'📄','doc':'📝','docx':'📝','xls':'📊','xlsx':'📊','ppt':'📋','pptx':'📋','mp4':'🎬','mp3':'🎵'};
+  grid.innerHTML=res.map(r=>{
+    const ext=(r.name.split('.').pop()||'').toLowerCase();
+    const isImg=r.type?.startsWith('image/');
+    return`<div class="res-item">
+      ${isImg?`<img src="${r.data}" alt="${r.name}">`:`<span class="res-icon">${EXT_ICONS[ext]||'📁'}</span>`}
+      <div class="res-name" title="${r.name}">${r.name}</div>
+      <button class="res-del" onclick="deleteSessResource('${sessId}','${r.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+// ──────────────────────────────────────────────────────────────────
+//  SYLLABUS FILE
+// ──────────────────────────────────────────────────────────────────
+function addSylFile(input){
+  const f=input.files[0];if(!f)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    if(!S.syllabusFiles)S.syllabusFiles=[];
+    S.syllabusFiles=[{id:uid(),name:f.name,type:f.type,size:f.size,data:e.target.result,uploadDate:new Date().toISOString()}];
+    ssLocal();renderSylFile();toast('📎 Syllabus subido: '+f.name);
+  };
+  reader.readAsDataURL(f);
+  input.value='';
+}
+function renderSylFile(){
+  const el=document.getElementById('syl-file-area');if(!el)return;
+  const files=S.syllabusFiles||[];
+  if(!files.length){el.innerHTML='';return;}
+  el.innerHTML=files.map(f=>{
+    const sizeKb=Math.round((f.size||0)/1024);
+    const canOpen=f.data&&(f.type?.startsWith('image/')||f.type==='application/pdf');
+    return`<div class="file-item">
+      <span style="font-size:18px">📄</span>
+      <div style="flex:1"><div class="file-name">${f.name}</div><div class="file-size">${sizeKb} KB</div></div>
+      <div class="flex gap4">
+        ${canOpen?`<a href="${f.data}" target="_blank" class="btn btn-out btn-xs">👁 Ver</a>`:''}
+        <button class="btn btn-red btn-xs" onclick="S.syllabusFiles=[];ssLocal();renderSylFile()">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+// ──────────────────────────────────────────────────────────────────
+//  SMART STUDENT IMPORT (any file)
+// ──────────────────────────────────────────────────────────────────
+async function importStudentFile(input){
+  const f=input.files[0];if(!f)return;
+  input.value='';
+  const ext=f.name.split('.').pop().toLowerCase();
+  if(ext==='xlsx'||ext==='xls'){
+    // Load SheetJS dynamically
+    if(!window.XLSX){
+      await new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+        s.onload=res;s.onerror=rej;document.head.appendChild(s);
+      });
+    }
+    const data=await f.arrayBuffer();
+    const wb=XLSX.read(data,{type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+    let added=0;
+    rows.forEach((row,i)=>{
+      if(!row.length)return;
+      // Try to find ID (numeric) and name (text) columns
+      let id='',name='';
+      row.forEach(cell=>{
+        const s=String(cell).trim();
+        if(/^\d{6,12}$/.test(s))id=s;
+        else if(s.length>3&&/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(s))name=name||s;
+      });
+      if(!id&&row.length>=2){id=String(row[0]).trim();name=String(row[1]).trim();}
+      if(id&&name&&!(S.config.students||[]).find(s=>s.id===id)){
+        if(!S.config.students)S.config.students=[];
+        S.config.students.push({id,name});added++;
+      }
+    });
+    renderStudents();ssLocal();toast(`✅ ${added} estudiantes importados desde Excel`);
+  } else {
+    // CSV / text
+    const text=await f.text();
+    const lines=text.split(/
+?
+/).filter(l=>l.trim());
+    let added=0;
+    lines.forEach((line,i)=>{
+      // Auto-detect separator
+      const sep=line.includes(';')?';':line.includes('	')?'	':',';
+      const parts=line.split(sep).map(x=>x.trim().replace(/^"|"$/g,''));
+      if(parts.length<2)return;
+      const id=parts[0],name=parts[1];
+      if(!id||!name||id.toLowerCase()==='id'||id.toLowerCase()==='codigo')return;
+      if(!(S.config.students||[]).find(s=>s.id===id)){
+        if(!S.config.students)S.config.students=[];
+        S.config.students.push({id,name});added++;
+      }
+    });
+    renderStudents();ssLocal();toast(`✅ ${added} estudiantes importados`);
+  }
+}
+// Keep legacy importCSV as alias
+function importCSV(input){importStudentFile(input);}
 // ══════════════════════════════════════════════════════════════════
 //  EVALUACIONES
 // ══════════════════════════════════════════════════════════════════
@@ -1201,7 +1418,68 @@ function saveActivity(){
   if(totalW+weight>100){toast(`⚠️ Total superaría 100% (actual: ${totalW}%)`,true);return;}
   if(!S.activities)S.activities=[];
   S.activities.push({id:uid(),name,weight,date:document.getElementById('act-date').value||''});
-  closeModal('modal-activity');renderActivities();ssLocal();toast('✅ Actividad agregada');
+  closeModal('modal-activity');renderActivities();renderEvalFiles();ssLocal();toast('✅ Actividad agregada');
+}
+function renderEvalFiles(){
+  const card=document.getElementById('eval-files-card');
+  const acts=S.activities||[];
+  if(!acts.length){if(card)card.style.display='none';return;}
+  if(card)card.style.display='';
+  const actSel=document.getElementById('eval-act-sel');
+  const stuSel=document.getElementById('eval-stu-sel');
+  if(actSel)actSel.innerHTML=acts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  if(stuSel)stuSel.innerHTML=(S.config?.students||[]).map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  const files=S.activityFiles||{};
+  const list=document.getElementById('eval-files-list');
+  if(!list)return;
+  let rows=[];
+  acts.forEach(a=>{
+    const af=files[a.id]||{};
+    Object.entries(af).forEach(([sid,farr])=>{
+      const stu=S.config?.students?.find(x=>x.id===sid);
+      (farr||[]).forEach(f=>{
+        rows.push({actName:a.name,stuName:stu?.name||sid,f,actId:a.id,stuId:sid});
+      });
+    });
+  });
+  if(!rows.length){list.innerHTML='<div class="empty">Sin adjuntos.</div>';return;}
+  const EXT_ICONS={'pdf':'📄','doc':'📝','docx':'📝','xls':'📊','xlsx':'📊','ppt':'📋','pptx':'📋'};
+  list.innerHTML=rows.map(({actName,stuName,f,actId,stuId})=>{
+    const ext=(f.name.split('.').pop()||'').toLowerCase();
+    const isImg=f.type?.startsWith('image/');
+    return`<div class="file-item">
+      <span style="font-size:16px">${isImg?'🖼️':EXT_ICONS[ext]||'📁'}</span>
+      <div style="flex:1;overflow:hidden">
+        <div class="file-name">${f.name}</div>
+        <div class="file-size">${actName} · ${stuName}</div>
+      </div>
+      ${isImg?`<img src="${f.data}" style="height:40px;border-radius:4px;cursor:pointer" onclick="window.open('${f.data}')">`:
+        `<a href="${f.data}" download="${f.name}" class="btn btn-out btn-xs">⬇️</a>`}
+      <button class="btn btn-red btn-xs" onclick="deleteEvalFile('${actId}','${stuId}','${f.id}')">🗑</button>
+    </div>`;
+  }).join('');
+}
+function addEvalFile(input){
+  const actId=document.getElementById('eval-act-sel')?.value;
+  const stuId=document.getElementById('eval-stu-sel')?.value;
+  if(!actId){toast('⚠️ Selecciona actividad',true);return;}
+  if(!S.activityFiles)S.activityFiles={};
+  if(!S.activityFiles[actId])S.activityFiles[actId]={};
+  if(!S.activityFiles[actId][stuId])S.activityFiles[actId][stuId]=[];
+  Array.from(input.files).forEach(f=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      S.activityFiles[actId][stuId||'_general'].push({id:uid(),name:f.name,type:f.type,size:f.size,data:e.target.result});
+      ssLocal();renderEvalFiles();toast('✅ Archivo adjunto: '+f.name);
+    };
+    reader.readAsDataURL(f);
+  });
+  input.value='';
+}
+function deleteEvalFile(actId,stuId,fileId){
+  if(!S.activityFiles?.[actId]?.[stuId])return;
+  S.activityFiles[actId][stuId]=(S.activityFiles[actId][stuId]||[]).filter(f=>f.id!==fileId);
+  ssLocal();renderEvalFiles();
 }
 function renderActivities(){
   const acts=S.activities||[];
@@ -1544,12 +1822,14 @@ function importCSV(input){
 // ══════════════════════════════════════════════════════════════════
 //  ANALYTICS
 // ══════════════════════════════════════════════════════════════════
+let anCharts={};
+function destroyAnCharts(){Object.values(anCharts).forEach(c=>{try{c.destroy();}catch{}});anCharts={};}
 function renderAnalytics(){
+  destroyAnCharts();
   const students=S.config?.students||[];
   const sessions=S.sessions||[];
   const acts=S.activities||[];
   const totalW=acts.reduce((s,a)=>s+a.weight,0)||1;
-  // Build student report
   const rows=students.map(s=>{
     const attArr=sessions.map(sess=>sess.attendance[s.id]?.status||'');
     const pCount=attArr.filter(x=>x==='P').length;
@@ -1563,12 +1843,33 @@ function renderAnalytics(){
   const atRisk=rows.filter(r=>r.risk).length;
   const avgAtt=rows.filter(r=>r.pct!==null).reduce((s,r)=>s+r.pct,0)/(rows.filter(r=>r.pct!==null).length||1);
   const avgGrade=rows.filter(r=>r.hasGrades).reduce((s,r)=>s+r.weighted,0)/(rows.filter(r=>r.hasGrades).length||1);
+  // Attendance trend per session
+  const sessLabels=sessions.map(s=>`S${s.week}`);
+  const sessPct=sessions.map(s=>{const arr=Object.values(s.attendance||{});if(!arr.length)return null;return Math.round(arr.filter(r=>r.status==='P').length/arr.length*100);});
+  // Grade distribution buckets
+  const buckets=[0,0,0,0,0];
+  rows.filter(r=>r.hasGrades).forEach(r=>{const b=Math.min(4,Math.floor(r.weighted));buckets[b]++;});
+  // Top 10 attendance
+  const topAtt=[...rows].filter(r=>r.pct!==null).sort((a,b)=>a.pct-b.pct).slice(0,12);
+
   document.getElementById('analytics-content').innerHTML=`
     <div class="kpi-row">
       <div class="kpi-card"><div class="kpi-val">${Math.round(avgAtt)||0}%</div><div class="kpi-lbl">Asistencia Prom.</div></div>
       <div class="kpi-card"><div class="kpi-val" style="color:${avgGrade>=4?'var(--green)':avgGrade>=3?'var(--cyan)':'var(--red)'}">${rows.some(r=>r.hasGrades)?avgGrade.toFixed(2):'—'}</div><div class="kpi-lbl">Promedio Notas</div></div>
       <div class="kpi-card"><div class="kpi-val" style="color:${atRisk>0?'var(--red)':'var(--green)'}">${atRisk}</div><div class="kpi-lbl">En Riesgo</div></div>
       <div class="kpi-card"><div class="kpi-val">${students.length}</div><div class="kpi-lbl">Estudiantes</div></div>
+    </div>
+    <div class="an-row2">
+      <div class="card"><div class="card-title">📈 Tendencia de Asistencia por Sesión</div>
+        <canvas id="an-chart-trend" height="220"></canvas></div>
+      <div class="card"><div class="card-title">📊 Distribución de Notas</div>
+        <canvas id="an-chart-dist" height="220"></canvas></div>
+    </div>
+    <div class="an-row2">
+      <div class="card"><div class="card-title">🎓 Asistencia por Estudiante (menor a mayor)</div>
+        <canvas id="an-chart-stu" height="260"></canvas></div>
+      <div class="card"><div class="card-title">⚠️ Estado General</div>
+        <canvas id="an-chart-risk" height="260"></canvas></div>
     </div>
     <div class="card">
       <div class="card-title">🎓 Reporte por Estudiante</div>
@@ -1583,6 +1884,34 @@ function renderAnalytics(){
             <td>${risk?'<span class="risk risk-hi">⚠️ En riesgo</span>':'<span class="risk risk-ok">✅ OK</span>'}</td>
           </tr>`).join('')}</tbody></table></div>
     </div>`;
+  // Draw charts after DOM insertion
+  setTimeout(()=>{
+    const co={plugins:{legend:{labels:{color:'#8892a4',font:{size:10}}}},scales:{y:{ticks:{color:'#8892a4'},grid:{color:'rgba(255,255,255,.05)'}},x:{ticks:{color:'#8892a4',font:{size:9}},grid:{display:false}}}};
+    // Attendance trend
+    const tc=document.getElementById('an-chart-trend');
+    if(tc&&sessLabels.length){
+      anCharts.trend=new Chart(tc,{type:'line',data:{labels:sessLabels,datasets:[{label:'Asistencia %',data:sessPct,borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,.1)',tension:.3,pointBackgroundColor:'#00d4ff',pointRadius:4,fill:true}]},options:{...co,plugins:{legend:{display:false}},scales:{...co.scales,y:{...co.scales.y,min:0,max:100}}}});
+    }
+    // Grade distribution
+    const dc=document.getElementById('an-chart-dist');
+    if(dc){
+      anCharts.dist=new Chart(dc,{type:'bar',data:{labels:['0–1','1–2','2–3','3–4','4–5'],datasets:[{data:buckets,backgroundColor:['#ff4444','#ff8c00','#ffd600','#00d4ff','#00e676'],borderWidth:0}]},options:{...co,plugins:{legend:{display:false}}}});
+    }
+    // Student attendance bar (top 12 lowest)
+    const sc=document.getElementById('an-chart-stu');
+    if(sc&&topAtt.length){
+      const lbls=topAtt.map(r=>r.s.name.split(' ').slice(-2).join(' '));
+      const vals=topAtt.map(r=>r.pct);
+      const bgs=vals.map(v=>v>=70?'#00e676':v>=50?'#ffd600':'#ff4444');
+      anCharts.stu=new Chart(sc,{type:'bar',data:{labels:lbls,datasets:[{data:vals,backgroundColor:bgs,borderWidth:0}]},options:{indexAxis:'y',...co,plugins:{legend:{display:false}},scales:{x:{...co.scales.x,min:0,max:100},y:{...co.scales.y,ticks:{...co.scales.y.ticks,font:{size:9}}}}}});
+    }
+    // Risk pie
+    const rc=document.getElementById('an-chart-risk');
+    if(rc){
+      const ok=rows.length-atRisk;
+      anCharts.risk=new Chart(rc,{type:'doughnut',data:{labels:['En riesgo','Sin riesgo'],datasets:[{data:[atRisk,ok],backgroundColor:['#ff4444','#00e676'],borderWidth:0}]},options:{cutout:'65%',plugins:{legend:{labels:{color:'#8892a4'}}}}});
+    }
+  },50);
 }
 // ══════════════════════════════════════════════════════════════════
 //  CONFIG
@@ -1728,16 +2057,136 @@ function addCustomTabToNav(id,icon,name){
   // Create tab div
   if(!document.getElementById('tab-'+id)){
     const div=document.createElement('div');div.className='tab';div.id='tab-'+id;
-    div.innerHTML=`<div class="card"><div class="card-title">${icon} ${name}</div>
-      <p class="text-sm text-gray mb8">Pestaña personalizada. Agrega contenido según necesites.</p>
-      <textarea id="ctab-content-${id}" rows="10" style="width:100%;min-height:200px" placeholder="Escribe aquí el contenido de la pestaña…" onchange="saveCustomTabContent('${id}',this.value)">${(S.customTabs?.find(t=>t.id===id)||{}).content||''}</textarea>
-      <button class="btn btn-g btn-sm mt8" onclick="saveCustomTabContent('${id}',document.getElementById('ctab-content-${id}').value)">💾 Guardar</button>
+    div.innerHTML=`<div class="card">
+      <div class="card-title">${icon} ${name}
+        <span class="text-sm text-gray" style="margin-left:8px;font-weight:400">Constructor de Bloques</span>
+      </div>
+      <div class="block-toolbar">
+        <button class="btype-btn" onclick="addBlock('${id}','heading')">📌 Título</button>
+        <button class="btype-btn" onclick="addBlock('${id}','text')">¶ Texto</button>
+        <button class="btype-btn" onclick="addBlock('${id}','image')">🖼️ Imagen</button>
+        <button class="btype-btn" onclick="addBlock('${id}','file')">📎 Archivo</button>
+        <button class="btype-btn" onclick="addBlock('${id}','table')">⊞ Tabla</button>
+        <button class="btype-btn" onclick="addBlock('${id}','link')">🔗 Enlace</button>
+        <button class="btype-btn" onclick="addBlock('${id}','divider')">── Divisor</button>
+        <button class="btype-btn" onclick="addBlock('${id}','video')">🎬 Video URL</button>
+      </div>
+      <div id="blocks-${id}" class="blocks-container"></div>
     </div>`;
     document.querySelector('.content').appendChild(div);
+    renderBlocks(id);
   }
 }
 function saveCustomTabContent(id,val){
   const t=S.customTabs?.find(x=>x.id===id);if(t)t.content=val;ssLocal();toast('✅ Guardado');
+}
+// ── BLOCK BUILDER ──
+function getTabBlocks(tabId){
+  const t=S.customTabs?.find(x=>x.id===tabId);
+  if(!t)return[];
+  if(!t.blocks)t.blocks=[];
+  return t.blocks;
+}
+function addBlock(tabId,type){
+  const t=S.customTabs?.find(x=>x.id===tabId);if(!t)return;
+  if(!t.blocks)t.blocks=[];
+  const block={id:uid(),type};
+  if(type==='heading')block.text='Nuevo título';
+  else if(type==='text')block.text='';
+  else if(type==='image')block.data=null;
+  else if(type==='file')block.data=null;
+  else if(type==='table')block.rows=[['Col A','Col B','Col C'],['','','']];
+  else if(type==='link')block.url='';
+  else if(type==='video')block.url='';
+  else if(type==='divider'){}
+  t.blocks.push(block);
+  ssLocal();renderBlocks(tabId);toast('✅ Bloque agregado');
+}
+function deleteBlock(tabId,blockId){
+  const t=S.customTabs?.find(x=>x.id===tabId);if(!t)return;
+  t.blocks=(t.blocks||[]).filter(b=>b.id!==blockId);
+  ssLocal();renderBlocks(tabId);
+}
+function moveBlock(tabId,blockId,dir){
+  const t=S.customTabs?.find(x=>x.id===tabId);if(!t||!t.blocks)return;
+  const idx=t.blocks.findIndex(b=>b.id===blockId);if(idx<0)return;
+  const ni=idx+dir;if(ni<0||ni>=t.blocks.length)return;
+  [t.blocks[idx],t.blocks[ni]]=[t.blocks[ni],t.blocks[idx]];
+  ssLocal();renderBlocks(tabId);
+}
+function saveBlockField(tabId,blockId,field,val){
+  const t=S.customTabs?.find(x=>x.id===tabId);if(!t)return;
+  const b=t.blocks?.find(x=>x.id===blockId);if(!b)return;
+  b[field]=val;ssLocal();
+}
+function uploadBlockFile(tabId,blockId,input){
+  const f=input.files[0];if(!f)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const t=S.customTabs?.find(x=>x.id===tabId);if(!t)return;
+    const b=t.blocks?.find(x=>x.id===blockId);if(!b)return;
+    b.data=e.target.result;b.name=f.name;b.type=f.type;
+    ssLocal();renderBlocks(tabId);toast('✅ '+f.name+' subido');
+  };
+  reader.readAsDataURL(f);
+  input.value='';
+}
+function renderBlocks(tabId){
+  const container=document.getElementById('blocks-'+tabId);if(!container)return;
+  const t=S.customTabs?.find(x=>x.id===tabId);
+  const blocks=t?.blocks||[];
+  if(!blocks.length){container.innerHTML='<div class="block-empty">Sin bloques. Usa la barra de herramientas para agregar.</div>';return;}
+  container.innerHTML=blocks.map((b,i)=>{
+    const acts=`<div class="block-actions">
+      <button class="block-mv" onclick="moveBlock('${tabId}','${b.id}',-1)" title="Subir">▲</button>
+      <button class="block-mv" onclick="moveBlock('${tabId}','${b.id}',1)" title="Bajar">▼</button>
+      <button class="block-del" onclick="deleteBlock('${tabId}','${b.id}')">✕</button>
+    </div>`;
+    if(b.type==='heading')return`<div class="block-card">${acts}
+      <input value="${(b.text||'').replace(/"/g,'&quot;')}" onchange="saveBlockField('${tabId}','${b.id}','text',this.value)"
+        style="width:100%;font-size:16px;font-weight:800;color:var(--cyan);background:transparent;border:none;border-bottom:1px solid var(--border2);padding-bottom:6px">
+      </div>`;
+    if(b.type==='text')return`<div class="block-card">${acts}
+      <textarea rows="4" style="width:100%;resize:vertical" placeholder="Escribe aquí..." onchange="saveBlockField('${tabId}','${b.id}','text',this.value)">${b.text||''}</textarea>
+      </div>`;
+    if(b.type==='image')return`<div class="block-card">${acts}
+      ${b.data?`<img src="${b.data}" style="max-width:100%;border-radius:8px;margin-bottom:8px">
+        <button class="btn btn-red btn-xs" onclick="const t=S.customTabs?.find(x=>x.id==='${tabId}');const bl=t?.blocks?.find(x=>x.id==='${b.id}');if(bl){bl.data=null;}ssLocal();renderBlocks('${tabId}')">🗑 Quitar</button>`
+        :`<button class="btn btn-out btn-sm" onclick="document.getElementById('bimg-${b.id}').click()">🖼️ Subir Imagen</button>
+          <input type="file" id="bimg-${b.id}" accept="image/*" style="display:none" onchange="uploadBlockFile('${tabId}','${b.id}',this)">`}
+      </div>`;
+    if(b.type==='file')return`<div class="block-card">${acts}
+      ${b.data?`<div class="file-item"><span style="font-size:18px">📄</span><div style="flex:1"><div class="file-name">${b.name||'archivo'}</div></div>
+        <a href="${b.data}" download="${b.name||'archivo'}" class="btn btn-out btn-xs">⬇️</a>
+        <button class="btn btn-red btn-xs" onclick="const t2=S.customTabs?.find(x=>x.id==='${tabId}');const bl2=t2?.blocks?.find(x=>x.id==='${b.id}');if(bl2){bl2.data=null;}ssLocal();renderBlocks('${tabId}')">🗑</button>
+        </div>`
+        :`<button class="btn btn-out btn-sm" onclick="document.getElementById('bfile-${b.id}').click()">📎 Subir Archivo</button>
+          <input type="file" id="bfile-${b.id}" style="display:none" onchange="uploadBlockFile('${tabId}','${b.id}',this)">`}
+      </div>`;
+    if(b.type==='link')return`<div class="block-card">${acts}
+      <div class="flex gap8" style="align-items:center">
+        <span style="color:var(--cyan);font-size:16px">🔗</span>
+        <input value="${(b.url||'').replace(/"/g,'&quot;')}" placeholder="https://..." style="flex:1" onchange="saveBlockField('${tabId}','${b.id}','url',this.value)">
+        ${b.url?`<a href="${b.url}" target="_blank" class="btn btn-g btn-xs">Abrir</a>`:''}
+      </div></div>`;
+    if(b.type==='video')return`<div class="block-card">${acts}
+      <div class="fld mb8"><label>URL del Video (YouTube, Vimeo, etc.)</label>
+        <input value="${(b.url||'').replace(/"/g,'&quot;')}" placeholder="https://youtube.com/..." onchange="saveBlockField('${tabId}','${b.id}','url',this.value)" style="width:100%"></div>
+      ${b.url?`<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px">
+        <iframe src="${b.url.replace('watch?v=','embed/')}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen></iframe></div>`:''}
+      </div>`;
+    if(b.type==='table')return`<div class="block-card">${acts}
+      <div class="tbl-wrap"><table>${(b.rows||[['A','B'],['','']]).map((row,ri)=>`<tr>${row.map((cell,ci)=>`${ri===0?'<th>':'<td>'}
+        <input value="${String(cell).replace(/"/g,'&quot;')}" onchange="const t3=S.customTabs?.find(x=>x.id==='${tabId}');const b3=t3?.blocks?.find(x=>x.id==='${b.id}');if(b3&&b3.rows){b3.rows[${ri}][${ci}]=this.value;}ssLocal()"
+          style="width:100%;background:transparent;border:none;color:inherit;font-size:12px;padding:2px">${ri===0?'</th>':'</td>'}`).join('')}</tr>`).join('')}</table></div>
+      <div class="flex gap6 mt8">
+        <button class="btn btn-gray btn-xs" onclick="const t4=S.customTabs?.find(x=>x.id==='${tabId}');const b4=t4?.blocks?.find(x=>x.id==='${b.id}');if(b4&&b4.rows){b4.rows.push(new Array(b4.rows[0]?.length||2).fill(''));}ssLocal();renderBlocks('${tabId}')">＋ Fila</button>
+        <button class="btn btn-gray btn-xs" onclick="const t5=S.customTabs?.find(x=>x.id==='${tabId}');const b5=t5?.blocks?.find(x=>x.id==='${b.id}');if(b5&&b5.rows){b5.rows.forEach(r=>r.push(''));}ssLocal();renderBlocks('${tabId}')">＋ Col</button>
+      </div></div>`;
+    if(b.type==='divider')return`<div class="block-card" style="padding:8px">${acts}
+      <div style="height:2px;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:2px;margin:4px 0"></div></div>`;
+    return`<div class="block-card">${acts}<span class="text-gray">${b.type}</span></div>`;
+  }).join('');
 }
 function renderCustomTabsList(){
   const list=document.getElementById('custom-tabs-list');if(!list)return;
@@ -1925,10 +2374,11 @@ async function init(){
     if(cd360){
       const stateKey='docadmin_v2_state_'+cd360.id;
       let st=null;try{st=JSON.parse(localStorage.getItem(stateKey));}catch{}
-      if(st&&(!st.config?.students?.length)){
+      const isTestOnly=(st?.sessions||[]).every(s=>!s.attendance||!Object.values(s.attendance).some(r=>r.status));
+      if(st&&(!st.config?.students?.length||isTestOnly)){
         st.config.students=JSON.parse(JSON.stringify(CD360_STUDENTS));
         if(!st.groups||!Object.keys(st.groups).length)st.groups=JSON.parse(JSON.stringify(CD360_GROUPS));
-        if(!st.sessions?.length)st.sessions=[JSON.parse(JSON.stringify(CD360_SESSION1))];
+        if(!st.sessions?.length||isTestOnly)st.sessions=[JSON.parse(JSON.stringify(CD360_SESSION1))];
         if(!st.sustentaciones?.length){
           st.sustentaciones=[{id:CD360_SUST_ID,name:'Entrega 1 — Sustentación Diagnóstica',date:'2026-03-10',target:'grupos',criteria:JSON.parse(JSON.stringify(CD360_CRITERIA))}];
           st.sustScores={[CD360_SUST_ID]:JSON.parse(JSON.stringify(CD360_SUST_SCORES))};
