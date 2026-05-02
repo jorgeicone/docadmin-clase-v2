@@ -409,8 +409,14 @@ td{padding:7px 10px;border-bottom:1px solid #e8f5e9;vertical-align:middle}
           👥 Lista de Estudiantes
           <span class="tag" id="stu-count-tag">36 estudiantes</span>
         </div>
-        <textarea id="cfg-students" style="width:100%;height:260px;font-size:12px;font-family:monospace;resize:vertical"
-          placeholder="CC|Nombre completo (uno por línea)"></textarea>
+        <p class="text-sm text-gray mb8">Formato: <code>CC|Nombre Completo</code> (una línea por estudiante). O sube un archivo CSV/Excel.</p>
+        <div class="flex gap8 mb8 flex-wrap">
+          <button class="btn btn-blue btn-sm" onclick="document.getElementById('stu-csv-input').click()">📂 Subir CSV / Excel</button>
+          <button class="btn btn-out btn-sm" onclick="exportStudentsCSV()">⬇️ Descargar lista actual</button>
+          <input type="file" id="stu-csv-input" accept=".csv,.xlsx,.xls,.txt" style="display:none" onchange="importStudentFile(this)">
+        </div>
+        <textarea id="cfg-students" style="width:100%;height:220px;font-size:12px;font-family:monospace;resize:vertical"
+          placeholder="1012345678|García López Juan Carlos&#10;1023456789|Rodríguez Martínez María José"></textarea>
         <button class="btn btn-g mt8" onclick="saveStudentList()">💾 Actualizar Lista</button>
       </div>
       <!-- Pestañas personalizadas -->
@@ -1561,6 +1567,46 @@ function saveStudentList(){
   ssLocal();toast('✅ Lista actualizada: '+S.config.students.length+' estudiantes');
 }
 
+function exportStudentsCSV(){
+  const csv=S.config.students.map(s=>`${s.id}|${s.name}`).join('\n');
+  const a=document.createElement('a');a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`estudiantes-${S.config.code}.txt`;a.click();
+}
+
+function importStudentFile(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const text=e.target.result;
+    // Parse CSV or pipe-delimited: try to detect columns
+    const lines=text.split(/[\r\n]+/).filter(l=>l.trim());
+    const students=[];
+    lines.forEach((line,idx)=>{
+      // Skip header row if first line contains non-numeric in first field
+      const cols=line.split(/[,;\t|]/);
+      if(cols.length<2)return;
+      let id=cols[0].trim().replace(/"/g,'');
+      let name=cols.slice(1).join(' ').trim().replace(/"/g,'').trim();
+      // If name has multiple comma-separated parts (e.g. Apellido, Nombre), join them
+      if(!name&&cols.length>2)name=cols.slice(1).map(c=>c.trim().replace(/"/g,'')).join(' ');
+      // Skip if id is not a number (likely header)
+      if(!/^\d{5,12}$/.test(id))return;
+      if(id&&name)students.push({id,name});
+    });
+    if(!students.length){toast('⚠️ No se encontraron estudiantes en el archivo. Usa formato CC,Nombre o CC|Nombre',true);return;}
+    const preview=students.slice(0,3).map(s=>`${s.id}|${s.name}`).join('\n')+(students.length>3?'\n…':'');
+    if(confirm(`Se encontraron ${students.length} estudiantes:\n\n${preview}\n\n¿Reemplazar la lista actual?`)){
+      S.config.students=students;
+      document.getElementById('cfg-students').value=students.map(s=>`${s.id}|${s.name}`).join('\n');
+      document.getElementById('stu-count-tag').textContent=students.length+' estudiantes';
+      document.getElementById('hdr-badge').textContent=students.length+' Est.';
+      ssLocal();toast('✅ '+students.length+' estudiantes importados');
+    }
+  };
+  reader.readAsText(file,'UTF-8');
+  input.value='';
+}
+
 // ═══════════ CUSTOM TABS ═══════════
 function addCustomTab(){
   const name=document.getElementById('ctab-name').value.trim();
@@ -1711,70 +1757,4 @@ function exportJSON(){
 }
 
 function exportCSV(){
-  const rows=[['Estudiante','CC','Grupo','% Asistencia','Faltas'].concat(S.activities.map(a=>a.name)).concat(S.sustentaciones.map(s=>s.name))];
-  S.config.students.forEach(st=>{
-    const r=calcRisk(st.id),grp=getGroupOfStudent(st.id);
-    const row=[st.name,st.id,grp?.name||'Sin grupo',r.pct??100,r.abs];
-    S.activities.forEach(a=>row.push((S.grades[a.id]||{})[st.id]??''));
-    S.sustentaciones.forEach(sust=>{
-      const tId=sust.target==='grupos'?(grp?.id||''):st.id;
-      const sc=S.sustScores[sust.id]?.[tId]||{};
-      const max=sust.criteria.reduce((t,c)=>t+c.pts,0);
-      row.push(max?sust.criteria.reduce((t,c,i)=>t+(sc[i]||0),0):'');
-    });
-    rows.push(row);
-  });
-  const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
-  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
-  a.download=`docadmin-${S.config.code}-${new Date().toISOString().slice(0,10)}.csv`;a.click();
-}
-
-function importJSON(input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      const d=JSON.parse(e.target.result);
-      S={...S,...d};
-      if(!S.syllabus||!S.syllabus.length)S.syllabus=DEFAULT_SYLLABUS;
-      if(!S.coveredTopics)S.coveredTopics=[];
-      if(!S.activityFiles)S.activityFiles={};
-      if(!S.customTabs)S.customTabs=[];
-      renderAll();toast('✅ Datos importados');
-    }catch{toast('❌ Archivo inválido',true);}
-  };
-  reader.readAsText(file);
-}
-
-// ═══════════ LOCAL STORAGE ═══════════
-function ssLocal(){localStorage.setItem('docadmin_v2_state',JSON.stringify(S));}
-function loadLocal(){
-  try{
-    const saved=localStorage.getItem('docadmin_v2_state');
-    if(saved){
-      const d=JSON.parse(saved);S={...S,...d};
-      if(!S.syllabus||!S.syllabus.length)S.syllabus=DEFAULT_SYLLABUS;
-      if(!S.coveredTopics)S.coveredTopics=[];
-      if(!S.activityFiles)S.activityFiles={};
-      if(!S.customTabs)S.customTabs=[];
-    }
-  }catch(e){}
-}
-
-// ═══════════ INIT ═══════════
-function renderAll(){
-  renderPanel();
-  document.getElementById('hdr-name').textContent=S.config.courseName;
-  document.getElementById('hdr-meta').textContent=`${S.config.code} · ${S.config.group} · Sala ${S.config.room} · ${S.config.schedule} · ${S.config.professor}`;
-  document.getElementById('hdr-badge').textContent=S.config.students.length+' Est.';
-  if(localStorage.getItem('docadmin_gh_token'))setGhStatus(true);
-  // Rebuild custom tab nav buttons
-  (S.customTabs||[]).forEach(t=>addCustomTabToNav(t.id,t.icon,t.name));
-}
-
-loadLocal();
-renderAll();
-setInterval(ssLocal,30000);
-</script>
-</body>
-</html>
+  const rows=[['Estudiante','CC','Grupo','% Asistencia','Faltas'].concat(S.activities.m
