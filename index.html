@@ -2460,9 +2460,9 @@ function repairStoredNames(){
   localStorage.setItem(FLAG,'1');
 }
 
-  repairStoredNames();
   const tk=ghToken();
   if(tk){try{await ghLoadCourseIndex();}catch(e){}}
+  repairStoredNames();
   showHomeScreen();
 }
 
