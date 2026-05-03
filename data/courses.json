@@ -1,12 +1,12 @@
 [
   {
     "id": "curso_cd360",
-    "name": "COMUNICACIÃÂÃÂN DIGITAL 360 MARKETING",
+    "name": "COMUNICACIÃÂÃÂÃÂÃÂN DIGITAL 360 MARKETING",
     "code": "AFPN0093",
     "group": "S1G1 2026-001",
     "institution": "EAN",
     "color": "#1B5E20",
-    "lastModified": "2026-05-03T02:46:45.371Z",
+    "lastModified": "2026-05-03T02:58:59.558Z",
     "studentCount": 36,
     "sessionCount": 3,
     "sustCount": 1
@@ -31,6 +31,17 @@
     "lastModified": "2026-05-02T22:59:56.687Z",
     "studentCount": 0,
     "sessionCount": 0,
+    "sustCount": 0
+  },
+  {
+    "id": "curso_v1_mop6lbiw",
+    "name": "Curso Importado V1",
+    "code": "V1",
+    "institution": "EAN",
+    "color": "#7b2fff",
+    "lastModified": "2026-05-03T02:58:32.984Z",
+    "studentCount": 0,
+    "sessionCount": 14,
     "sustCount": 0
   }
 ]
