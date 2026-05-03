@@ -1184,7 +1184,7 @@ function openSess(id){
         <input type="file" id="res-inp-${id}" multiple style="display:none" onchange="addSessResources('${id}',this.files)">
       </div>
     </div>`;
-  renderSessResources('${id}');
+  renderSessResources(id);
 }
 function setAtt(sessId,stuId,val){
   const sess=S.sessions.find(x=>x.id===sessId);if(!sess)return;
@@ -1492,12 +1492,12 @@ function renderActivities(){
     +`<span style="font-size:11px;color:${totalW>100?'var(--red)':totalW===100?'var(--green)':'var(--gray)'};margin-left:auto;align-self:center">Total: ${totalW}%</span>`;
   if(!students.length){document.getElementById('grades-table').innerHTML='<div class="empty">Sin estudiantes.</div>';return;}
   if(!acts.length){document.getElementById('grades-table').innerHTML='<div class="empty">Agrega actividades para comenzar.</div>';return;}
-  const totalWnz=totalW||1;
   document.getElementById('grades-table').innerHTML=`<div class="tbl-wrap"><table>
     <thead><tr><th>Estudiante</th>${acts.map(a=>`<th class="num">${a.name}<br><small style="font-weight:400">${a.weight}%</small></th>`).join('')}<th class="num">Prom.</th></tr></thead>
     <tbody>${students.map(s=>{
-      const weighted=acts.reduce((acc,a)=>{const v=parseFloat((S.grades[a.id]||{})[s.id]);return acc+(isNaN(v)?0:v*(a.weight/totalWnz));},0);
-      const hasAny=acts.some(a=>(S.grades[a.id]||{})[s.id]!==undefined&&(S.grades[a.id]||{})[s.id]!=='');
+      const grades=acts.map(a=>parseFloat((S.grades[a.id]||{})[s.id])).filter(v=>!isNaN(v));
+      const weighted=grades.length?grades.reduce((a,b)=>a+b,0)/grades.length:0;
+      const hasAny=grades.length>0;
       return`<tr><td class="fw7">${s.name}</td>
         ${acts.map(a=>`<td class="num"><input type="number" min="0" max="5" step="0.1" value="${(S.grades[a.id]||{})[s.id]??''}" onchange="setGrade('${a.id}','${s.id}',this.value)" style="width:56px;text-align:center;padding:4px"></td>`).join('')}
         <td class="num"><span class="risk ${weighted>=4?'risk-ok':weighted>=3?'':'risk-hi'}">${hasAny?weighted.toFixed(2):'—'}</span></td>
@@ -2397,15 +2397,21 @@ async function init(){
     localStorage.setItem('docadmin_v2_courses',JSON.stringify(COURSES));
     toast('✅ Curso CD360 pre-cargado con datos completos');
   }
-  // Also inject CD360 data into existing curso_cd360 if it has no students
+  // Also inject CD360 data into existing curso_cd360 — ALWAYS fix UTF-8 names
   else {
     const cd360=COURSES.find(c=>c.id==='curso_cd360'||c.code==='CD360'||c.code==='AFPN0093');
     if(cd360){
       const stateKey='docadmin_v2_state_'+cd360.id;
       let st=null;try{st=JSON.parse(localStorage.getItem(stateKey));}catch{}
       const isTestOnly=(st?.sessions||[]).every(s=>!s.attendance||!Object.values(s.attendance).some(r=>r.status));
-      if(st&&(!st.config?.students?.length||isTestOnly)){
-        st.config.students=JSON.parse(JSON.stringify(CD360_STUDENTS));
+      if(st){
+        // Fix UTF-8 corruption: always refresh student names from clean constants
+        const fixedStudents=JSON.parse(JSON.stringify(CD360_STUDENTS));
+        if(st.config?.students?.length){
+          st.config.students=st.config.students.map(s=>{const fx=fixedStudents.find(f=>f.id===s.id);return fx?Object.assign({},s,{name:fx.name}):s;});
+          fixedStudents.forEach(f=>{if(!st.config.students.find(s=>s.id===f.id))st.config.students.push(f);});
+        } else { st.config.students=fixedStudents; }
+        if(st.config)st.config.courseName='COMUNICACIÓN DIGITAL 360 MARKETING';
         if(!st.groups||!Object.keys(st.groups).length)st.groups=JSON.parse(JSON.stringify(CD360_GROUPS));
         if(!st.sessions?.length||isTestOnly)st.sessions=[JSON.parse(JSON.stringify(CD360_SESSION1))];
         if(!st.sustentaciones?.length){
@@ -2413,9 +2419,9 @@ async function init(){
           st.sustScores={[CD360_SUST_ID]:JSON.parse(JSON.stringify(CD360_SUST_SCORES))};
         }
         localStorage.setItem(stateKey,JSON.stringify(st));
-        cd360.studentCount=CD360_STUDENTS.length;cd360.sessionCount=(st.sessions||[]).length;cd360.sustCount=(st.sustentaciones||[]).length;
+        cd360.studentCount=st.config.students.length;cd360.sessionCount=(st.sessions||[]).length;cd360.sustCount=(st.sustentaciones||[]).length;
+        cd360.name='COMUNICACIÓN DIGITAL 360 MARKETING';
         localStorage.setItem('docadmin_v2_courses',JSON.stringify(COURSES));
-        toast('✅ Datos CD360 sincronizados');
       }
     }
   }
@@ -2429,4 +2435,3 @@ document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
-  // Also inject CD360 
