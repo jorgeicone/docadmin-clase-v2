@@ -2426,50 +2426,36 @@ async function init(){
     }
   }
   // Sync from GitHub
-// \u2500\u2500 STARTUP REPAIR: fix UTF-8 corrupted names in any stored course \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// STARTUP REPAIR: fix UTF-8 double-encoded strings in localStorage
 function repairStoredNames(){
-  const FLAG='docadmin_utf8_repaired_v3';
+  const FLAG='docadmin_utf8_repaired_v4';
   if(localStorage.getItem(FLAG))return;
-  // Build ID\u2192name map from clean constants
-  const nameMap={};
-  CD360_STUDENTS.forEach(s=>{nameMap[s.id]=s.name;});
-  // Fix every course state in localStorage
+  function fixStr(s){
+    if(typeof s!=='string')return s;
+    if(!/[\u00c0-\u00ff]/.test(s))return s;
+    try{
+      const bytes=new Uint8Array(s.length);
+      for(let i=0;i<s.length;i++)bytes[i]=s.charCodeAt(i)&0xff;
+      return new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+    }catch(e){return s;}
+  }
+  function fixDeep(v){
+    if(typeof v==='string')return fixStr(v);
+    if(Array.isArray(v))return v.map(fixDeep);
+    if(v&&typeof v==='object'){const r={};for(const k in v)r[k]=fixDeep(v[k]);return r;}
+    return v;
+  }
   try{
-    const courses=JSON.parse(localStorage.getItem('docadmin_v2_courses')||'[]');
-    courses.forEach(meta=>{
-      const key='docadmin_v2_state_'+meta.id;
-      let st=null;try{st=JSON.parse(localStorage.getItem(key));}catch{return;}
-      if(!st)return;
-      let changed=false;
-      // Fix student names by ID lookup
-      (st.config?.students||[]).forEach(s=>{
-        if(nameMap[s.id]&&s.name!==nameMap[s.id]){s.name=nameMap[s.id];changed=true;}
-      });
-      // Fix course name if it contains \u00c3 (corruption marker)
-      if(st.config?.courseName&&st.config.courseName.includes('\u00c3')){
-        st.config.courseName='COMUNICACI\u00d3N DIGITAL 360 MARKETING';changed=true;
-      }
-      if(st.config?.courseName&&st.config.courseName.indexOf('\u00c3')>=0){
-        st.config.courseName='COMUNICACI\u00d3N DIGITAL 360 MARKETING';changed=true;
-      }
-      // Fix group names by comparing against clean constants
-      const cleanGroups=CD360_GROUPS;
-      if(st.groups){
-        Object.keys(st.groups).forEach(gid=>{
-          if(cleanGroups[gid]&&st.groups[gid].name!==cleanGroups[gid].name){
-            st.groups[gid].name=cleanGroups[gid].name;changed=true;
-          }
-        });
-      }
-      if(changed){localStorage.setItem(key,JSON.stringify(st));}
+    const keys=Object.keys(localStorage).filter(k=>k.startsWith('docadmin_'));
+    keys.forEach(k=>{
+      try{
+        const val=localStorage.getItem(k);
+        const parsed=JSON.parse(val);
+        const fixed=fixDeep(parsed);
+        const fixedStr=JSON.stringify(fixed);
+        if(fixedStr!==val)localStorage.setItem(k,fixedStr);
+      }catch(e){}
     });
-    // Also fix courses index names
-    courses.forEach(meta=>{
-      if(meta.name&&meta.name.indexOf('\u00c3')>=0){
-        meta.name='COMUNICACI\u00d3N DIGITAL 360 MARKETING';
-      }
-    });
-    localStorage.setItem('docadmin_v2_courses',JSON.stringify(courses));
   }catch(e){}
   localStorage.setItem(FLAG,'1');
 }
