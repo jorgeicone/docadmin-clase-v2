@@ -715,7 +715,7 @@ async function ghApiGet(path){
   const r=await fetch(`https://api.github.com/repos/${ghOwner()}/${ghRepo()}/contents/${path}`,{headers:ghHeaders()});
   if(!r.ok)return null;
   const d=await r.json();
-  return{sha:d.sha,content:JSON.parse(atob(d.content.replace(/\n/g,'')))};
+  const _raw=atob(d.content.replace(/\n/g,''));return{sha:d.sha,content:JSON.parse(decodeURIComponent(escape(_raw)))};
 }
 async function ghApiPut(path,content,msg){
   const existing=await ghApiGet(path).catch(()=>null);
