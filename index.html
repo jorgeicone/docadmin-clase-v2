@@ -2637,8 +2637,15 @@ async function initAfterLogin(){
       }
     }
   }
-  // Sync from Supabase if logged in
-  if(currentUser){ try{ await supabaseLoadCourses(); }catch(e){ console.warn('Supabase load error:',e); } }
+  // Sync from Supabase if logged in (4s timeout — fallback to localStorage if DB unavailable)
+  if(currentUser){
+    try{
+      await Promise.race([
+        supabaseLoadCourses(),
+        new Promise((_,reject)=>setTimeout(()=>reject(new Error('DB timeout')),4000))
+      ]);
+    }catch(e){ console.warn('Supabase load skipped:',e.message); }
+  }
   else {
     // Fallback: load from localStorage
     const savedCourses=localStorage.getItem('docadmin_v2_courses');
@@ -3326,7 +3333,4 @@ document.addEventListener('DOMContentLoaded',()=>{
   style="display:none;position:fixed;bottom:24px;right:24px;width:54px;height:54px;border-radius:50%;
   background:linear-gradient(135deg,#7b2fff,#00d4ff);border:none;cursor:pointer;z-index:1000;
   box-shadow:0 4px 20px rgba(123,47,255,0.5);font-size:24px;color:#fff;
-  transition:transform .2s;align-items:center;justify-content:center">🤖</button>
-
-<div id="ai-chat-panel" style="display:none;position:fixed;bottom:90px;right:24px;width:380px;max-width:calc(100vw - 40px);
-  height:520px;background:var(--dark2);border:1px solid var(--borde
+  transition:transform .2s;align-items:center;justify-content:center">�
