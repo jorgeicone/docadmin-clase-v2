@@ -508,10 +508,15 @@ tr:hover td{background:rgba(0,212,255,.05)}
       <div class="fld" style="flex:1"><label>Usuario</label><input id="cfg-gh-owner" placeholder="jorgeicone"></div>
       <div class="fld" style="flex:1"><label>Repositorio</label><input id="cfg-gh-repo" placeholder="docadmin-clase-v2"></div>
     </div>
-    <div class="flex gap8">
+    <div class="flex gap8 align-center mt8">
       <button class="btn btn-g btn-sm" onclick="saveGhConfig()">💾 Guardar</button>
       <button class="btn btn-out btn-sm" onclick="testGhConnection()">🔌 Probar</button>
+      <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--text-muted);cursor:pointer">
+        <input type="checkbox" id="cfg-gh-remember" style="width:14px;height:14px">
+        Recordar token en este dispositivo
+      </label>
     </div>
+    <p style="font-size:0.78rem;color:var(--orange);margin-top:6px">⚠️ Sin "Recordar": el token solo dura esta sesión y deberás ingresarlo de nuevo al reabrir.</p>
   </div>
   <div class="cfg-section" style="border-left-color:var(--orange)">
     <div class="cfg-section-title">📂 Archivos del Curso</div>
@@ -692,7 +697,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_d1RrtE7S-9a8e8mGKRRjxQ_4HU_nkDl';
 const WORKER_URL = 'https://claude-proxy.jorgehugoperez.workers.dev';
 // ── Wompi (pagos Colombia) ─────────────────────────────────────────────────
 const WOMPI_PUBLIC_KEY = 'pub_test_wXVTaUtLWOLZFA43MNc7ZFawWLqMOmvo';
-const WOMPI_INTEGRITY_SECRET = 'test_integrity_z2DIT6Kl3lIz6HnMLB9Z2D3YI60CWjqY';
+// INTEGRITY_SECRET removed — hash computed server-side via Worker /wompi-hash
 // Plan info (refrescado al login)
 let userPlanInfo = { plan:'trial', calls_used:0, calls_limit:50, calls_remaining:50 };
 let _supabase = null;
@@ -802,7 +807,12 @@ let S = getDefaultState();
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 //  GITHUB HELPERS
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
-function ghToken(){return localStorage.getItem('docadmin_gh_token')||GH_TOKEN_DEFAULT;}
+// GitHub token: sessionStorage first (session-only), then localStorage (if user opted "Recordar")
+function ghToken(){
+  return sessionStorage.getItem('docadmin_gh_token')
+      || localStorage.getItem('docadmin_gh_token')
+      || GH_TOKEN_DEFAULT;
+}
 function ghOwner(){return localStorage.getItem('docadmin_gh_owner')||GH_OWNER_DEFAULT;}
 function ghRepo() {return localStorage.getItem('docadmin_gh_repo')||GH_REPO_DEFAULT;}
 function ghHeaders(){return{Authorization:'token '+ghToken(),'Content-Type':'application/json'};}
@@ -2055,6 +2065,9 @@ function fillConfigForm(){
   document.getElementById('cfg-gh-token').value=ghToken()||'';
   document.getElementById('cfg-gh-owner').value=ghOwner()||'';
   document.getElementById('cfg-gh-repo').value=ghRepo()||'';
+  // Show "Recordar" checked only if token is persisted in localStorage
+  const rememberEl=document.getElementById('cfg-gh-remember');
+  if(rememberEl)rememberEl.checked=!!localStorage.getItem('docadmin_gh_token');
   document.getElementById('cfg-notebooklm').value=c.notebookLmUrl||'';
   renderBibList();
 }
@@ -2076,7 +2089,17 @@ function saveGhConfig(){
   const token=document.getElementById('cfg-gh-token').value.trim();
   const owner=document.getElementById('cfg-gh-owner').value.trim();
   const repo=document.getElementById('cfg-gh-repo').value.trim();
-  if(token)localStorage.setItem('docadmin_gh_token',token);
+  const remember=document.getElementById('cfg-gh-remember')?.checked;
+  if(token){
+    // Always store in sessionStorage (expires when tab closes)
+    sessionStorage.setItem('docadmin_gh_token',token);
+    if(remember){
+      localStorage.setItem('docadmin_gh_token',token);
+    } else {
+      // Remove from localStorage if user unchecked "Recordar"
+      localStorage.removeItem('docadmin_gh_token');
+    }
+  }
   if(owner)localStorage.setItem('docadmin_gh_owner',owner);
   if(repo)localStorage.setItem('docadmin_gh_repo',repo);
   toast('\u2705 GitHub configurado');
@@ -2762,14 +2785,20 @@ function updatePlanBadge() {
   badge.style.cursor = 'pointer';
 }
 
-// ── Wompi: generar hash de integridad (SHA-256 en browser) ───────────────────
-// ⚠️ ANTES DE PRODUCCIÓN: mover esta función al Cloudflare Worker.
-// El WOMPI_INTEGRITY_SECRET NO debe estar en el frontend con llave real.
-// Actualmente es llave de prueba (test_integrity_…) — aceptable en sandbox.
+// ── Wompi: obtener hash de integridad desde el Worker (server-side) ──────────
+// El secreto NUNCA está en el frontend — el Worker lo guarda como variable de entorno.
 async function wompiIntegrityHash(reference, amountCents, currency) {
-  const str = reference + amountCents + currency + WOMPI_INTEGRITY_SECRET;
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  const sb = getSupabase();
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.access_token) throw new Error('Sesión expirada');
+  const r = await fetch(WORKER_URL + '/wompi-hash', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+    body: JSON.stringify({ reference, amountCents, currency })
+  });
+  if (!r.ok) throw new Error('Error generando hash de pago');
+  const d = await r.json();
+  return d.hash;
 }
 
 // ── Modal de upgrade de plan ──────────────────────────────────────────────────
@@ -2807,7 +2836,7 @@ async function launchWompiCheckout(plan) {
     s.setAttribute('data-amount-in-cents', String(amount));
     s.setAttribute('data-reference', reference);
     s.setAttribute('data-signature:integrity', integrity);
-    s.setAttribute('data-redirect-url', 'https://jorgeicone.github.io/docadmin-clase-v2/?plan=' + plan);
+    s.setAttribute('data-redirect-url', 'https://www.iconeialabs.com/?plan=' + plan);
     s.id = 'wompi-checkout-script';
     document.getElementById('wompi-widget-container').innerHTML = '';
     document.getElementById('wompi-widget-container').appendChild(s);
@@ -3188,7 +3217,7 @@ async function authSubmit(){
         email, password,
         options:{
           data:{full_name:name||email.split('@')[0]},
-          emailRedirectTo:'https://jorgeicone.github.io/docadmin-clase-v2/'
+          emailRedirectTo:'https://www.iconeialabs.com/'
         }
       });
       if(error)throw error;
@@ -3342,25 +3371,4 @@ document.addEventListener('DOMContentLoaded',()=>{
         style="display:none;width:100%;background:linear-gradient(135deg,#00d4ff,#7b2fff);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 0 24px rgba(0,212,255,.3)">
         💳 Pagar con Wompi (PSE · Nequi · Tarjeta)
       </button>
-      <p style="font-size:10px;color:var(--gray2);text-align:center;margin-top:10px">
-        Pago seguro vía Wompi (Bancolombia). Sandbox: usa <strong>cualquier tarjeta de prueba</strong>.<br>
-        Tu plan se activa automáticamente en segundos tras confirmar el pago.
-      </p>
-    </div>
-  </div>
-</div>
-
-<!-- FLOTANTE IA DOCENTE -->
-<button id="fab-ai" onclick="toggleAiChat()" title="Asistente IA Docente"
-  style="display:none;position:fixed;bottom:24px;right:24px;width:54px;height:54px;border-radius:50%;
-  background:linear-gradient(135deg,#7b2fff,#00d4ff);border:none;cursor:pointer;z-index:1000;
-  box-shadow:0 4px 20px rgba(123,47,255,0.5);font-size:24px;color:#fff;
-  transition:transform .2s;align-items:center;justify-content:center">🤖</button>
-
-<div id="ai-chat-panel" style="display:none;position:fixed;bottom:90px;right:24px;width:380px;max-width:calc(100vw - 40px);
-  height:520px;background:var(--dark2);border:1px solid var(--border);border-radius:16px;
-  box-shadow:0 8px 40px rgba(0,0,0,.5);z-index:1001;flex-direction:column;overflow:hidden">
-  <div style="padding:12px 16px;background:linear-gradient(135deg,#7b2fff22,#00d4ff22);border-bottom:1px solid var(--border);
-    display:flex;align-items:center;justify-content:space-between">
-    <div>
-      <div style="font-weight:70
+      <p style="font-size:10px;color:var(--gray2);text-align:center;
