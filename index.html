@@ -3143,7 +3143,10 @@ async function authSubmit(){
     } else {
       const {data,error}=await sb.auth.signUp({
         email, password,
-        options:{data:{full_name:name||email.split('@')[0]}}
+        options:{
+          data:{full_name:name||email.split('@')[0]},
+          emailRedirectTo:'https://jorgeicone.github.io/docadmin-clase-v2/'
+        }
       });
       if(error)throw error;
       if(data.user && !data.session){
@@ -3320,8 +3323,4 @@ document.addEventListener('DOMContentLoaded',()=>{
       style="flex:1;resize:none;background:var(--dark3);border:1px solid var(--border);border-radius:8px;
       color:var(--light);padding:8px;font-size:13px;font-family:inherit"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiChat();}"></textarea>
-    <button class="btn btn-g" style="padding:0 12px;align-self:stretch" onclick="sendAiChat()">➤</button>
-  </div>
-</div>
-</body>
-</html>
+    <button class="btn btn-g" style="paddin
