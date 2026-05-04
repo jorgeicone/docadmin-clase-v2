@@ -2472,6 +2472,7 @@ async function init(){
       } else if(event==='SIGNED_OUT'){
         currentUser=null;
         COURSES=[];ACTIVE_COURSE_ID=null;S=getDefaultState();
+        _initLoginDone=false; // reset guard so next login triggers full init
         document.getElementById('auth-screen').style.display='flex';
         document.getElementById('home-screen').style.display='none';
         document.getElementById('main-app').style.display='none';
@@ -2529,24 +2530,29 @@ function repairStoredNames(){
 }
 
 // FIX 8: doLogout — triggered by the 🚪 Salir button
-async function doLogout(){
+// Uses optimistic UI reset so logout works even if Supabase network is slow/hung
+function doLogout(){
   const sb=getSupabase();
-  if(sb){
-    const btn=document.getElementById('btn-logout');
-    if(btn){btn.disabled=true;btn.textContent='Saliendo…';}
-    await sb.auth.signOut();
-    // onAuthStateChange SIGNED_OUT handler will reset UI
-  } else {
-    // Offline mode — just reset state manually
-    currentUser=null;
-    COURSES=[];ACTIVE_COURSE_ID=null;S=getDefaultState();
-    document.getElementById('auth-screen').style.display='flex';
-    document.getElementById('home-screen').style.display='none';
-    document.getElementById('main-app').style.display='none';
-  }
+  const btn=document.getElementById('btn-logout');
+  if(btn){btn.disabled=true;btn.textContent='Saliendo…';}
+  // Reset UI immediately (optimistic) — don't wait for network
+  currentUser=null;
+  COURSES=[];ACTIVE_COURSE_ID=null;S=getDefaultState();
+  _initLoginDone=false; // allow re-init on next login
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('home-screen').style.display='none';
+  document.getElementById('main-app').style.display='none';
+  // Fire signOut in background (non-blocking) to invalidate server session
+  if(sb){ sb.auth.signOut().catch(e=>console.warn('signOut bg error:',e)); }
 }
 
+// Guard flag to prevent double initAfterLogin() calls (race condition: onAuthStateChange
+// INITIAL_SESSION fires before getSession() path on page reload)
+let _initLoginDone = false;
+
 async function initAfterLogin(){
+  if(_initLoginDone) return; // prevent double-init
+  _initLoginDone = true;
   // Set institution label
   const inst=localStorage.getItem('docadmin_settings_institution')||'Universidad EAN';
   document.getElementById('home-inst-label').textContent=inst;
@@ -3323,11 +3329,4 @@ document.addEventListener('DOMContentLoaded',()=>{
   transition:transform .2s;align-items:center;justify-content:center">🤖</button>
 
 <div id="ai-chat-panel" style="display:none;position:fixed;bottom:90px;right:24px;width:380px;max-width:calc(100vw - 40px);
-  height:520px;background:var(--dark2);border:1px solid var(--border);border-radius:16px;
-  box-shadow:0 8px 40px rgba(0,0,0,.5);z-index:1001;flex-direction:column;overflow:hidden">
-  <div style="padding:12px 16px;background:linear-gradient(135deg,#7b2fff22,#00d4ff22);border-bottom:1px solid var(--border);
-    display:flex;align-items:center;justify-content:space-between">
-    <div>
-      <div style="font-weight:700;color:var(--cyan);font-size:14px">🤖 Asistente Docente IA</div>
-      <div id="ai-chat-course-name" style="font-size:11px;color:var(--gray)">—</div>
-    </di
+  height:520px;background:var(--dark2);border:1px solid var(--borde
