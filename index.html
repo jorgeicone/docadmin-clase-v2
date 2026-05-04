@@ -308,6 +308,7 @@ tr:hover td{background:rgba(0,212,255,.05)}
   <div class="home-actions">
     <button class="btn-new-course" onclick="openModal('modal-new-course')">➕ Nuevo Curso</button>
     <button class="btn-gh-sync" id="btn-supabase-sync" onclick="supabaseSync()">☁️ Sincronizar</button>
+    <button class="btn-gh-sync" id="btn-logout" onclick="doLogout()" title="Cerrar sesión" style="display:none">🚪 Salir</button>
   </div>
 
   <div class="courses-grid" id="courses-grid">
@@ -2461,14 +2462,8 @@ async function init(){
   document.getElementById('main-app').style.display='none';
   const sb = getSupabase();
   if(sb){
-    const {data:{session}} = await sb.auth.getSession();
-    if(session){
-      currentUser = session.user;
-      document.getElementById('auth-screen').style.display='none';
-      await initAfterLogin();
-      return;
-    }
-    // Listen for auth state changes
+    // FIX 8: Register onAuthStateChange BEFORE getSession() so SIGNED_OUT
+    // always fires even when a persistent session exists on reload.
     sb.auth.onAuthStateChange(async(event, session)=>{
       if(event==='SIGNED_IN' && session){
         currentUser = session.user;
@@ -2482,6 +2477,13 @@ async function init(){
         document.getElementById('main-app').style.display='none';
       }
     });
+    const {data:{session}} = await sb.auth.getSession();
+    if(session){
+      currentUser = session.user;
+      document.getElementById('auth-screen').style.display='none';
+      await initAfterLogin();
+      return;
+    }
   } else {
     // Supabase not available — fallback to localStorage-only mode
     console.warn('Supabase not available, running in offline mode');
@@ -2526,15 +2528,31 @@ function repairStoredNames(){
   sessionStorage.setItem(FLAG,'1');
 }
 
+// FIX 8: doLogout — triggered by the 🚪 Salir button
+async function doLogout(){
+  const sb=getSupabase();
+  if(sb){
+    const btn=document.getElementById('btn-logout');
+    if(btn){btn.disabled=true;btn.textContent='Saliendo…';}
+    await sb.auth.signOut();
+    // onAuthStateChange SIGNED_OUT handler will reset UI
+  } else {
+    // Offline mode — just reset state manually
+    currentUser=null;
+    COURSES=[];ACTIVE_COURSE_ID=null;S=getDefaultState();
+    document.getElementById('auth-screen').style.display='flex';
+    document.getElementById('home-screen').style.display='none';
+    document.getElementById('main-app').style.display='none';
+  }
+}
+
 async function initAfterLogin(){
   // Set institution label
   const inst=localStorage.getItem('docadmin_settings_institution')||'Universidad EAN';
   document.getElementById('home-inst-label').textContent=inst;
-  // Show logged-in user email if available
-  if(currentUser){
-    const emailLabel = document.getElementById('home-inst-label');
-    // Keep institution label as is
-  }
+  // Show logout button only when authenticated via Supabase
+  const logoutBtn=document.getElementById('btn-logout');
+  if(logoutBtn) logoutBtn.style.display = currentUser ? 'inline-flex' : 'none';
   // Load COURSES
   const savedCourses=localStorage.getItem('docadmin_v2_courses');
   if(savedCourses){try{COURSES=JSON.parse(savedCourses);}catch{COURSES=[];}}
@@ -3312,16 +3330,4 @@ document.addEventListener('DOMContentLoaded',()=>{
     <div>
       <div style="font-weight:700;color:var(--cyan);font-size:14px">🤖 Asistente Docente IA</div>
       <div id="ai-chat-course-name" style="font-size:11px;color:var(--gray)">—</div>
-    </div>
-    <div style="display:flex;gap:6px">
-      <button class="btn btn-xs btn-out" onclick="clearAiChat()" title="Limpiar chat">🗑</button>
-      <button class="btn btn-xs btn-out" onclick="toggleAiChat()">✕</button>
-    </div>
-  </div>
-  <div id="ai-chat-msgs" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px"></div>
-  <div style="padding:10px;border-top:1px solid var(--border);display:flex;gap:8px">
-    <textarea id="ai-chat-input" rows="2" placeholder="Pregunta sobre tu curso… (Enter para enviar)"
-      style="flex:1;resize:none;background:var(--dark3);border:1px solid var(--border);border-radius:8px;
-      color:var(--light);padding:8px;font-size:13px;font-family:inherit"
-      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiChat();}"></textarea>
-    <button class="btn btn-g" style="padding:0 12px;align-self:stretch" onclick="sendAiChat()">
+    </di
