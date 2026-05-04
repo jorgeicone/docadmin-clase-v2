@@ -2623,10 +2623,6 @@ async function initAfterLogin(){
       }
     }
   }
-  // Sync from GitHub
-// STARTUP REPAIR: fix UTF-8 double-encoded strings in localStorage
-}
-
   // Sync from Supabase if logged in
   if(currentUser){ try{ await supabaseLoadCourses(); }catch(e){ console.warn('Supabase load error:',e); } }
   else {
