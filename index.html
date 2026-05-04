@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ICONE.DocAdmin Pro</title>
+<title>ICONE.DocAdmin v4</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --dark:#050d1f;--dark2:#0a1628;--dark3:#0f1f3d;--dark4:#162040;
@@ -29,6 +30,31 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--dark);color:var(--
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--dark2)}
 ::-webkit-scrollbar-thumb{background:var(--cyan2);border-radius:3px}
+
+/* ── AUTH SCREEN ── */
+#auth-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--dark);padding:20px}
+.auth-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px 36px;width:100%;max-width:420px;backdrop-filter:blur(16px);box-shadow:0 0 60px rgba(0,212,255,.1)}
+.auth-logo{text-align:center;margin-bottom:28px}
+.auth-logo-text{font-size:36px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px}
+.auth-logo-sub{font-size:12px;color:var(--gray);margin-top:4px}
+.auth-tabs{display:flex;background:var(--dark2);border-radius:10px;padding:4px;margin-bottom:24px;gap:4px}
+.auth-tab{flex:1;background:none;border:none;color:var(--gray);padding:8px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit}
+.auth-tab.active{background:var(--dark3);color:var(--cyan);box-shadow:0 0 12px rgba(0,212,255,.2)}
+.auth-field{margin-bottom:14px}
+.auth-field label{display:block;font-size:11px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.auth-field input{width:100%;background:var(--dark2);border:1px solid var(--border2);border-radius:9px;color:var(--light);padding:10px 14px;font-size:14px;font-family:inherit;transition:.15s;outline:none}
+.auth-field input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px var(--cyan3)}
+.auth-btn{width:100%;background:linear-gradient(135deg,var(--cyan2),var(--purple2));color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:800;cursor:pointer;transition:.2s;font-family:inherit;box-shadow:var(--glow-c);margin-top:4px}
+.auth-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.auth-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.auth-msg{text-align:center;font-size:12px;margin-top:14px;padding:10px;border-radius:8px;display:none}
+.auth-msg.error{background:rgba(255,68,68,.1);color:var(--red);border:1px solid rgba(255,68,68,.2)}
+.auth-msg.success{background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.2)}
+.auth-divider{text-align:center;color:var(--gray2);font-size:11px;margin:16px 0;position:relative}
+.auth-divider::before,.auth-divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--border2)}
+.auth-divider::before{left:0}.auth-divider::after{right:0}
+.auth-loading{display:none;text-align:center;padding:20px;color:var(--gray)}
+
 /* ── HOME SCREEN ── */
 #home-screen{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px 60px;z-index:1}
 .home-brand{text-align:center;margin-bottom:36px}
@@ -237,6 +263,37 @@ tr:hover td{background:rgba(0,212,255,.05)}
 <div class="particles" id="particles-container"></div>
 
 <!-- ══════════════ HOME SCREEN ══════════════ -->
+<div id="auth-screen" style="display:none">
+  <div class="particles" id="auth-particles"></div>
+  <div class="auth-box" style="position:relative;z-index:1">
+    <div class="auth-logo">
+      <div class="auth-logo-text">ICONE.DocAdmin</div>
+      <div class="auth-logo-sub">Plataforma Docente Inteligente</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Iniciar sesión</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Registrarse</button>
+    </div>
+    <div id="auth-loading" class="auth-loading">⏳ Verificando sesión…</div>
+    <div id="auth-form-wrap">
+      <div id="auth-name-field" class="auth-field" style="display:none">
+        <label>Nombre completo</label>
+        <input type="text" id="auth-name" placeholder="Prof. María García" autocomplete="name">
+      </div>
+      <div class="auth-field">
+        <label>Correo electrónico</label>
+        <input type="email" id="auth-email" placeholder="profesor@universidad.edu" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Contraseña</label>
+        <input type="password" id="auth-password" placeholder="Mínimo 6 caracteres" autocomplete="current-password">
+      </div>
+      <button class="auth-btn" id="auth-submit-btn" onclick="authSubmit()">Ingresar</button>
+      <div class="auth-msg" id="auth-msg"></div>
+    </div>
+  </div>
+</div>
+
 <div id="home-screen">
   <div class="home-brand">
     <div class="home-brand-logo">ICONE.DocAdmin</div>
@@ -250,7 +307,7 @@ tr:hover td{background:rgba(0,212,255,.05)}
 
   <div class="home-actions">
     <button class="btn-new-course" onclick="openModal('modal-new-course')">➕ Nuevo Curso</button>
-    <button class="btn-gh-sync" onclick="ghLoadCourseIndexAndRefresh()">☁️ Sincronizar con GitHub</button>
+    <button class="btn-gh-sync" id="btn-supabase-sync" onclick="supabaseSync()">☁️ Sincronizar</button>
   </div>
 
   <div class="courses-grid" id="courses-grid">
@@ -266,6 +323,7 @@ tr:hover td{background:rgba(0,212,255,.05)}
   <div class="hdr-info"><h1 id="hdr-name">—</h1><p id="hdr-meta">—</p></div>
   <div class="hdr-right">
     <span id="hdr-badge" class="badge">S1G1</span>
+    <span id="plan-badge" title="Plan IA" style="font-size:11px;color:var(--cyan);cursor:pointer;padding:4px 8px;background:var(--dark3);border-radius:6px;border:1px solid var(--border)">Trial · 50 IA</span>
     <button class="btn-save" onclick="saveAndToast()">💾 Guardar</button>
   </div>
 </div>
@@ -285,7 +343,7 @@ tr:hover td{background:rgba(0,212,255,.05)}
 <div class="tab active" id="tab-panel">
   <div class="kpi-row" id="panel-kpis"></div>
   <div class="grid2">
-    <div><div class="card"><div class="card-title">📅 Próximas Sesiones</div><div id="panel-sessions"></div></div></div>
+    <div><div class="card"><div class="card-title">📅 Sesiones Recientes</div><div id="panel-sessions"></div></div></div>
     <div><div class="card"><div class="card-title">⚡ Actividad Reciente</div><div id="panel-activity"></div></div></div>
   </div>
   <div class="grid3">
@@ -302,16 +360,44 @@ tr:hover td{background:rgba(0,212,255,.05)}
         <button class="btn btn-sm btn-out" onclick="document.getElementById('syl-file-inp').click()">📎 Subir Documento</button>
         <input type="file" id="syl-file-inp" style="display:none" onchange="addSylFile(this)">
         <button class="btn btn-sm btn-g" onclick="addSyllabusUnit()">＋ Unidad</button>
+        <button class="btn btn-sm" style="background:linear-gradient(135deg,#7b2fff,#00d4ff);color:#fff;border:none" onclick="document.getElementById('ai-syl-inp').click()" title="Extraer syllabus de PDF">🤖 IA Syllabus</button>
+        <input type="file" id="ai-syl-inp" accept=".pdf,image/*" style="display:none" onchange="aiLoadSyllabus(this)">
       </div>
     </div>
     <div id="syl-file-area" style="margin-bottom:10px"></div>
     <div id="syllabus-list"></div>
   </div>
+  <div id="ai-sess-gen-panel" style="display:none" class="card mt12">
+    <div class="card-title">🗓️ Generar Sesiones del Semestre con IA
+      <button class="btn btn-xs btn-out" style="margin-left:auto" onclick="document.getElementById('ai-sess-gen-panel').style.display='none'">✕</button>
+    </div>
+    <p class="text-sm text-gray mb12">Configura el semestre y se crearán automáticamente todas las sesiones con los temas del syllabus, excluyendo festivos colombianos.</p>
+    <div class="form-row">
+      <div class="fld"><label>📅 Fecha de inicio</label><input type="date" id="sg-start"></div>
+      <div class="fld"><label>📅 Fecha de fin</label><input type="date" id="sg-end"></div>
+      <div class="fld"><label>⏰ Hora inicio</label><input type="time" id="sg-time" value="08:00"></div>
+      <div class="fld"><label>⏱ Duración (min)</label><input type="number" id="sg-duration" value="120" min="30" max="300"></div>
+    </div>
+    <div class="fld mb12"><label>📆 Días de clase</label>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px">
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sg-lun" value="1"> Lun</label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sg-mar" value="2"> Mar</label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sg-mie" value="3"> Mié</label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sg-jue" value="4"> Jue</label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sg-vie" value="5"> Vie</label>
+        <label style="display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="sg-sab" value="6"> Sáb</label>
+      </div>
+    </div>
+    <div class="flex gap8">
+      <button class="btn btn-g" onclick="aiGenerateSessions()">🗓️ Generar Semestre Completo</button>
+      <span class="text-sm text-gray" style="align-self:center" id="sg-status"></span>
+    </div>
+  </div>
 </div>
 <!-- SESIONES -->
 <div class="tab" id="tab-sesiones">
   <div class="sess-layout">
-    <div class="card"><div class="card-title">📅 Sesiones<button class="btn btn-sm btn-g" style="margin-left:auto" onclick="openModal('modal-session')">＋ Nueva</button></div>
+    <div class="card"><div class="card-title">📅 Sesiones<button class="btn btn-sm btn-g" style="margin-left:auto" onclick="openNewSessionModal()">＋ Nueva</button></div>
       <ul class="sess-list" id="sess-list"></ul></div>
     <div id="sess-detail"><div class="card"><div class="empty">Selecciona o crea una sesión.</div></div></div>
   </div>
@@ -319,7 +405,9 @@ tr:hover td{background:rgba(0,212,255,.05)}
 <!-- EVALUACIONES -->
 <div class="tab" id="tab-evaluaciones">
   <div class="card"><div class="card-title">📝 Actividades Evaluativas
-    <button class="btn btn-sm btn-g" style="margin-left:auto" onclick="openAddActivityModal()">＋ Actividad</button></div>
+    <button class="btn btn-sm btn-g" style="margin-left:auto" onclick="openAddActivityModal()">＋ Actividad</button>
+    <button class="btn btn-sm" style="background:linear-gradient(135deg,#7b2fff,#00d4ff);color:#fff;border:none;margin-left:6px" onclick="document.getElementById('ai-grades-inp').click()" title="Cargar notas con IA">🤖 IA Notas</button>
+    <input type="file" id="ai-grades-inp" accept="image/*,.xlsx,.xls,.csv" style="display:none" onchange="aiLoadGrades(this)"></div>
     <div id="act-chips" class="flex gap8 flex-wrap mb8"></div>
     <div id="grades-table"></div></div>
   <div class="card" id="eval-files-card" style="display:none">
@@ -386,6 +474,30 @@ tr:hover td{background:rgba(0,212,255,.05)}
       <div class="fld"><label>Semanas</label><input id="cfg-weeks" type="number" min="1"></div>
     </div>
     <button class="btn btn-g" onclick="saveCourseConfig()">💾 Guardar Configuración</button>
+  </div>
+  <div class="cfg-section" style="border-left-color:var(--cyan)">
+    <div class="cfg-section-title">📚 Recursos del Curso</div>
+    <p class="text-sm text-gray mb8">Agrega el enlace de tu NotebookLM y bibliografía adicional. El Asistente IA los usará como referencia.</p>
+    <div class="form-row mb8">
+      <div class="fld" style="flex:3"><label>🔗 NotebookLM del Curso</label>
+        <input id="cfg-notebooklm" placeholder="https://notebooklm.google.com/notebook/…"></div>
+      <div class="fld" style="flex:1;display:flex;align-items:flex-end;gap:6px">
+        <button class="btn btn-out btn-sm" onclick="openCourseLink(document.getElementById('cfg-notebooklm').value)">🔗 Abrir</button>
+      </div>
+    </div>
+    <div class="card-title2 mb8">📖 Bibliografía adicional</div>
+    <div id="bib-list" style="margin-bottom:8px"></div>
+    <div class="form-row" style="gap:6px">
+      <div class="fld" style="flex:2"><label>Nombre</label><input id="bib-name" placeholder="Ej: Kotler Marketing 2024"></div>
+      <div class="fld" style="flex:3"><label>URL / Enlace</label><input id="bib-url" placeholder="https://…"></div>
+      <div class="fld" style="flex:1"><label>Tipo</label>
+        <select id="bib-type"><option value="libro">📘 Libro</option><option value="articulo">📄 Artículo</option><option value="video">🎥 Video</option><option value="notebooklm">🤖 NotebookLM</option><option value="otro">🔗 Otro</option></select>
+      </div>
+      <div class="fld" style="flex:0.6;display:flex;align-items:flex-end">
+        <button class="btn btn-g btn-sm" onclick="addBibEntry()">＋ Agregar</button>
+      </div>
+    </div>
+    <button class="btn btn-g btn-sm mt8" onclick="saveCourseResources()">💾 Guardar Recursos</button>
   </div>
   <div class="cfg-section" style="border-left-color:var(--purple)">
     <div class="cfg-section-title">☁️ GitHub (Base de Datos)</div>
@@ -490,6 +602,12 @@ tr:hover td{background:rgba(0,212,255,.05)}
     <div class="fld mb8"><label>Nombre del Profesor</label>
       <input id="settings-professor" placeholder="Prof. Jorge Hugo Pérez"></div>
     <p class="text-sm text-gray mb8">Este nombre aparece en el banner principal de la pantalla de cursos.</p>
+    <div class="fld mb8"><label>PIN de Admin (Sustentaciones)</label>
+      <input type="password" id="inp-admin-pin" maxlength="8" placeholder="Cambiar PIN (dejar vacío = sin cambio)"></div>
+    <div class="divider" style="margin:10px 0"></div>
+    <div class="fld mb4"><label>🤖 Claude API Key</label>
+      <input type="password" id="inp-claude-key" placeholder="sk-ant-…" autocomplete="off"></div>
+    <p class="text-sm text-gray mb8">Se guarda solo en este dispositivo. <a href="https://console.anthropic.com" target="_blank" style="color:var(--cyan)">console.anthropic.com</a></p>
     <button class="btn btn-g w100" onclick="saveSettings()">💾 Guardar</button>
   </div>
 </div>
@@ -564,60 +682,52 @@ tr:hover td{background:rgba(0,212,255,.05)}
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 //  CONSTANTS & CONFIG
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
-const ADMIN_PIN = '1971';
+// SECURITY: Cambia este PIN desde la UI de Configuración (Settings → PIN de Admin)
+let ADMIN_PIN = '1971';
+// ── Supabase ──────────────────────────────────────────
+const SUPABASE_URL = 'https://nvgkhdrrxqdgxktfkioa.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_d1RrtE7S-9a8e8mGKRRjxQ_4HU_nkDl';
+// ── Cloudflare Worker (proxy IA + planes) ──────────────────────────────────
+const WORKER_URL = 'https://claude-proxy.jorgehugoperez.workers.dev';
+// ── Wompi (pagos Colombia) ─────────────────────────────────────────────────
+const WOMPI_PUBLIC_KEY = 'pub_test_wXVTaUtLWOLZFA43MNc7ZFawWLqMOmvo';
+const WOMPI_INTEGRITY_SECRET = 'test_integrity_z2DIT6Kl3lIz6HnMLB9Z2D3YI60CWjqY';
+// Plan info (refrescado al login)
+let userPlanInfo = { plan:'trial', calls_used:0, calls_limit:50, calls_remaining:50 };
+let _supabase = null;
+function getSupabase(){
+  if(!_supabase && window.supabase){
+    _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+  return _supabase;
+}
+let currentUser = null; // logged-in Supabase user
+// ── GitHub (legacy - kept for migration only) ─────────
 const GH_OWNER_DEFAULT = 'jorgeicone';
 const GH_REPO_DEFAULT  = 'docadmin-clase-v2';
-const _t1='ghp_6g1MgGH3VX';const _t2='cG35wqRtntGf';const _t3='zdWBpmKz0vl4pO';const GH_TOKEN_DEFAULT=_t1+_t2+_t3;
+const GH_TOKEN_DEFAULT = ''; // SECURITY: token must be set via Settings UI
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 //  CD360 \u2014 DATOS PRE-CARGADOS (migrados desde dashboard V1)
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 const CD360_STUDENTS = [
-  {id:"1000077541",name:"Tinoco Ruiz Sof\u00eda"},
-  {id:"1000350624",name:"Rond\u00f3n Leguizamo Guillermo Andr\u00e9s"},
-  {id:"1011100245",name:"Villa Fajardo Zarith Juliana"},
-  {id:"1013106028",name:"Muriel Salgado Juan Sebasti\u00e1n"},
-  {id:"1013256390",name:"Cifuentes Mart\u00ednez Camila Alejandra"},
-  {id:"1013263957",name:"Garz\u00f3n Moya Juan Jer\u00f3nimo"},
-  {id:"1014861582",name:"Mahecha L\u00e1zaro Sebasti\u00e1n"},
-  {id:"1014997827",name:"Hern\u00e1ndez Mu\u00f1oz Mar\u00eda Jos\u00e9"},
-  {id:"1016596401",name:"Lozano \u00c1lvarez Yesenia Sophia"},
-  {id:"1016951985",name:"P\u00e9rez Cort\u00e9s Mar\u00eda Jos\u00e9"},
-  {id:"1019764949",name:"Norato Burgos Valerie"},
-  {id:"1019843108",name:"Romero Rojas Juliana Sof\u00eda"},
-  {id:"1021397707",name:"Mart\u00ednez Mart\u00ednez Laura Juliana"},
-  {id:"1021675662",name:"Ria\u00f1o Pach\u00f3n Laura Andrea"},
-  {id:"1023369961",name:"Rodr\u00edguez Salcedo Karol Valentina"},
-  {id:"1023375110",name:"Segura Rojas Ninny Carolina"},
-  {id:"1023891376",name:"Trujillo R\u00edos Andrea Catalina"},
-  {id:"1027151839",name:"Acevedo Caro Juan Diego"},
-  {id:"1028663002",name:"Galvis Triana Michel Fernanda"},
-  {id:"1028863347",name:"Arag\u00f3n Calder\u00f3n Ver\u00f3nica Ester"},
-  {id:"1029143351",name:"Castillo Vargas Karen Stefanny"},
-  {id:"1029144591",name:"Fern\u00e1ndez Rueda Laura Natalia"},
-  {id:"1029660441",name:"Chica Vega Sara Alejandra"},
-  {id:"1030557501",name:"Aunta Munar Danna Valentina"},
-  {id:"1031541266",name:"Camacho Rico Juan Esteban"},
-  {id:"1031805029",name:"\u00c1ngel Rojas Nashua Silvana"},
-  {id:"1032877570",name:"Vila Pe\u00f1a Laura Sof\u00eda"},
-  {id:"1033102053",name:"D\u00e1vila Gonz\u00e1lez Sara Luc\u00eda"},
-  {id:"1033102176",name:"Lopera Cristiano Valentina"},
-  {id:"1033710696",name:"Brand Mendieta Gabriela"},
-  {id:"1034577536",name:"D\u00edaz Moreno Juliana"},
-  {id:"1040874338",name:"Urrea Ram\u00edrez Mariana"},
-  {id:"1070007994",name:"Canastero Venegas Isabel Sof\u00eda"},
-  {id:"1141317881",name:"Laverde Vargas Sara Valentina"},
-  {id:"1013108778",name:"Castelblanco Moreno Paula Alejandra"},
-  {id:"1127242102",name:"Ni\u00f1o D\u00edaz Lucas Eduardo"}
+  {id:'demo-01', name:'Estudiante Demo 01', email:'est01@universidad.edu'},
+  {id:'demo-02', name:'Estudiante Demo 02', email:'est02@universidad.edu'},
+  {id:'demo-03', name:'Estudiante Demo 03', email:'est03@universidad.edu'},
+  {id:'demo-04', name:'Estudiante Demo 04', email:'est04@universidad.edu'},
+  {id:'demo-05', name:'Estudiante Demo 05', email:'est05@universidad.edu'},
+  {id:'demo-06', name:'Estudiante Demo 06', email:'est06@universidad.edu'},
+  {id:'demo-07', name:'Estudiante Demo 07', email:'est07@universidad.edu'},
+  {id:'demo-08', name:'Estudiante Demo 08', email:'est08@universidad.edu'},
+  {id:'demo-09', name:'Estudiante Demo 09', email:'est09@universidad.edu'},
+  {id:'demo-10', name:'Estudiante Demo 10', email:'est10@universidad.edu'}
 ];
 const CD360_GROUPS = {
-  "g_01":{id:"g_01",name:"Yoga Serena",   members:["1016596401","1029143351","1031541266","1029660441","1019764949"]},
-  "g_02":{id:"g_02",name:"Renacer Vital", members:["1031805029","1021397707","1028663002","1141317881","1023369961"]},
-  "g_03":{id:"g_03",name:"Aura Studio",   members:["1033710696","1023891376","1014997827","1029144591","1021675662"]},
-  "g_04":{id:"g_04",name:"Canta y Come",  members:["1000077541","1016951985","1011100245","1000350624","1040874338","1013108778"]},
-  "g_05":{id:"g_05",name:"Axis",          members:["1013106028","1032877570","1014861582","1027151839","1127242102"]},
-  "g_06":{id:"g_06",name:"Nara Nails",    members:["1023375110","1070007994","1013256390","1019843108"]},
-  "g_07":{id:"g_07",name:"Armon\u00eda Lashes",members:["1028863347","1030557501","1033102176","1013263957","1034577536"]}
+  "g_01":{id:"g_01",name:"Grupo Demo A", members:["demo-01","demo-02"]},
+  "g_02":{id:"g_02",name:"Grupo Demo B", members:["demo-03","demo-04"]},
+  "g_03":{id:"g_03",name:"Grupo Demo C", members:["demo-05","demo-06"]},
+  "g_04":{id:"g_04",name:"Grupo Demo D", members:["demo-07","demo-08"]},
+  "g_05":{id:"g_05",name:"Grupo Demo E", members:["demo-09","demo-10"]}
 };
 const CD360_CRITERIA = [
   {name:"Perfil del Negocio",     desc:"Nombre, Actividad, UVP, Producto y Diferenciaci\u00f3n claramente definidos.",pts:4},
@@ -628,43 +738,28 @@ const CD360_CRITERIA = [
 ];
 const CD360_SUST_ID = 'sust_cd360_s1';
 const CD360_SUST_SCORES = {
-  "g_01":{0:4,1:4,2:4,3:4,4:2,_obs:"LIDER: JUAN CAMACHO"},
+  "g_01":{0:4,1:4,2:4,3:4,4:2,_obs:""},
   "g_02":{0:4,1:4,2:4,3:4,4:4,_obs:""},
-  "g_03":{0:3,1:4,2:4,3:4,4:4,_obs:"LIDER: ANDREA RIA\u00d1O"},
-  "g_04":{0:4,1:4,2:4,3:3,4:2,_obs:"LIDER: Paula Castelblanco"},
-  "g_05":{0:4,1:4,2:4,3:4,4:3,_obs:"LIDER: JUAN MURIEL | \u26a0\ufe0f Lucas Ni\u00f1o D\u00edaz: PENDIENTE (no sustent\u00f3, sin incapacidad)"},
-  "g_06":{0:4,1:3,2:2,3:2,4:0,_obs:"LIDER: CAMILA"},
-  "g_07":{0:4,1:4,2:2,3:1,4:1,_obs:"LIDER: JERONIMO GARZON | \u26a0\ufe0f Juliana D\u00edaz Moreno: SIN NOTA (no se present\u00f3, sin justificaci\u00f3n)"}
+  "g_03":{0:3,1:4,2:4,3:4,4:4,_obs:""},
+  "g_04":{0:4,1:4,2:4,3:3,4:2,_obs:""},
+  "g_05":{0:4,1:4,2:4,3:4,4:3,_obs:""}
 };
 const CD360_SESSION1 = {
   id:'sess_cd360_s1',date:'2026-03-10',week:1,
-  topic:'Primera entrega \u2014 Sustentaci\u00f3n Diagn\u00f3stica',
-  objectives:'Presentaci\u00f3n y diagn\u00f3stico del plan de negocio digital',
-  notes:'Semana 1 \u00b7 7 grupos presentaron. Lucas Ni\u00f1o (G-05) y Juliana D\u00edaz (G-07) ausentes.',
+  topic:'Primera entrega — Sustentación Diagnóstica',
+  objectives:'Presentación y diagnóstico del plan de negocio digital',
+  notes:'Semana 1 · Datos de demo — reemplazar con datos reales al importar estudiantes.',
   attendance:{
-    "1000077541":{status:'P',obs:''},  "1000350624":{status:'P',obs:''},
-    "1011100245":{status:'P',obs:''},  "1013106028":{status:'P',obs:''},
-    "1013256390":{status:'A',obs:'Falla \u2014 ausente sin justificaci\u00f3n'},
-    "1013263957":{status:'P',obs:''},  "1014861582":{status:'P',obs:''},
-    "1014997827":{status:'P',obs:''},  "1016596401":{status:'P',obs:''},
-    "1016951985":{status:'P',obs:''},
-    "1019764949":{status:'A',obs:'Falla \u2014 ausente sin justificaci\u00f3n'},
-    "1019843108":{status:'A',obs:'Falla \u2014 ausente sin justificaci\u00f3n'},
-    "1021397707":{status:'P',obs:''},  "1021675662":{status:'P',obs:''},
-    "1023369961":{status:'P',obs:''},  "1023375110":{status:'P',obs:''},
-    "1023891376":{status:'P',obs:''},  "1027151839":{status:'P',obs:''},
-    "1028663002":{status:'P',obs:''},  "1028863347":{status:'P',obs:''},
-    "1029143351":{status:'P',obs:''},  "1029144591":{status:'P',obs:''},
-    "1029660441":{status:'A',obs:'Falla \u2014 ausente sin justificaci\u00f3n'},
-    "1030557501":{status:'P',obs:''},  "1031541266":{status:'P',obs:''},
-    "1031805029":{status:'P',obs:''},  "1032877570":{status:'P',obs:''},
-    "1033102053":{status:'A',obs:'Falla \u2014 ausente sin justificaci\u00f3n'},
-    "1033102176":{status:'P',obs:''},  "1033710696":{status:'P',obs:''},
-    "1034577536":{status:'A',obs:'No se present\u00f3 a la sustentaci\u00f3n \u2014 sin justificaci\u00f3n'},
-    "1040874338":{status:'A',obs:'Falla \u2014 ausente sin justificaci\u00f3n'},
-    "1070007994":{status:'P',obs:''},  "1141317881":{status:'P',obs:''},
-    "1013108778":{status:'P',obs:''},
-    "1127242102":{status:'A',obs:'Falla \u2014 no asisti\u00f3 a clase ni a sustentaci\u00f3n, sin incapacidad'}
+    "demo-01":{status:'P',obs:''},
+    "demo-02":{status:'P',obs:''},
+    "demo-03":{status:'P',obs:''},
+    "demo-04":{status:'A',obs:'Falla — ausente'},
+    "demo-05":{status:'P',obs:''},
+    "demo-06":{status:'P',obs:''},
+    "demo-07":{status:'P',obs:''},
+    "demo-08":{status:'T',obs:'Tardanza'},
+    "demo-09":{status:'P',obs:''},
+    "demo-10":{status:'A',obs:'Falla — ausente'}
   },
   resources:[]
 };
@@ -816,6 +911,7 @@ function ensureStateFields(){
 //  HOME SCREEN
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 function showHomeScreen(){
+  canvasAnimating = true; if(window._neuralFrame) requestAnimationFrame(window._neuralFrame);
   document.getElementById('home-screen').style.display='flex';
   document.getElementById('main-app').style.display='none';
   ACTIVE_COURSE_ID=null;
@@ -827,7 +923,7 @@ function renderHomeScreen(){
   const grid=document.getElementById('courses-grid');
   if(!COURSES.length){
     grid.innerHTML=`<div class="empty-home">
-      <div class="empty-home-icon">\u1f393</div>
+      <div class="empty-home-icon">🎓</div>
       <p style="color:var(--white);font-size:18px;font-weight:700">Bienvenido a ICONE.DocAdmin Pro</p>
       <p>Crea tu primer curso con el bot\u00f3n \u2795</p></div>`;
     return;
@@ -849,7 +945,7 @@ function renderHomeScreen(){
       <div class="course-card-footer">
         <span class="course-last">Modificado: ${lastMod}</span>
         <div class="flex gap4" onclick="event.stopPropagation()">
-          <button class="btn-del-course" onclick="deleteCourse('${c.id}')" title="Eliminar curso">\u1f5d1</button>
+          <button class="btn-del-course" onclick="deleteCourse('${c.id}')" title="Eliminar curso">🗑</button>
           <button class="btn-enter" onclick="enterCourse('${c.id}')">Entrar \u2192</button>
         </div>
       </div>
@@ -894,7 +990,7 @@ function deleteCourse(id){
   COURSES=COURSES.filter(x=>x.id!==id);
   localStorage.removeItem('docadmin_v2_state_'+id);
   localStorage.setItem('docadmin_v2_courses',JSON.stringify(COURSES));
-  renderHomeScreen();toast('\u1f5d1 Curso eliminado');
+  renderHomeScreen();toast('🗑 Curso eliminado');
 }
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
@@ -908,6 +1004,7 @@ async function enterCourse(courseId){
   else{S=getDefaultState();}
   ensureStateFields();
   // Show app immediately
+  canvasAnimating = false;
   document.getElementById('home-screen').style.display='none';
   document.getElementById('main-app').style.display='block';
   updateHeaderForCourse();
@@ -932,7 +1029,7 @@ function updateHeaderForCourse(){
   document.getElementById('hdr-meta').textContent=[S.config?.group||c.group,S.config?.institution||c.institution,S.config?.schedule||c.schedule].filter(Boolean).join(' \u00b7 ');
   document.getElementById('hdr-badge').textContent=S.config?.group||c.group||'\u2014';
 }
-function saveAndToast(){ssLocal();ghSaveCourse().catch(()=>{});toast('\u1f4be Guardado \u2705');}
+function saveAndToast(){ssLocal();ghSaveCourse().catch(()=>{});toast('💾 Guardado \u2705');}
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 //  SETTINGS
@@ -940,13 +1037,34 @@ function saveAndToast(){ssLocal();ghSaveCourse().catch(()=>{});toast('\u1f4be Gu
 function openSettingsModal(){
   document.getElementById('settings-institution').value=localStorage.getItem('docadmin_settings_institution')||'Universidad EAN';
   document.getElementById('settings-professor').value=localStorage.getItem('docadmin_settings_professor')||'';
+  // FIX #2: Show real key (masked) but don't put a fake placeholder that overwrites on save
+  const savedKey=localStorage.getItem('docadmin_claude_api_key')||'';
+  const keyInput=document.getElementById('inp-claude-key');
+  if(keyInput){
+    keyInput.value=''; // Always clear — user must re-enter to change
+    keyInput.placeholder=savedKey?'••••••••••••••••••••• (guardada — dejar vacío para mantener)':'sk-ant-…';
+  }
   openModal('modal-settings');
 }
 function saveSettings(){
   localStorage.setItem('docadmin_settings_institution',document.getElementById('settings-institution').value.trim()||'Universidad EAN');
   localStorage.setItem('docadmin_settings_professor',document.getElementById('settings-professor').value.trim());
+  // FIX #1: Save API key only if user actually typed something new
+  const keyInput=document.getElementById('inp-claude-key');
+  if(keyInput){
+    const newKey=keyInput.value.trim();
+    if(newKey && !newKey.startsWith('•') && newKey!=='sk-ant-…'){
+      localStorage.setItem('docadmin_claude_api_key',newKey);
+      toast('🔑 API Key guardada');
+    }
+  }
+  const newPin = document.getElementById('inp-admin-pin')?.value;
+  if (newPin && newPin.length >= 4) { ADMIN_PIN = newPin; toast('\u2705 PIN actualizado'); }
+  document.getElementById('inp-admin-pin').value = '';
   document.getElementById('home-inst-label').textContent=localStorage.getItem('docadmin_settings_institution');
   closeModal('modal-settings');toast('\u2705 Configuraci\u00f3n guardada');
+  // Sync profile to Supabase if logged in
+  if(currentUser){ syncProfileToSupabase(); }
 }
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
@@ -995,6 +1113,16 @@ function uid(){return'i'+Date.now().toString(36)+Math.random().toString(36).slic
 //  HELPERS
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 function stu(id){return(S.config?.students||[]).find(s=>s.id===id);}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
 function fmtDate(d){if(!d)return'\u2014';try{const dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'2-digit'});}catch{return d;}}
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
@@ -1014,7 +1142,7 @@ function renderPanel(){
   students.forEach(s=>{
     const totalW=activities.reduce((acc,a)=>acc+a.weight,0);
     if(!totalW)return;
-    const weighted=activities.reduce((acc,a)=>{const v=parseFloat((S.grades[a.id]||{})[s.id]);return acc+(isNaN(v)?0:v*(a.weight/totalW));},0);
+    const weighted=activities.reduce((acc,a)=>{const v=parseFloat((S.grades[a.id]||{})[s.id]);return acc+(isNaN(v)?0:v*(a.weight/100));},0);
     if(activities.some(a=>(S.grades[a.id]||{})[s.id]!==undefined)){gradeSum+=weighted;gradeCnt++;}
   });
   const gradeAvg=gradeCnt?gradeSum/gradeCnt:0;
@@ -1024,7 +1152,7 @@ function renderPanel(){
     <div class="kpi-card"><div class="kpi-val">${students.length}</div><div class="kpi-lbl">Estudiantes</div></div>
     <div class="kpi-card"><div class="kpi-val">${sessions.length}/${totalWeeks}</div><div class="kpi-lbl">Sesiones</div></div>
     <div class="kpi-card"><div class="kpi-val" style="color:${attRate>=70?'var(--green)':attRate>=50?'var(--yellow)':'var(--red)'}">${attRate}%</div><div class="kpi-lbl">Asistencia</div></div>
-    <div class="kpi-card"><div class="kpi-val" style="color:${gradeAvg>=4?'var(--green)':gradeAvg>=3?'var(--cyan)':'var(--red)'}">${gradeCnt?gradeAvg.toFixed(1):'\u2014'}</div><div class="kpi-lbl">Promedio</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:${gradeAvg>=4?'var(--green)':gradeAvg>=3?'var(--cyan)':'var(--red)'}">${gradeCnt?gradeAvg.toFixed(1):'\u2014'}</div><div class="kpi-lbl">Total</div></div>
     <div class="kpi-card"><div class="kpi-val">${progress}%</div><div class="kpi-lbl">Avance Curso</div></div>`;
   // Sessions preview
   const upcoming=sessions.slice(-3).reverse();
@@ -1121,7 +1249,7 @@ function renderSessionList(){
     const pct=attArr.length?Math.round((attArr.filter(r=>r.status==='P').length/attArr.length)*100):null;
     return`<li class="sess-item${currentSessId===s.id?' sel':''}" onclick="openSess('${s.id}')">
       <span class="tag">S${s.week}</span>
-      <span style="flex:1;color:var(--light)">${s.topic||'Sin tema'}</span>
+      <span style="flex:1;color:var(--light)">${escapeHtml(s.topic)||'Sin tema'}</span>
       <span style="font-size:11px;color:var(--gray)">${fmtDate(s.date)}</span>
       ${pct!==null?`<span class="risk ${pct>=70?'risk-ok':pct>=50?'risk-warn':'risk-hi'}">${pct}%</span>`:''}
     </li>`;
@@ -1137,19 +1265,19 @@ function openSess(id){
   document.getElementById('sess-detail').innerHTML=`
     <div class="card">
       <div class="card-title" style="justify-content:space-between">
-        \u1f4c5 Semana ${sess.week} \u2014 ${fmtDate(sess.date)}
+        📅 Semana ${sess.week} \u2014 ${fmtDate(sess.date)}
         <div class="flex gap4">
           <button class="btn btn-out btn-xs" onclick="editSession('${id}')">\u270f\ufe0f</button>
-          <button class="btn btn-red btn-xs" onclick="deleteSession('${id}')">\u1f5d1</button>
+          <button class="btn btn-red btn-xs" onclick="deleteSession('${id}')">🗑</button>
         </div>
       </div>
-      ${sess.topic?`<div class="crit-name mb8">${sess.topic}</div>`:''}
+      ${sess.topic?`<div class="crit-name mb8">${escapeHtml(sess.topic)}</div>`:''}
       ${sess.objectives?`<p class="text-sm text-gray mb8">${sess.objectives}</p>`:''}
       <div class="flex gap8 mb12">
         <span class="risk risk-ok">\u2705 ${pCount} Presentes</span>
         <span class="risk risk-hi">\u274c ${aCount} Ausentes</span>
       </div>
-      <div class="card-title2">\u1f4cb Asistencia</div>
+      <div class="card-title2">📋 Asistencia</div>
       <div class="tbl-wrap"><table>
         <thead><tr><th>Estudiante</th><th>Estado</th><th>Obs.</th></tr></thead>
         <tbody>${students.map(s=>{
@@ -1164,12 +1292,14 @@ function openSess(id){
             <td><input value="${r.obs||''}" onchange="setAttObs('${id}','${s.id}',this.value)" style="width:100%;font-size:12px" placeholder="Obs\u2026"></td>
           </tr>`;
         }).join('')}</tbody></table></div>
-      <div class="flex gap8 mt12">
-        <button class="btn btn-g btn-sm" onclick="markAllPresent('${id}')">\u2705 Marcar todos presentes</button>
-        <button class="btn btn-out btn-sm" onclick="saveAndToast()">\u1f4be Guardar</button>
+      <div class="flex gap8 mt12" style="flex-wrap:wrap">
+        <button class="btn btn-g btn-sm" onclick="markAllPresent('${id}')">✅ Marcar todos presentes</button>
+        <button class="btn btn-out btn-sm" onclick="saveAndToast()">💾 Guardar</button>
+        <button class="btn btn-sm" style="background:linear-gradient(135deg,#7b2fff,#00d4ff);color:#fff;border:none" onclick="document.getElementById('ai-att-inp-${id}').click()" title="Marcar asistencia desde foto">📸 IA Asistencia</button>
+        <input type="file" id="ai-att-inp-${id}" accept="image/*" style="display:none" onchange="aiMarkAttendance('${id}',this)">
       </div>
       <div class="divider mt12"></div>
-      <div class="card-title2 mt8">\u1f4ce Recursos y Archivos</div>
+      <div class="card-title2 mt8">📎 Recursos y Archivos</div>
       <p class="text-sm text-gray mb8">Sube archivos, im\u00e1genes o pega (Ctrl+V) im\u00e1genes directamente.</p>
       <div class="res-zone" id="res-zone-${id}" tabindex="0"
         onpaste="handleSessResourcePaste(event,'${id}')"
@@ -1177,10 +1307,10 @@ function openSess(id){
         ondragleave="this.classList.remove('drag-over')"
         ondrop="handleSessResourceDrop(event,'${id}')">
         <div id="res-grid-${id}" class="res-grid"></div>
-        <div id="res-hint-${id}" class="empty" style="font-size:12px;padding:8px">\u1f4cb Pega imagen (Ctrl+V) o arrastra archivos aqu\u00ed</div>
+        <div id="res-hint-${id}" class="empty" style="font-size:12px;padding:8px">📋 Pega imagen (Ctrl+V) o arrastra archivos aqu\u00ed</div>
       </div>
       <div class="flex gap8 mt8">
-        <button class="btn btn-out btn-sm" onclick="document.getElementById('res-inp-${id}').click()">\u1f4ce Subir Archivo</button>
+        <button class="btn btn-out btn-sm" onclick="document.getElementById('res-inp-${id}').click()">📎 Subir Archivo</button>
         <input type="file" id="res-inp-${id}" multiple style="display:none" onchange="addSessResources('${id}',this.files)">
       </div>
     </div>`;
@@ -1203,7 +1333,7 @@ function markAllPresent(sessId){
 }
 function openNewSessionModal(){
   editingSessId=null;
-  document.getElementById('sess-modal-title').textContent='\u1f4c5 Nueva Sesi\u00f3n';
+  document.getElementById('sess-modal-title').textContent='📅 Nueva Sesi\u00f3n';
   document.getElementById('sess-date').value=new Date().toISOString().slice(0,10);
   document.getElementById('sess-week').value=(S.sessions?.length||0)+1;
   document.getElementById('sess-topic').value='';
@@ -1245,7 +1375,7 @@ function deleteSession(id){
   if(!confirm('\u00bfEliminar esta sesi\u00f3n y su asistencia?'))return;
   S.sessions=S.sessions.filter(x=>x.id!==id);
   if(currentSessId===id){currentSessId=null;document.getElementById('sess-detail').innerHTML='<div class="card"><div class="empty">Sesi\u00f3n eliminada.</div></div>';}
-  renderSessionList();ssLocal();toast('\u1f5d1 Sesi\u00f3n eliminada');
+  renderSessionList();ssLocal();toast('🗑 Sesi\u00f3n eliminada');
 }
 
 // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
@@ -1275,7 +1405,7 @@ function handleSessResourcePaste(evt,sessId){
         const sess=S.sessions.find(x=>x.id===sessId);if(!sess)return;
         if(!sess.resources)sess.resources=[];
         sess.resources.push({id:uid(),name:'imagen_'+Date.now()+'.png',type:'image/png',size:file.size,data:e.target.result});
-        ssLocal();renderSessResources(sessId);toast('\u1f5bc\ufe0f Imagen pegada');
+        ssLocal();renderSessResources(sessId);toast('🖼\ufe0f Imagen pegada');
       };
       reader.readAsDataURL(file);
     }
@@ -1299,12 +1429,12 @@ function renderSessResources(sessId){
   const res=sess?.resources||[];
   if(!res.length){if(hint)hint.style.display='';grid.innerHTML='';return;}
   if(hint)hint.style.display='none';
-  const EXT_ICONS={'pdf':'\u1f4c4','doc':'\u1f4dd','docx':'\u1f4dd','xls':'\u1f4ca','xlsx':'\u1f4ca','ppt':'\u1f4cb','pptx':'\u1f4cb','mp4':'\u1f3ac','mp3':'\u1f3b5'};
+  const EXT_ICONS={'pdf':'📄','doc':'📝','docx':'📝','xls':'📊','xlsx':'📊','ppt':'📋','pptx':'📋','mp4':'🎬','mp3':'🎵'};
   grid.innerHTML=res.map(r=>{
     const ext=(r.name.split('.').pop()||'').toLowerCase();
     const isImg=r.type?.startsWith('image/');
     return`<div class="res-item">
-      ${isImg?`<img src="${r.data}" alt="${r.name}">`:`<span class="res-icon">${EXT_ICONS[ext]||'\u1f4c1'}</span>`}
+      ${isImg?`<img src="${r.data}" alt="${r.name}">`:`<span class="res-icon">${EXT_ICONS[ext]||'📁'}</span>`}
       <div class="res-name" title="${r.name}">${r.name}</div>
       <button class="res-del" onclick="deleteSessResource('${sessId}','${r.id}')">\u2715</button>
     </div>`;
@@ -1319,7 +1449,7 @@ function addSylFile(input){
   reader.onload=e=>{
     if(!S.syllabusFiles)S.syllabusFiles=[];
     S.syllabusFiles=[{id:uid(),name:f.name,type:f.type,size:f.size,data:e.target.result,uploadDate:new Date().toISOString()}];
-    ssLocal();renderSylFile();toast('\u1f4ce Syllabus subido: '+f.name);
+    ssLocal();renderSylFile();toast('📎 Syllabus subido: '+f.name);
   };
   reader.readAsDataURL(f);
   input.value='';
@@ -1332,11 +1462,11 @@ function renderSylFile(){
     const sizeKb=Math.round((f.size||0)/1024);
     const canOpen=f.data&&(f.type?.startsWith('image/')||f.type==='application/pdf');
     return`<div class="file-item">
-      <span style="font-size:18px">\u1f4c4</span>
+      <span style="font-size:18px">📄</span>
       <div style="flex:1"><div class="file-name">${f.name}</div><div class="file-size">${sizeKb} KB</div></div>
       <div class="flex gap4">
-        ${canOpen?`<a href="${f.data}" target="_blank" class="btn btn-out btn-xs">\u1f441 Ver</a>`:''}
-        <button class="btn btn-red btn-xs" onclick="S.syllabusFiles=[];ssLocal();renderSylFile()">\u1f5d1</button>
+        ${canOpen?`<a href="${f.data}" target="_blank" class="btn btn-out btn-xs">👁 Ver</a>`:''}
+        <button class="btn btn-red btn-xs" onclick="S.syllabusFiles=[];ssLocal();renderSylFile()">🗑</button>
       </div>
     </div>`;
   }).join('');
@@ -1442,19 +1572,19 @@ function renderEvalFiles(){
     });
   });
   if(!rows.length){list.innerHTML='<div class="empty">Sin adjuntos.</div>';return;}
-  const EXT_ICONS={'pdf':'\u1f4c4','doc':'\u1f4dd','docx':'\u1f4dd','xls':'\u1f4ca','xlsx':'\u1f4ca','ppt':'\u1f4cb','pptx':'\u1f4cb'};
+  const EXT_ICONS={'pdf':'📄','doc':'📝','docx':'📝','xls':'📊','xlsx':'📊','ppt':'📋','pptx':'📋'};
   list.innerHTML=rows.map(({actName,stuName,f,actId,stuId})=>{
     const ext=(f.name.split('.').pop()||'').toLowerCase();
     const isImg=f.type?.startsWith('image/');
     return`<div class="file-item">
-      <span style="font-size:16px">${isImg?'\u1f5bc\ufe0f':EXT_ICONS[ext]||'\u1f4c1'}</span>
+      <span style="font-size:16px">${isImg?'🖼\ufe0f':EXT_ICONS[ext]||'📁'}</span>
       <div style="flex:1;overflow:hidden">
         <div class="file-name">${f.name}</div>
         <div class="file-size">${actName} \u00b7 ${stuName}</div>
       </div>
       ${isImg?`<img src="${f.data}" style="height:40px;border-radius:4px;cursor:pointer" onclick="window.open('${f.data}')">`:
         `<a href="${f.data}" download="${f.name}" class="btn btn-out btn-xs">\u2b07\ufe0f</a>`}
-      <button class="btn btn-red btn-xs" onclick="deleteEvalFile('${actId}','${stuId}','${f.id}')">\u1f5d1</button>
+      <button class="btn btn-red btn-xs" onclick="deleteEvalFile('${actId}','${stuId}','${f.id}')">🗑</button>
     </div>`;
   }).join('');
 }
@@ -1493,14 +1623,16 @@ function renderActivities(){
   if(!students.length){document.getElementById('grades-table').innerHTML='<div class="empty">Sin estudiantes.</div>';return;}
   if(!acts.length){document.getElementById('grades-table').innerHTML='<div class="empty">Agrega actividades para comenzar.</div>';return;}
   document.getElementById('grades-table').innerHTML=`<div class="tbl-wrap"><table>
-    <thead><tr><th>Estudiante</th>${acts.map(a=>`<th class="num">${a.name}<br><small style="font-weight:400">${a.weight}%</small></th>`).join('')}<th class="num">Prom.</th></tr></thead>
+    <thead><tr><th>Estudiante</th>${acts.map(a=>`<th class="num">${escapeHtml(a.name)}<br><small style="font-weight:400">${a.weight}%</small></th>`).join('')}<th class="num">Total</th></tr></thead>
     <tbody>${students.map(s=>{
-      const grades=acts.map(a=>parseFloat((S.grades[a.id]||{})[s.id])).filter(v=>!isNaN(v));
-      const weighted=grades.length?grades.reduce((a,b)=>a+b,0)/grades.length:0;
-      const hasAny=grades.length>0;
+      const weighted = acts.reduce((acc,a) => {
+        const g = parseFloat((S.grades[a.id]||{})[s.id]);
+        return isNaN(g) ? acc : acc + g * ((a.weight||0) / 100);
+      }, 0);
+      const hasAny = acts.some(a => !isNaN(parseFloat((S.grades[a.id]||{})[s.id])));
       return`<tr><td class="fw7">${s.name}</td>
-        ${acts.map(a=>`<td class="num"><input type="number" min="0" max="5" step="0.1" value="${(S.grades[a.id]||{})[s.id]??''}" onchange="setGrade('${a.id}','${s.id}',this.value)" style="width:56px;text-align:center;padding:4px"></td>`).join('')}
-        <td class="num"><span class="risk ${weighted>=4?'risk-ok':weighted>=3?'':'risk-hi'}">${hasAny?weighted.toFixed(2):'\u2014'}</span></td>
+        ${acts.map(a=>`<td class="num"><input type="number" min="0" max="100" step="0.1" value="${(S.grades[a.id]||{})[s.id]??''}" onchange="setGrade('${a.id}','${s.id}',this.value)" style="width:56px;text-align:center;padding:4px"></td>`).join('')}
+        <td class="num"><span class="risk ${weighted>=60?'risk-ok':weighted>=40?'':'risk-hi'}">${hasAny?weighted.toFixed(1):'\u2014'}</span></td>
       </tr>`;
     }).join('')}</tbody></table></div>`;
 }
@@ -1524,8 +1656,8 @@ function hasSustScores(sustId){
 }
 function isCriteriaLocked(sustId){return hasSustScores(sustId)&&!unlockedSusts.has(sustId);}
 function unlockCriteriaWithPin(sustId){
-  const pin=prompt('\u1f512 Ingresa el PIN para desbloquear los criterios:');
-  if(pin===ADMIN_PIN){unlockedSusts.add(sustId);openSust(sustId);toast('\u1f513 Criterios desbloqueados');}
+  const pin=prompt('🔒 Ingresa el PIN para desbloquear los criterios:');
+  if(pin===ADMIN_PIN){unlockedSusts.add(sustId);openSust(sustId);toast('🔓 Criterios desbloqueados');}
   else if(pin!==null)toast('\u274c PIN incorrecto',true);
 }
 function openNewSustModal(){
@@ -1572,7 +1704,7 @@ function renderSustList(){
     return`<li class="sess-item${currentSustId===s.id?' sel':''}" onclick="openSust('${s.id}')">
       <span class="tag">${fmtDate(s.date)}</span>
       <span style="flex:1;color:var(--light)">${s.name}</span>
-      <span class="risk ${isCriteriaLocked(s.id)?'risk-warn':'risk-ok'}">${isCriteriaLocked(s.id)?'\u1f512':'\u1f513'}</span>
+      <span class="risk ${isCriteriaLocked(s.id)?'risk-warn':'risk-ok'}">${isCriteriaLocked(s.id)?'🔒':'🔓'}</span>
       <span class="tag">${scored} notas</span>
     </li>`;
   }).join('');
@@ -1582,19 +1714,19 @@ function openSust(id){
   const sust=S.sustentaciones.find(x=>x.id===id);if(!sust)return;
   const maxPts=sust.criteria.reduce((t,c)=>t+c.pts,0);
   const scores=S.sustScores[id]||{};
-  const targets=sust.target==='grupos'?Object.values(S.groups):S.config.students;
+  const targets=sust.target==='grupos'?Object.values(S.groups):(S.config?.students || S.config?.studentsList || []);
   const locked=isCriteriaLocked(id);
   document.getElementById('sust-detail').innerHTML=`
     <div class="card">
-      <div class="card-title" style="justify-content:space-between">\u1f3c6 ${sust.name}
+      <div class="card-title" style="justify-content:space-between">🏆 ${sust.name}
         <div class="flex gap4"><span class="tag">${fmtDate(sust.date)}</span>
-          <button class="btn btn-red btn-xs" onclick="deleteSust('${id}')">\u1f5d1</button></div>
+          <button class="btn btn-red btn-xs" onclick="deleteSust('${id}')">🗑</button></div>
       </div>
-      <div class="card-title2">\u1f4cb Criterios
-        <span class="risk ${locked?'risk-warn':'risk-ok'}" style="margin-left:8px">${locked?'\u1f512 Bloqueados':'\u1f513 Editables'}</span>
+      <div class="card-title2">📋 Criterios
+        <span class="risk ${locked?'risk-warn':'risk-ok'}" style="margin-left:8px">${locked?'🔒 Bloqueados':'🔓 Editables'}</span>
       </div>
-      ${locked?`<div class="lock-banner">\u1f512 Criterios bloqueados \u2014 ya hay notas. PIN requerido.
-        <button class="btn btn-orange btn-xs" style="margin-left:auto" onclick="unlockCriteriaWithPin('${id}')">\u1f513 PIN</button></div>`:''}
+      ${locked?`<div class="lock-banner">🔒 Criterios bloqueados \u2014 ya hay notas. PIN requerido.
+        <button class="btn btn-orange btn-xs" style="margin-left:auto" onclick="unlockCriteriaWithPin('${id}')">🔓 PIN</button></div>`:''}
       ${sust.criteria.map((c,i)=>`<div class="crit-row">
         <div style="flex:1"><div class="crit-name">${c.name}</div><div class="crit-desc">${c.desc||''}</div></div>
         <span class="tag">${c.pts} pts</span>
@@ -1611,7 +1743,7 @@ function openSust(id){
       <div id="sust-score-panel">${targets.length?renderSustScorePanel(id,targets[0]?.id):'<div class="empty">Sin grupos/estudiantes.</div>'}</div>
     </div>
     <div class="card mt12">
-      <div class="card-title">\u1f4ca Resultados Consolidados</div>
+      <div class="card-title">📊 Resultados Consolidados</div>
       <div class="tbl-wrap"><table>
         <thead><tr><th>${sust.target==='grupos'?'Grupo':'Estudiante'}</th>
           ${sust.criteria.map(c=>`<th>${c.name}</th>`).join('')}<th>Total</th><th>Nivel</th></tr></thead>
@@ -1619,7 +1751,7 @@ function openSust(id){
           const sc=scores[t.id]||{};
           const total=sust.criteria.reduce((s,c,i)=>s+(sc[i]||0),0);
           const pct=maxPts?Math.round((total/maxPts)*100):0;
-          const lvl=pct>=85?'Excelente \u1f31f':pct>=65?'Bueno \u1f44d':pct>=45?'Regular \u26a0\ufe0f':'Insuficiente \u274c';
+          const lvl=pct>=85?'Excelente 🌟':pct>=65?'Bueno 👍':pct>=45?'Regular \u26a0\ufe0f':'Insuficiente \u274c';
           return`<tr><td class="fw7">${t.name}</td>
             ${sust.criteria.map((c,i)=>`<td class="num">${sc[i]!==undefined?sc[i]:'\u2014'}</td>`).join('')}
             <td class="num fw7">${total}/${maxPts}</td>
@@ -1635,7 +1767,7 @@ function renderSustScorePanel(sustId,targetId){
   const maxPts=sust.criteria.reduce((t,c)=>t+c.pts,0);
   const total=sust.criteria.reduce((t,c,i)=>t+(sc[i]||0),0);
   const pct=maxPts?Math.round((total/maxPts)*100):0;
-  const lvl=pct>=85?{t:'Excelente \u1f31f',c:'risk-ok'}:pct>=65?{t:'Bueno \u1f44d',c:''}:pct>=45?{t:'Regular \u26a0\ufe0f',c:'risk-warn'}:{t:'Insuficiente \u274c',c:'risk-hi'};
+  const lvl=pct>=85?{t:'Excelente 🌟',c:'risk-ok'}:pct>=65?{t:'Bueno 👍',c:''}:pct>=45?{t:'Regular \u26a0\ufe0f',c:'risk-warn'}:{t:'Insuficiente \u274c',c:'risk-hi'};
   return`<div class="grid2" style="gap:16px">
     <div>${sust.criteria.map((c,i)=>`<div class="crit-row">
       <div style="flex:1"><div class="crit-name">${c.name}</div><div class="crit-desc">${c.desc||''}</div></div>
@@ -1673,13 +1805,13 @@ function setSustObs(sustId,targetId,val){
   S.sustScores[sustId][targetId]._obs=val;ssLocal();
 }
 function deleteSustCriteria(sustId,idx){
-  if(isCriteriaLocked(sustId)){toast('\u1f512 Criterios bloqueados. Usa el PIN.',true);return;}
+  if(isCriteriaLocked(sustId)){toast('🔒 Criterios bloqueados. Usa el PIN.',true);return;}
   const sust=S.sustentaciones.find(x=>x.id===sustId);if(!sust)return;
   if(!confirm('\u00bfEliminar criterio?'))return;
   sust.criteria.splice(idx,1);ssLocal();openSust(sustId);
 }
 function addSustCriteria(sustId){
-  if(isCriteriaLocked(sustId)){toast('\u1f512 Criterios bloqueados. Usa el PIN.',true);return;}
+  if(isCriteriaLocked(sustId)){toast('🔒 Criterios bloqueados. Usa el PIN.',true);return;}
   const sust=S.sustentaciones.find(x=>x.id===sustId);if(!sust)return;
   const name=(document.getElementById('ec-name-'+sustId)?.value||'').trim();
   const pts=parseInt(document.getElementById('ec-pts-'+sustId)?.value)||4;
@@ -1708,8 +1840,8 @@ function renderGroups(){
     const members=(g.members||[]).map(sid=>stu(sid)).filter(x=>x);
     return`<div class="card" style="padding:0;overflow:hidden">
       <div style="background:linear-gradient(135deg,var(--dark3),var(--dark4));padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
-        <span class="crit-name">${g.name} <span class="badge" style="margin-left:6px;font-size:10px">${members.length}</span></span>
-        <button class="btn btn-red btn-xs" onclick="deleteGroup('${g.id}')">\u1f5d1</button>
+        <span class="crit-name">${escapeHtml(g.name)} <span class="badge" style="margin-left:6px;font-size:10px">${members.length}</span></span>
+        <button class="btn btn-red btn-xs" onclick="deleteGroup('${g.id}')">🗑</button>
       </div>
       <div style="padding:10px 14px">
         ${members.map(m=>`<div style="padding:4px 0;font-size:12px;color:var(--light);border-bottom:1px solid var(--border2);display:flex;justify-content:space-between">
@@ -1763,20 +1895,20 @@ function renderStudents(){
   const grpMap={};
   Object.values(S.groups||{}).forEach(g=>(g.members||[]).forEach(mid=>{grpMap[mid]=g.name;}));
   document.getElementById('students-table').innerHTML=`<div class="tbl-wrap"><table>
-    <thead><tr><th>ID</th><th>Nombre</th><th>Grupo</th><th>Asistencia</th><th>Promedio</th><th></th></tr></thead>
+    <thead><tr><th>ID</th><th>Nombre</th><th>Grupo</th><th>Asistencia</th><th>Total</th><th></th></tr></thead>
     <tbody>${students.map(s=>{
       const attArr=[];(S.sessions||[]).forEach(sess=>{if(sess.attendance[s.id])attArr.push(sess.attendance[s.id].status);});
       const pct=attArr.length?Math.round((attArr.filter(x=>x==='P').length/attArr.length)*100):null;
       const acts=S.activities||[];
       const totalW=acts.reduce((acc,a)=>acc+a.weight,0)||1;
-      const weighted=acts.reduce((acc,a)=>{const v=parseFloat((S.grades[a.id]||{})[s.id]);return acc+(isNaN(v)?0:v*(a.weight/totalW));},0);
+      const weighted=acts.reduce((acc,a)=>{const v=parseFloat((S.grades[a.id]||{})[s.id]);return acc+(isNaN(v)?0:v*(a.weight/100));},0);
       const hasGrades=acts.some(a=>(S.grades[a.id]||{})[s.id]!==undefined);
       return`<tr>
         <td class="text-gray">${s.id}</td>
-        <td class="fw7">${s.name}</td>
+        <td class="fw7">${escapeHtml(s.name)}</td>
         <td><span class="tag">${grpMap[s.id]||'\u2014'}</span></td>
         <td>${pct!==null?`<span class="risk ${pct>=70?'risk-ok':pct>=50?'risk-warn':'risk-hi'}">${pct}%</span>`:'\u2014'}</td>
-        <td>${hasGrades?`<span class="risk ${weighted>=4?'risk-ok':weighted>=3?'':'risk-hi'}">${weighted.toFixed(2)}</span>`:'\u2014'}</td>
+        <td>${hasGrades?`<span class="risk ${weighted>=60?'risk-ok':weighted>=40?'':'risk-hi'}">${weighted.toFixed(1)}</span>`:'\u2014'}</td>
         <td><button class="btn btn-red btn-xs" onclick="removeStudent('${s.id}')">\u2715</button></td>
       </tr>`;
     }).join('')}</tbody></table></div>`;
@@ -1799,24 +1931,7 @@ function removeStudent(id){
   S.config.students=S.config.students.filter(s=>s.id!==id);
   renderStudents();ssLocal();
 }
-function importCSV(input){
-  const f=input.files[0];if(!f)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const lines=e.target.result.split('\n').filter(l=>l.trim());
-    let added=0;
-    lines.slice(1).forEach(line=>{
-      const [id,name]=line.split(',').map(x=>x.trim().replace(/"/g,''));
-      if(id&&name&&!(S.config.students||[]).find(s=>s.id===id)){
-        if(!S.config.students)S.config.students=[];
-        S.config.students.push({id,name});added++;
-      }
-    });
-    renderStudents();ssLocal();toast(`\u2705 ${added} estudiantes importados`);
-  };
-  reader.readAsText(f);
-  input.value='';
-}
+// importCSV: ver alias arriba → importStudentFile
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 //  ANALYTICS
@@ -1834,7 +1949,7 @@ function renderAnalytics(){
     const pCount=attArr.filter(x=>x==='P').length;
     const aCount=attArr.filter(x=>x==='A').length;
     const pct=attArr.filter(x=>x).length?Math.round((pCount/attArr.filter(x=>x).length)*100):null;
-    const weighted=acts.reduce((acc,a)=>{const v=parseFloat((S.grades[a.id]||{})[s.id]);return acc+(isNaN(v)?0:v*(a.weight/totalW));},0);
+    const weighted=acts.reduce((acc,a)=>{const v=parseFloat((S.grades[a.id]||{})[s.id]);return acc+(isNaN(v)?0:v*(a.weight/100));},0);
     const hasGrades=acts.some(a=>(S.grades[a.id]||{})[s.id]!==undefined);
     const risk=(pct!==null&&pct<60)||(hasGrades&&weighted<3);
     return{s,pct,aCount,weighted,hasGrades,risk};
@@ -1859,27 +1974,27 @@ function renderAnalytics(){
       <div class="kpi-card"><div class="kpi-val">${students.length}</div><div class="kpi-lbl">Estudiantes</div></div>
     </div>
     <div class="an-row2">
-      <div class="card"><div class="card-title">\u1f4c8 Tendencia de Asistencia por Sesi\u00f3n</div>
+      <div class="card"><div class="card-title">📈 Tendencia de Asistencia por Sesi\u00f3n</div>
         <canvas id="an-chart-trend" height="220"></canvas></div>
-      <div class="card"><div class="card-title">\u1f4ca Distribuci\u00f3n de Notas</div>
+      <div class="card"><div class="card-title">📊 Distribuci\u00f3n de Notas</div>
         <canvas id="an-chart-dist" height="220"></canvas></div>
     </div>
     <div class="an-row2">
-      <div class="card"><div class="card-title">\u1f393 Asistencia por Estudiante (menor a mayor)</div>
+      <div class="card"><div class="card-title">🎓 Asistencia por Estudiante (menor a mayor)</div>
         <canvas id="an-chart-stu" height="260"></canvas></div>
       <div class="card"><div class="card-title">\u26a0\ufe0f Estado General</div>
         <canvas id="an-chart-risk" height="260"></canvas></div>
     </div>
     <div class="card">
-      <div class="card-title">\u1f393 Reporte por Estudiante</div>
+      <div class="card-title">🎓 Reporte por Estudiante</div>
       <div class="tbl-wrap"><table>
-        <thead><tr><th>Estudiante</th><th>Asistencia</th><th>Fallas</th><th>Promedio</th><th>Estado</th></tr></thead>
+        <thead><tr><th>Estudiante</th><th>Asistencia</th><th>Fallas</th><th>Total</th><th>Estado</th></tr></thead>
         <tbody>${rows.map(({s,pct,aCount,weighted,hasGrades,risk})=>`
           <tr ${risk?'style="background:rgba(255,68,68,.05)"':''}>
             <td class="fw7">${s.name}</td>
             <td>${pct!==null?`<span class="risk ${pct>=70?'risk-ok':pct>=50?'risk-warn':'risk-hi'}">${pct}%</span>`:'\u2014'}</td>
             <td>${aCount>0?`<span class="risk risk-hi">${aCount}</span>`:'<span class="risk risk-ok">0</span>'}</td>
-            <td>${hasGrades?`<span class="risk ${weighted>=4?'risk-ok':weighted>=3?'':'risk-hi'}">${weighted.toFixed(2)}</span>`:'\u2014'}</td>
+            <td>${hasGrades?`<span class="risk ${weighted>=60?'risk-ok':weighted>=40?'':'risk-hi'}">${weighted.toFixed(1)}</span>`:'\u2014'}</td>
             <td>${risk?'<span class="risk risk-hi">\u26a0\ufe0f En riesgo</span>':'<span class="risk risk-ok">\u2705 OK</span>'}</td>
           </tr>`).join('')}</tbody></table></div>
     </div>`;
@@ -1894,7 +2009,7 @@ function renderAnalytics(){
     // Grade distribution
     const dc=document.getElementById('an-chart-dist');
     if(dc){
-      anCharts.dist=new Chart(dc,{type:'bar',data:{labels:['0\u20131','1\u20132','2\u20133','3\u20134','4\u20135'],datasets:[{data:buckets,backgroundColor:['#ff4444','#ff8c00','#ffd600','#00d4ff','#00e676'],borderWidth:0}]},options:{...co,plugins:{legend:{display:false}}}});
+      anCharts.dist=new Chart(dc,{type:'bar',data:{labels:['0–1','1–2','2–3','3–4','4–5'],datasets:[{data:buckets,backgroundColor:['#ff4444','#ff8c00','#ffd600','#00d4ff','#00e676'],borderWidth:0}]},options:{...co,plugins:{legend:{display:false}}}});
     }
     // Student attendance bar (top 12 lowest)
     const sc=document.getElementById('an-chart-stu');
@@ -1928,6 +2043,8 @@ function fillConfigForm(){
   document.getElementById('cfg-gh-token').value=ghToken()||'';
   document.getElementById('cfg-gh-owner').value=ghOwner()||'';
   document.getElementById('cfg-gh-repo').value=ghRepo()||'';
+  document.getElementById('cfg-notebooklm').value=c.notebookLmUrl||'';
+  renderBibList();
 }
 function saveCourseConfig(){
   S.config.courseName=document.getElementById('cfg-name').value.trim();
@@ -1938,6 +2055,7 @@ function saveCourseConfig(){
   S.config.schedule=document.getElementById('cfg-schedule').value.trim();
   S.config.professor=document.getElementById('cfg-professor').value.trim();
   S.config.totalWeeks=parseInt(document.getElementById('cfg-weeks').value)||16;
+  S.config.notebookLmUrl=document.getElementById('cfg-notebooklm').value.trim();
   const c=COURSES.find(x=>x.id===ACTIVE_COURSE_ID);
   if(c){Object.assign(c,{name:S.config.courseName,code:S.config.code,group:S.config.group,institution:S.config.institution});}
   updateHeaderForCourse();ssLocal();ghSaveCourse().catch(()=>{});toast('\u2705 Configuraci\u00f3n guardada');
@@ -1974,7 +2092,7 @@ function handleCourseFileUpload(input){
       if(!exists){
         S.courseFiles.push({id:uid(),name:f.name,type:f.type,size:f.size,content:e.target.result,uploadDate:new Date().toISOString(),githubUrl:null});
       }
-      ssLocal();renderCourseFiles();toast('\u1f4ce '+f.name+' subido');
+      ssLocal();renderCourseFiles();toast('📎 '+f.name+' subido');
     };
     reader.readAsDataURL(f);
   });
@@ -1989,7 +2107,7 @@ async function generateFileLink(fileId){
   else toast('\u274c Error al publicar',true);
 }
 function copyToClipboard(text){
-  if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>toast('\u1f4cb Copiado al portapapeles'));}
+  if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>toast('📋 Copiado al portapapeles'));}
   else{prompt('Copia este enlace:',text);}
 }
 function deleteCourseFile(id){
@@ -2005,16 +2123,16 @@ function renderCourseFiles(){
     const sizeKb=Math.round((f.size||0)/1024);
     const ext=(f.name.split('.').pop()||'').toUpperCase();
     return`<div class="file-item">
-      <span style="font-size:18px">${ext==='PDF'?'\u1f4c4':ext==='DOCX'||ext==='DOC'?'\u1f4dd':ext==='XLSX'||ext==='XLS'?'\u1f4ca':ext==='PPTX'||ext==='PPT'?'\u1f4cb':ext==='JPG'||ext==='PNG'||ext==='JPEG'?'\u1f5bc\ufe0f':'\u1f4c1'}</span>
+      <span style="font-size:18px">${ext==='PDF'?'📄':ext==='DOCX'||ext==='DOC'?'📝':ext==='XLSX'||ext==='XLS'?'📊':ext==='PPTX'||ext==='PPT'?'📋':ext==='JPG'||ext==='PNG'||ext==='JPEG'?'🖼\ufe0f':'📁'}</span>
       <div style="flex:1;overflow:hidden">
         <div class="file-name">${f.name}</div>
         <div class="file-size">${sizeKb} KB \u00b7 ${new Date(f.uploadDate||'').toLocaleDateString('es-CO')}</div>
         ${f.githubUrl?`<div style="font-size:11px;color:var(--cyan);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.githubUrl}</div>`:''}
       </div>
       <div class="flex gap4">
-        ${!f.githubUrl?`<button class="btn btn-orange btn-xs" onclick="generateFileLink('${f.id}')">\u1f517 Publicar</button>`
-          :`<button class="btn btn-g btn-xs" onclick="copyToClipboard('${f.githubUrl}')">\u1f4cb Copiar</button>`}
-        <button class="btn btn-red btn-xs" onclick="deleteCourseFile('${f.id}')">\u1f5d1</button>
+        ${!f.githubUrl?`<button class="btn btn-orange btn-xs" onclick="generateFileLink('${f.id}')">🔗 Publicar</button>`
+          :`<button class="btn btn-g btn-xs" onclick="copyToClipboard('${f.githubUrl}')">📋 Copiar</button>`}
+        <button class="btn btn-red btn-xs" onclick="deleteCourseFile('${f.id}')">🗑</button>
       </div>
     </div>`;
   }).join('');
@@ -2023,7 +2141,7 @@ function renderCourseFiles(){
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 //  CUSTOM TABS
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
-const ICON_OPTIONS=['\u1f4da','\u1f4d6','\u1f52c','\u1f9ea','\u1f3af','\u1f3a8','\u1f4a1','\u1f6e0\ufe0f','\u1f4ca','\u1f4c8','\u1f5d2\ufe0f','\u270f\ufe0f','\u1f5a5\ufe0f','\u1f4f1','\u1f310','\u1f517','\u1f4e4','\u1f4e5','\u1f5c2\ufe0f','\u1f4cc','\u1f393','\u1f465','\u1f3c6','\u2b50','\u1f3a4','\u1f3a5','\u1f4f7','\u1f5fa\ufe0f','\u1f331','\u1f527','\u26a1','\u1f9e9'];
+const ICON_OPTIONS=['📚','📖','🔬','🧪','🎯','🎨','💡','🛠\ufe0f','📊','📈','🗒\ufe0f','\u270f\ufe0f','🖥\ufe0f','📱','🌐','🔗','📤','📥','🗂\ufe0f','📌','🎓','👥','🏆','\u2b50','🎤','🎥','📷','🗺\ufe0f','🌱','🔧','\u26a1','🧩'];
 function renderIconPicker(){
   const grid=document.getElementById('icon-picker-grid');if(!grid)return;
   const current=document.getElementById('ctab-icon')?.value||'';
@@ -2035,7 +2153,7 @@ function selectIcon(ic){
 }
 function addCustomTab(){
   const name=(document.getElementById('ctab-name')?.value||'').trim();
-  const icon=document.getElementById('ctab-icon')?.value||'\u1f4cc';
+  const icon=document.getElementById('ctab-icon')?.value||'📌';
   if(!name){toast('\u26a0\ufe0f Nombre requerido.',true);return;}
   const id='ctab_'+uid();
   if(!S.customTabs)S.customTabs=[];
@@ -2061,14 +2179,14 @@ function addCustomTabToNav(id,icon,name){
         <span class="text-sm text-gray" style="margin-left:8px;font-weight:400">Constructor de Bloques</span>
       </div>
       <div class="block-toolbar">
-        <button class="btype-btn" onclick="addBlock('${id}','heading')">\u1f4cc T\u00edtulo</button>
+        <button class="btype-btn" onclick="addBlock('${id}','heading')">📌 T\u00edtulo</button>
         <button class="btype-btn" onclick="addBlock('${id}','text')">\u00b6 Texto</button>
-        <button class="btype-btn" onclick="addBlock('${id}','image')">\u1f5bc\ufe0f Imagen</button>
-        <button class="btype-btn" onclick="addBlock('${id}','file')">\u1f4ce Archivo</button>
+        <button class="btype-btn" onclick="addBlock('${id}','image')">🖼\ufe0f Imagen</button>
+        <button class="btype-btn" onclick="addBlock('${id}','file')">📎 Archivo</button>
         <button class="btype-btn" onclick="addBlock('${id}','table')">\u229e Tabla</button>
-        <button class="btype-btn" onclick="addBlock('${id}','link')">\u1f517 Enlace</button>
+        <button class="btype-btn" onclick="addBlock('${id}','link')">🔗 Enlace</button>
         <button class="btype-btn" onclick="addBlock('${id}','divider')">\u2500\u2500 Divisor</button>
-        <button class="btype-btn" onclick="addBlock('${id}','video')">\u1f3ac Video URL</button>
+        <button class="btype-btn" onclick="addBlock('${id}','video')">🎬 Video URL</button>
       </div>
       <div id="blocks-${id}" class="blocks-container"></div>
     </div>`;
@@ -2150,21 +2268,21 @@ function renderBlocks(tabId){
       </div>`;
     if(b.type==='image')return`<div class="block-card">${acts}
       ${b.data?`<img src="${b.data}" style="max-width:100%;border-radius:8px;margin-bottom:8px">
-        <button class="btn btn-red btn-xs" onclick="const t=S.customTabs?.find(x=>x.id==='${tabId}');const bl=t?.blocks?.find(x=>x.id==='${b.id}');if(bl){bl.data=null;}ssLocal();renderBlocks('${tabId}')">\u1f5d1 Quitar</button>`
-        :`<button class="btn btn-out btn-sm" onclick="document.getElementById('bimg-${b.id}').click()">\u1f5bc\ufe0f Subir Imagen</button>
+        <button class="btn btn-red btn-xs" onclick="const t=S.customTabs?.find(x=>x.id==='${tabId}');const bl=t?.blocks?.find(x=>x.id==='${b.id}');if(bl){bl.data=null;}ssLocal();renderBlocks('${tabId}')">🗑 Quitar</button>`
+        :`<button class="btn btn-out btn-sm" onclick="document.getElementById('bimg-${b.id}').click()">🖼\ufe0f Subir Imagen</button>
           <input type="file" id="bimg-${b.id}" accept="image/*" style="display:none" onchange="uploadBlockFile('${tabId}','${b.id}',this)">`}
       </div>`;
     if(b.type==='file')return`<div class="block-card">${acts}
-      ${b.data?`<div class="file-item"><span style="font-size:18px">\u1f4c4</span><div style="flex:1"><div class="file-name">${b.name||'archivo'}</div></div>
+      ${b.data?`<div class="file-item"><span style="font-size:18px">📄</span><div style="flex:1"><div class="file-name">${b.name||'archivo'}</div></div>
         <a href="${b.data}" download="${b.name||'archivo'}" class="btn btn-out btn-xs">\u2b07\ufe0f</a>
-        <button class="btn btn-red btn-xs" onclick="const t2=S.customTabs?.find(x=>x.id==='${tabId}');const bl2=t2?.blocks?.find(x=>x.id==='${b.id}');if(bl2){bl2.data=null;}ssLocal();renderBlocks('${tabId}')">\u1f5d1</button>
+        <button class="btn btn-red btn-xs" onclick="const t2=S.customTabs?.find(x=>x.id==='${tabId}');const bl2=t2?.blocks?.find(x=>x.id==='${b.id}');if(bl2){bl2.data=null;}ssLocal();renderBlocks('${tabId}')">🗑</button>
         </div>`
-        :`<button class="btn btn-out btn-sm" onclick="document.getElementById('bfile-${b.id}').click()">\u1f4ce Subir Archivo</button>
+        :`<button class="btn btn-out btn-sm" onclick="document.getElementById('bfile-${b.id}').click()">📎 Subir Archivo</button>
           <input type="file" id="bfile-${b.id}" style="display:none" onchange="uploadBlockFile('${tabId}','${b.id}',this)">`}
       </div>`;
     if(b.type==='link')return`<div class="block-card">${acts}
       <div class="flex gap8" style="align-items:center">
-        <span style="color:var(--cyan);font-size:16px">\u1f517</span>
+        <span style="color:var(--cyan);font-size:16px">🔗</span>
         <input value="${(b.url||'').replace(/"/g,'&quot;')}" placeholder="https://..." style="flex:1" onchange="saveBlockField('${tabId}','${b.id}','url',this.value)">
         ${b.url?`<a href="${b.url}" target="_blank" class="btn btn-g btn-xs">Abrir</a>`:''}
       </div></div>`;
@@ -2195,7 +2313,7 @@ function renderCustomTabsList(){
     tabs.map(t=>`<div class="crit-row">
       <span style="font-size:18px">${t.icon}</span>
       <span style="flex:1;color:var(--light);font-weight:600">${t.name}</span>
-      <button class="btn btn-red btn-xs" onclick="deleteCustomTab('${t.id}')">\u1f5d1</button>
+      <button class="btn btn-red btn-xs" onclick="deleteCustomTab('${t.id}')">🗑</button>
     </div>`).join('');
 }
 function deleteCustomTab(id){
@@ -2203,7 +2321,7 @@ function deleteCustomTab(id){
   const nav=document.getElementById('main-nav');
   nav?.querySelectorAll(`[data-tab="${id}"]`).forEach(b=>b.remove());
   document.getElementById('tab-'+id)?.remove();
-  renderCustomTabsList();ssLocal();toast('\u1f5d1 Pesta\u00f1a eliminada');
+  renderCustomTabsList();ssLocal();toast('🗑 Pesta\u00f1a eliminada');
 }
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
@@ -2290,6 +2408,7 @@ function migrateV1AsCourse(){
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 //  PARTICLES
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+let canvasAnimating = true;
 function initParticles(){
   // \u2500\u2500 Neural network canvas \u2500\u2500
   const cv=document.getElementById('neural-canvas');
@@ -2299,6 +2418,7 @@ function initParticles(){
     const N=60,DIST=130,COLORS=['#00d4ff','#7b2fff','#ff8c00'];
     function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
     function mkNode(){return{x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.8+1,c:COLORS[Math.floor(Math.random()*COLORS.length)]};}
+    window._neuralFrame = frame;
     function frame(){
       ctx.clearRect(0,0,W,H);
       nodes.forEach(n=>{
@@ -2315,7 +2435,7 @@ function initParticles(){
       ctx.globalAlpha=1;
       nodes.forEach(n=>{ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=n.c;ctx.globalAlpha=0.7;ctx.fill();});
       ctx.globalAlpha=1;
-      requestAnimationFrame(frame);
+      if(canvasAnimating) requestAnimationFrame(frame);
     }
     resize();nodes=Array.from({length:N},mkNode);
     window.addEventListener('resize',()=>{resize();nodes=Array.from({length:N},mkNode);});
@@ -2337,14 +2457,92 @@ function initParticles(){
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 async function init(){
   initParticles();
+  // ── SUPABASE AUTH: check session first ──
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('home-screen').style.display='none';
+  document.getElementById('main-app').style.display='none';
+  const sb = getSupabase();
+  if(sb){
+    const {data:{session}} = await sb.auth.getSession();
+    if(session){
+      currentUser = session.user;
+      document.getElementById('auth-screen').style.display='none';
+      await initAfterLogin();
+      return;
+    }
+    // Listen for auth state changes
+    sb.auth.onAuthStateChange(async(event, session)=>{
+      if(event==='SIGNED_IN' && session){
+        currentUser = session.user;
+        document.getElementById('auth-screen').style.display='none';
+        await initAfterLogin();
+      } else if(event==='SIGNED_OUT'){
+        currentUser=null;
+        COURSES=[];CURRENT_COURSE_ID=null;STATE={};
+        document.getElementById('auth-screen').style.display='flex';
+        document.getElementById('home-screen').style.display='none';
+        document.getElementById('main-app').style.display='none';
+      }
+    });
+  } else {
+    // Supabase not available — fallback to localStorage-only mode
+    console.warn('Supabase not available, running in offline mode');
+    document.getElementById('auth-screen').style.display='none';
+    await initAfterLogin();
+    return;
+  }
+  // Show auth screen (no session found)
+}
+
+// ── repairStoredNames: fix UTF-8 double-encoding in localStorage ──
+function repairStoredNames(){
+  const FLAG='docadmin_utf8_repaired_v4_'+new Date().toDateString();
+  if(sessionStorage.getItem(FLAG))return;
+  function fixStr(s){
+    if(typeof s!=='string')return s;
+    if(!/[\u00c0-\u00ff]/.test(s))return s;
+    try{
+      const bytes=new Uint8Array(s.length);
+      for(let i=0;i<s.length;i++)bytes[i]=s.charCodeAt(i)&0xff;
+      return new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+    }catch(e){return s;}
+  }
+  function fixDeep(v){
+    if(typeof v==='string')return fixStr(v);
+    if(Array.isArray(v))return v.map(fixDeep);
+    if(v&&typeof v==='object'){const r={};for(const k in v)r[k]=fixDeep(v[k]);return r;}
+    return v;
+  }
+  try{
+    const keys=Object.keys(localStorage).filter(k=>k.startsWith('docadmin_'));
+    keys.forEach(k=>{
+      try{
+        const val=localStorage.getItem(k);
+        const parsed=JSON.parse(val);
+        const fixed=fixDeep(parsed);
+        const fixedStr=JSON.stringify(fixed);
+        if(fixedStr!==val)localStorage.setItem(k,fixedStr);
+      }catch(e){}
+    });
+  }catch(e){}
+  sessionStorage.setItem(FLAG,'1');
+}
+
+async function initAfterLogin(){
+  initParticles();
   // Set institution label
   const inst=localStorage.getItem('docadmin_settings_institution')||'Universidad EAN';
   document.getElementById('home-inst-label').textContent=inst;
+  // Show logged-in user email if available
+  if(currentUser){
+    const emailLabel = document.getElementById('home-inst-label');
+    // Keep institution label as is
+  }
   // Gear button wires to modal
   const gearBtn=document.querySelector('.btn-gear');
   if(gearBtn){gearBtn.onclick=()=>{
     document.getElementById('settings-institution').value=inst;
-    document.getElementById('settings-professor').value=localStorage.getItem('docadmin_settings_professor')||'Prof. Jorge Hugo P\u00e9rez Gaona';
+    document.getElementById('settings-professor').value=localStorage.getItem('docadmin_settings_professor')||'';
     openModal('modal-settings');
   };}
   // Load COURSES
@@ -2375,8 +2573,8 @@ async function init(){
     defaultState.config={
       courseName:'COMUNICACI\u00d3N DIGITAL 360 MARKETING',code:'AFPN0093',
       group:'S1G1 2026-001',institution:'Universidad EAN',
-      room:'N412',schedule:'Martes 14:00\u201316:00',
-      professor:'Prof. Jorge Hugo P\u00e9rez Gaona',totalWeeks:16,
+      room:'N412',schedule:'Martes 14:00𠄱6:00',
+      professor:'',totalWeeks:16,
       students:JSON.parse(JSON.stringify(CD360_STUDENTS))
     };
     defaultState.groups=JSON.parse(JSON.stringify(CD360_GROUPS));
@@ -2427,46 +2625,707 @@ async function init(){
   }
   // Sync from GitHub
 // STARTUP REPAIR: fix UTF-8 double-encoded strings in localStorage
-function repairStoredNames(){
-  const FLAG='docadmin_utf8_repaired_v4';
-  if(localStorage.getItem(FLAG))return;
-  function fixStr(s){
-    if(typeof s!=='string')return s;
-    if(!/[\u00c0-\u00ff]/.test(s))return s;
-    try{
-      const bytes=new Uint8Array(s.length);
-      for(let i=0;i<s.length;i++)bytes[i]=s.charCodeAt(i)&0xff;
-      return new TextDecoder('utf-8',{fatal:true}).decode(bytes);
-    }catch(e){return s;}
-  }
-  function fixDeep(v){
-    if(typeof v==='string')return fixStr(v);
-    if(Array.isArray(v))return v.map(fixDeep);
-    if(v&&typeof v==='object'){const r={};for(const k in v)r[k]=fixDeep(v[k]);return r;}
-    return v;
-  }
-  try{
-    const keys=Object.keys(localStorage).filter(k=>k.startsWith('docadmin_'));
-    keys.forEach(k=>{
-      try{
-        const val=localStorage.getItem(k);
-        const parsed=JSON.parse(val);
-        const fixed=fixDeep(parsed);
-        const fixedStr=JSON.stringify(fixed);
-        if(fixedStr!==val)localStorage.setItem(k,fixedStr);
-      }catch(e){}
-    });
-  }catch(e){}
-  localStorage.setItem(FLAG,'1');
 }
 
-  const tk=ghToken();
-  if(tk){try{await ghLoadCourseIndex();}catch(e){}}
+  // Sync from Supabase if logged in
+  if(currentUser){ try{ await supabaseLoadCourses(); }catch(e){ console.warn('Supabase load error:',e); } }
+  else {
+    // Fallback: load from localStorage
+    const savedCourses=localStorage.getItem('docadmin_v2_courses');
+    if(savedCourses){try{COURSES=JSON.parse(savedCourses);}catch{COURSES=[];}}
+  }
   repairStoredNames();
   showHomeScreen();
+  // Refrescar info del plan desde el Worker (async, no bloquea)
+  fetchUserPlan().catch(()=>{});
 }
 
-document.addEventListener('DOMContentLoaded',init);
+
+// ══════════════════════════════════════════════════════════════════
+//  IA DOCENTE — Módulos de Inteligencia Artificial
+// ══════════════════════════════════════════════════════════════════
+
+// ── callClaude: Worker (con sesión) o API directa (con key propia) ───────────
+async function callClaude(messages, {max_tokens=4096}={}) {
+  if (currentUser) {
+    return callClaudeViaWorker(messages, {max_tokens});
+  }
+  // Fallback: API directa (requiere key en Settings)
+  const k = localStorage.getItem('docadmin_claude_api_key');
+  if (!k) { toast('⚠️ Inicia sesión o configura tu API Key en ⚙️ Ajustes', true); throw new Error('No auth'); }
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':k,
+      'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body: JSON.stringify({model:'claude-sonnet-4-5', max_tokens, messages})
+  });
+  if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message||'Error Claude API '+r.status); }
+  const d = await r.json(); return d.content[0].text;
+}
+
+async function callClaudeViaWorker(messages, {max_tokens=2048}={}) {
+  const sb = getSupabase();
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session?.access_token) throw new Error('Sesión expirada — vuelve a iniciar sesión');
+
+  const r = await fetch(WORKER_URL + '/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + session.access_token
+    },
+    body: JSON.stringify({ messages, max_tokens })
+  });
+
+  const data = await r.json();
+
+  if (!r.ok) {
+    const errData = data?.error;
+    // Plan limit → mostrar modal de upgrade
+    if (r.status === 429 && errData?.type === 'plan_limit') {
+      openUpgradeModal(errData);
+      throw new Error('Límite del plan alcanzado');
+    }
+    // Trial expirado
+    if (r.status === 402) { openUpgradeModal({type:'trial_expired'}); throw new Error('Trial expirado'); }
+    throw new Error(typeof errData === 'string' ? errData : (errData?.message || 'Error Worker ' + r.status));
+  }
+
+  // Actualizar contador de calls en UI
+  if (data._meta) {
+    userPlanInfo = { ...userPlanInfo, ...data._meta };
+    updatePlanBadge();
+  }
+  return data.content?.[0]?.text || '';
+}
+
+async function fetchUserPlan() {
+  if (!currentUser) return;
+  try {
+    const sb = getSupabase();
+    const { data:{ session } } = await sb.auth.getSession();
+    if (!session?.access_token) return;
+    const r = await fetch(WORKER_URL + '/plan', {
+      headers: { 'Authorization': 'Bearer ' + session.access_token }
+    });
+    if (r.ok) {
+      userPlanInfo = await r.json();
+      updatePlanBadge();
+    }
+  } catch(e) { console.warn('fetchUserPlan error:', e); }
+}
+
+function updatePlanBadge() {
+  const badge = document.getElementById('plan-badge');
+  if (!badge) return;
+  const planLabel = { trial:'Trial', starter:'Starter', pro:'Pro ⚡', premium:'Premium 🌟' };
+  const pct = Math.round((userPlanInfo.calls_used / userPlanInfo.calls_limit) * 100);
+  const color = pct > 90 ? 'var(--red)' : pct > 70 ? 'var(--orange)' : 'var(--cyan)';
+  badge.innerHTML = `<span style="color:${color}" title="${userPlanInfo.calls_used}/${userPlanInfo.calls_limit} llamadas IA usadas">${planLabel[userPlanInfo.plan]||userPlanInfo.plan} · ${userPlanInfo.calls_remaining} IA</span>`;
+  badge.onclick = () => openModal('modal-upgrade');
+  badge.style.cursor = 'pointer';
+}
+
+// ── Wompi: generar hash de integridad (SHA-256 en browser) ───────────────────
+async function wompiIntegrityHash(reference, amountCents, currency) {
+  const str = reference + amountCents + currency + WOMPI_INTEGRITY_SECRET;
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ── Modal de upgrade de plan ──────────────────────────────────────────────────
+function openUpgradeModal(errInfo) {
+  const modal = document.getElementById('modal-upgrade');
+  if (!modal) return;
+  // Mensaje de contexto
+  const ctxEl = document.getElementById('upgrade-ctx');
+  if (ctxEl) {
+    if (errInfo?.type === 'trial_expired') ctxEl.textContent = '⏰ Tu período de prueba ha expirado.';
+    else if (errInfo?.type === 'plan_limit') ctxEl.textContent = `Has alcanzado el límite de ${errInfo.limit} llamadas IA de tu plan ${errInfo.plan}.`;
+    else ctxEl.textContent = 'Actualiza tu plan para continuar usando la IA docente.';
+  }
+  openModal('modal-upgrade');
+}
+
+async function launchWompiCheckout(plan) {
+  if (!currentUser) { toast('⚠️ Inicia sesión primero', true); return; }
+  const prices = { starter:4900000, pro:14900000, premium:34900000 }; // COP centavos
+  const labels = { starter:'$49.000/mes', pro:'$149.000/mes', premium:'$349.000/mes' };
+  const amount = prices[plan];
+  if (!amount) return;
+
+  const reference = `docadmin_${plan}_${currentUser.id}`;
+  const currency = 'COP';
+  const integrity = await wompiIntegrityHash(reference, amount, currency);
+
+  // Inyectar script de Wompi si no está cargado
+  if (!document.getElementById('wompi-checkout-script')) {
+    const s = document.createElement('script');
+    s.src = 'https://checkout.wompi.co/widget.js';
+    s.setAttribute('data-render', 'button');
+    s.setAttribute('data-public-key', WOMPI_PUBLIC_KEY);
+    s.setAttribute('data-currency', currency);
+    s.setAttribute('data-amount-in-cents', String(amount));
+    s.setAttribute('data-reference', reference);
+    s.setAttribute('data-signature:integrity', integrity);
+    s.setAttribute('data-redirect-url', 'https://jorgeicone.github.io/docadmin-clase-v2/?plan=' + plan);
+    s.id = 'wompi-checkout-script';
+    document.getElementById('wompi-widget-container').innerHTML = '';
+    document.getElementById('wompi-widget-container').appendChild(s);
+    toast('🔄 Cargando checkout de Wompi…');
+  } else {
+    // Si ya está, hacer click en el botón generado
+    const btn = document.querySelector('#wompi-widget-container button');
+    if (btn) btn.click();
+  }
+}
+function fileToBase64(file){
+  return new Promise((res,rej)=>{
+    const rd=new FileReader();
+    rd.onload=e=>{const b64=e.target.result.split(',')[1];res(b64);};
+    rd.onerror=rej;rd.readAsDataURL(file);
+  });
+}
+function extractJson(text){
+  const m=text.match(/```json\s*([\s\S]*?)```/)||text.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
+  if(m)try{return JSON.parse(m[1]||m[0]);}catch(e){}
+  try{return JSON.parse(text.trim());}catch(e){}
+  throw new Error('No se pudo parsear la respuesta de IA');
+}
+function fuzzyMatchStudent(name,students){
+  const n=name.toLowerCase().replace(/[^a-z\u00e1\u00e9\u00ed\u00f3\u00fa\u00f1\s]/gi,'').trim();
+  let best=null,bestScore=0;
+  students.forEach(s=>{
+    const sn=s.name.toLowerCase();
+    const parts=n.split(/\s+/);
+    const matches=parts.filter(p=>p.length>2&&sn.includes(p)).length;
+    const score=matches/Math.max(parts.length,1);
+    if(score>bestScore){bestScore=score;best=s;}
+  });
+  return bestScore>=0.4?best:null;
+}
+
+// Festivos colombianos (fijos + lunes de traslado + pascua)
+function getColombianHolidays(year){
+  const fijos=[year+'-01-01',year+'-05-01',year+'-07-20',year+'-08-07',year+'-12-08',year+'-12-25'];
+  function nextMonday(m,d){
+    const dt=new Date(year,m-1,d);const dow=dt.getDay();
+    if(dow===1)return dt;dt.setDate(dt.getDate()+(dow===0?1:8-dow));return dt;
+  }
+  function fmt(dt){return dt.toISOString().slice(0,10);}
+  const moviles=[nextMonday(1,6),nextMonday(3,19),nextMonday(6,29),
+    nextMonday(8,15),nextMonday(10,12),nextMonday(11,1),nextMonday(11,11)].map(fmt);
+  // Algoritmo de Butcher para Pascua
+  const a=year%19,b=Math.floor(year/100),c=year%100,d2=Math.floor(b/4),e=b%4;
+  const f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3);
+  const h=(19*a+b-d2-g+15)%30,i=Math.floor(c/4),k=c%4;
+  const l=(32+2*e+2*i-h-k)%7,m2=Math.floor((a+11*h+22*l)/451);
+  const mo=Math.floor((h+l-7*m2+114)/31),dy=((h+l-7*m2+114)%31)+1;
+  const pascua=new Date(year,mo-1,dy);
+  function addDays(dt,n){const d=new Date(dt);d.setDate(d.getDate()+n);return d;}
+  const pascuaFest=[addDays(pascua,-3),addDays(pascua,-2),addDays(pascua,43),addDays(pascua,64),addDays(pascua,71)].map(fmt);
+  return new Set([...fijos,...moviles,...pascuaFest]);
+}
+
+// ── MÓDULO 1: IA Syllabus desde PDF ───────────────────────────────────────────
+async function aiLoadSyllabus(input){
+  const file=input.files[0];if(!file)return;input.value='';
+  try{
+    // Auth handled by callClaude()
+    toast('🤖 Analizando syllabus con IA…');
+    const b64=await fileToBase64(file);
+    const mt=file.type||'application/pdf';
+    const prompt='Analiza este documento de syllabus universitario. Extrae TODAS las unidades temáticas en orden. Devuelve SOLO un array JSON (sin texto adicional):\n[{"unit":"Unidad 1","topic":"Nombre del tema","weeks":2,"objectives":"Objetivo breve"}]\n- unit: nombre/número de la unidad\n- topic: tema principal\n- weeks: semanas estimadas (entero)\n- objectives: objetivo en máx 15 palabras';
+    const msgs=[{role:'user',content:[
+      {type:'document',source:{type:'base64',media_type:mt,data:b64}},
+      {type:'text',text:prompt}
+    ]}];
+    const resp=await callClaude(msgs);
+    const units=extractJson(resp);
+    if(!Array.isArray(units)||!units.length)throw new Error('No se encontraron unidades en el documento');
+    S.syllabus=units.map(u=>({id:uid(),unit:u.unit||'',topic:u.topic||'',weeks:u.weeks||1,objectives:u.objectives||''}));
+    ssLocal();renderSyllabus();
+    const panel=document.getElementById('ai-sess-gen-panel');
+    panel.style.display='flex';panel.style.flexDirection='column';
+    panel.scrollIntoView({behavior:'smooth'});
+    toast('✅ '+units.length+' unidades extraídas del syllabus');
+  }catch(e){toast('❌ '+e.message,true);console.error(e);}
+}
+
+// ── MÓDULO 2: Generar Sesiones del Semestre ───────────────────────────────
+async function aiGenerateSessions(){
+  const start=document.getElementById('sg-start').value;
+  const end=document.getElementById('sg-end').value;
+  const time=document.getElementById('sg-time').value||'08:00';
+  const duration=parseInt(document.getElementById('sg-duration').value)||120;
+  const dayIds=['sg-lun','sg-mar','sg-mie','sg-jue','sg-vie','sg-sab'];
+  const days=dayIds.map((id,i)=>document.getElementById(id)?.checked?(i+1):null).filter(Boolean);
+  if(!start||!end){toast('⚠️ Ingresa fecha de inicio y fin',true);return;}
+  if(!days.length){toast('⚠️ Selecciona al menos un día de clase',true);return;}
+  const status=document.getElementById('sg-status');
+  status.textContent='Calculando…';
+  const startY=parseInt(start.slice(0,4)),endY=parseInt(end.slice(0,4));
+  const allHol=new Set();
+  for(let y=startY;y<=endY;y++)for(const d of getColombianHolidays(y))allHol.add(d);
+  const sessions=[];
+  const cur=new Date(start+'T12:00:00');
+  const endDt=new Date(end+'T23:59:59');
+  while(cur<=endDt){
+    const dow=cur.getDay()||7;
+    const iso=cur.toISOString().slice(0,10);
+    if(days.includes(dow)&&!allHol.has(iso))sessions.push(new Date(cur));
+    cur.setDate(cur.getDate()+1);
+  }
+  if(!sessions.length){toast('⚠️ No se encontraron fechas de clase en ese rango',true);status.textContent='';return;}
+  const units=S.syllabus||[];
+  const totalW=units.reduce((a,u)=>a+(parseInt(u.weeks)||1),0)||units.length||1;
+  let uIdx=0,sInU=0;
+  const newSessions=sessions.map((dt,i)=>{
+    const u=units[uIdx]||{unit:'Sesión '+(i+1),topic:'',objectives:''};
+    const spu=Math.max(1,Math.round(sessions.length*(parseInt(u.weeks)||1)/totalW));
+    sInU++;if(sInU>=spu&&uIdx<units.length-1){uIdx++;sInU=0;}
+    return{id:uid(),date:dt.toISOString().slice(0,10),week:i+1,
+      topic:u.topic?u.unit+': '+u.topic:u.unit,
+      objectives:u.objectives||'',time,duration,
+      attendance:Object.fromEntries((S.config?.students||[]).map(s=>[s.id,{status:'',obs:''}])),
+      resources:[]};
+  });
+  if(!confirm('¿Crear '+newSessions.length+' sesiones desde '+start+' hasta '+end+'?\n(Las sesiones actuales se reemplazarán)'))return;
+  S.sessions=newSessions;
+  ssLocal();renderSessionList();
+  switchTab('sesiones',document.querySelector('[data-tab="sesiones"]'));
+  status.textContent='✅ '+newSessions.length+' sesiones generadas';
+  toast('✅ Semestre generado: '+newSessions.length+' sesiones');
+}
+
+// ── MÓDULO 3: IA Asistencia desde foto ──────────────────────────────────────
+async function aiMarkAttendance(sessId,input){
+  const file=input.files[0];if(!file)return;input.value='';
+  const sess=S.sessions.find(x=>x.id===sessId);if(!sess)return;
+  const students=S.config?.students||[];
+  if(!students.length){toast('⚠️ No hay estudiantes en el curso',true);return;}
+  try{
+    // Auth handled by callClaude()
+    toast('📸 Analizando lista de asistencia con IA…');
+    const b64=await fileToBase64(file);
+    const mt=file.type||'image/jpeg';
+    const stuList=students.map(s=>s.name).join('\n');
+    const prompt='Analiza esta foto de una lista de asistencia universitaria.\n\nEstudiantes matriculados:\n'+stuList+'\n\nBusca marcas de asistencia (✓, X, P, A, T, firmas) junto a cada nombre.\nP=Presente, A=Ausente, T=Tardanza, null=no legible\n\nDevuelve SOLO JSON:\n{"Nombre Completo": "P", "Otro Nombre": "A"}';
+    const msgs=[{role:'user',content:[
+      {type:'image',source:{type:'base64',media_type:mt,data:b64}},
+      {type:'text',text:prompt}
+    ]}];
+    const resp=await callClaude(msgs);
+    const result=extractJson(resp);
+    let matched=0;const unmatched=[];
+    Object.entries(result).forEach(([name,status])=>{
+      if(!status)return;
+      const stu=fuzzyMatchStudent(name,students);
+      if(stu){
+        if(!sess.attendance[stu.id])sess.attendance[stu.id]={status:'',obs:''};
+        sess.attendance[stu.id].status=status;matched++;
+      }else unmatched.push(name);
+    });
+    ssLocal();openSess(sessId);
+    const msg=unmatched.length?'✅ '+matched+' marcados. Sin identificar: '+unmatched.join(', '):'✅ '+matched+' estudiantes marcados automáticamente';
+    toast(msg);
+  }catch(e){toast('❌ '+e.message,true);console.error(e);}
+}
+
+// ── MÓDULO 4: IA Notas desde imagen o Excel ───────────────────────────────
+async function aiLoadGrades(input){
+  const file=input.files[0];if(!file)return;input.value='';
+  const students=S.config?.students||[];
+  const activities=S.activities||[];
+  if(!students.length){toast('⚠️ No hay estudiantes en el curso',true);return;}
+  if(!activities.length){toast('⚠️ No hay actividades evaluativas definidas',true);return;}
+  const isExcel=/\.(xlsx|xls|csv)$/i.test(file.name);
+  try{
+    // Auth handled by callClaude()
+    toast('🤖 Procesando notas con IA…');
+    const stuList=students.map(s=>s.name).join(', ');
+    const actList=activities.map(a=>'"'+a.name+'" (peso '+a.weight+'%)').join(', ');
+    let responseText;
+    if(isExcel){
+      const XLSX=await loadSheetJS();
+      const ab=await file.arrayBuffer();
+      const wb=XLSX.read(ab,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const csv=XLSX.utils.sheet_to_csv(ws);
+      const prompt='Tabla de notas (CSV):\n\n'+csv+'\n\nEstudiantes del curso: '+stuList+'\nActividades: '+actList+'\n\nMapea los datos. Escala de 0 a 100. Devuelve SOLO JSON:\n{"NombreEstudiante":{"NombreActividad":nota_numerica}}';
+      responseText=await callClaude([{role:'user',content:prompt}]);
+    }else{
+      const b64=await fileToBase64(file);
+      const mt=file.type||'image/jpeg';
+      const prompt='Analiza esta tabla de notas universitarias.\nEstudiantes: '+stuList+'\nActividades: '+actList+'\nEscala 0-100. Devuelve SOLO JSON:\n{"NombreEstudiante":{"NombreActividad":nota_numerica}}';
+      const msgs=[{role:'user',content:[
+        {type:'image',source:{type:'base64',media_type:mt,data:b64}},
+        {type:'text',text:prompt}
+      ]}];
+      responseText=await callClaude(msgs);
+    }
+    const result=extractJson(responseText);
+    if(!S.grades)S.grades={};
+    let count=0;
+    Object.entries(result).forEach(([stuName,actGrades])=>{
+      const stu=fuzzyMatchStudent(stuName,students);if(!stu)return;
+      Object.entries(actGrades).forEach(([actName,grade])=>{
+        const act=activities.find(a=>
+          a.name.toLowerCase().includes(actName.toLowerCase().slice(0,8))||
+          actName.toLowerCase().includes(a.name.toLowerCase().slice(0,8)));
+        if(!act)return;
+        if(!S.grades[act.id])S.grades[act.id]={};
+        S.grades[act.id][stu.id]=parseFloat(grade)||0;count++;
+      });
+    });
+    ssLocal();renderActivities();
+    toast('✅ '+count+' notas cargadas automáticamente');
+  }catch(e){toast('❌ '+e.message,true);console.error(e);}
+}
+async function loadSheetJS(){
+  if(window.XLSX)return window.XLSX;
+  await new Promise((res,rej)=>{const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+  return window.XLSX;
+}
+
+// ── Recursos del Curso (bibliografía + NotebookLM) ─────────────────────────────
+function openCourseLink(url){if(!url){toast('⚠️ No hay enlace configurado',true);return;}window.open(url,'_blank');}
+function renderBibList(){
+  const list=document.getElementById('bib-list');if(!list)return;
+  const bib=S.config?.bibliography||[];
+  if(!bib.length){list.innerHTML='<div class="empty" style="font-size:12px">Sin bibliografía agregada.</div>';return;}
+  const icons={libro:'📘',articulo:'📄',video:'🎥',notebooklm:'🤖',otro:'🔗'};
+  list.innerHTML=bib.map((b,i)=>`
+    <div class="flex gap8 mb6" style="align-items:center;background:var(--dark3);padding:8px 12px;border-radius:8px">
+      <span style="font-size:18px">${icons[b.type]||'🔗'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(b.name)}</div>
+        <div style="font-size:11px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(b.url)}</div>
+      </div>
+      <button class="btn btn-xs btn-out" onclick="openCourseLink('${escapeHtml(b.url)}')">\u2197</button>
+      <button class="btn btn-xs btn-red" onclick="removeBibEntry(${i})">✕</button>
+    </div>`).join('');
+}
+function addBibEntry(){
+  const name=document.getElementById('bib-name').value.trim();
+  const url=document.getElementById('bib-url').value.trim();
+  const type=document.getElementById('bib-type').value;
+  if(!name||!url){toast('⚠️ Ingresa nombre y URL',true);return;}
+  if(!S.config.bibliography)S.config.bibliography=[];
+  S.config.bibliography.push({id:uid(),name,url,type});
+  document.getElementById('bib-name').value='';
+  document.getElementById('bib-url').value='';
+  renderBibList();ssLocal();toast('✅ Recurso agregado');
+}
+function removeBibEntry(i){S.config.bibliography.splice(i,1);renderBibList();ssLocal();}
+function saveCourseResources(){
+  S.config.notebookLmUrl=document.getElementById('cfg-notebooklm').value.trim();
+  ssLocal();ghSaveCourse().catch(()=>{});toast('✅ Recursos guardados');
+}
+
+// ── Chat IA Docente Flotante ─────────────────────────────────────────────────────
+let aiChatHistory=[];
+function toggleAiChat(){
+  const panel=document.getElementById('ai-chat-panel');
+  const isOpen=panel.style.display==='flex';
+  panel.style.display=isOpen?'none':'flex';
+  panel.style.flexDirection='column';
+  if(!isOpen){
+    document.getElementById('ai-chat-course-name').textContent=S.config?.courseName||'Curso actual';
+    if(!aiChatHistory.length)addAiMsg('assistant','👋 ¡Hola! Soy tu asistente docente. Conozco tu curso, syllabus y actividades. ¿En qué te ayudo?\n\nPuedes pedirme:\n• Planear una clase\n• Crear actividades o evaluaciones\n• Generar preguntas de quiz\n• Explicar temas del programa');
+    setTimeout(()=>document.getElementById('ai-chat-input')?.focus(),100);
+  }
+}
+function clearAiChat(){
+  aiChatHistory=[];
+  document.getElementById('ai-chat-msgs').innerHTML='';
+  addAiMsg('assistant','Chat limpiado. ¿En qué te ayudo?');
+}
+function addAiMsg(role,text){
+  aiChatHistory.push({role,content:text});
+  const msgs=document.getElementById('ai-chat-msgs');
+  const div=document.createElement('div');
+  div.style.cssText='padding:8px 12px;border-radius:10px;font-size:13px;line-height:1.5;max-width:90%;white-space:pre-wrap;word-break:break-word;'
+    +(role==='user'?'background:rgba(0,212,255,0.13);align-self:flex-end':'background:var(--bg3);align-self:flex-start');
+  div.textContent=text;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+async function sendAiChat(){
+  const inp=document.getElementById('ai-chat-input');
+  const msg=inp.value.trim();if(!msg)return;
+  inp.value='';inp.style.height='auto';
+  addAiMsg('user',msg);
+  const thinking=document.createElement('div');
+  thinking.style.cssText='padding:8px 12px;border-radius:10px;font-size:13px;background:var(--dark3);align-self:flex-start;color:var(--gray)';
+  thinking.textContent='⏳ Pensando…';
+  document.getElementById('ai-chat-msgs').appendChild(thinking);
+  document.getElementById('ai-chat-msgs').scrollTop=99999;
+  try{
+    // Auth handled by callClaude()
+    const c=S.config||{};
+    const sylStr=(S.syllabus||[]).map(u=>'- '+u.unit+': '+u.topic+' ('+u.weeks+' sem)').join('\n')||'No definido';
+    const actStr=(S.activities||[]).map(a=>'- '+a.name+' ('+a.weight+'%)').join('\n')||'No definido';
+    const bibStr=[(c.notebookLmUrl?'NotebookLM: '+c.notebookLmUrl:''),(c.bibliography||[]).map(b=>'- '+b.name+': '+b.url).join('\n')].filter(Boolean).join('\n')||'Sin recursos';
+    const sysContent='Eres un asistente docente universitario para el curso "'+c.courseName+'". Institución: '+c.institution+'. Grupo: '+c.group+'. Horario: '+c.schedule+'. Profesor: '+c.professor+'. Semanas: '+c.totalWeeks+'. Estudiantes: '+(c.students||[]).length+'.\n\nSYLLABUS:\n'+sylStr+'\n\nACTIVIDADES EVALUATIVAS:\n'+actStr+'\n\nRECURSOS DEL CURSO:\n'+bibStr+'\n\nResponde siempre en español, de forma práctica y concreta. Cuando generes contenido (actividades, preguntas, planes) hazlo directamente.';
+    const history=aiChatHistory.filter((m,i)=>i<aiChatHistory.length-1).slice(-8);
+    const apiMessages=[
+      {role:'user',content:sysContent},
+      {role:'assistant',content:'Entendido. Estoy listo para ayudarte con tu curso. ¿En qué te puedo ayudar?'},
+      ...history.map(m=>({role:m.role,content:m.content})),
+      {role:'user',content:msg}
+    ];
+    const resp=await callClaude(apiMessages,{max_tokens:2048});
+    thinking.remove();addAiMsg('assistant',resp);
+  }catch(e){
+    thinking.remove();
+    if(e.message!=='No API key')addAiMsg('assistant','❌ Error: '+e.message);
+  }
+}
+
+// Mostrar botón flotante cuando hay curso activo
+const _origUpdateHeaderAI=updateHeaderForCourse;
+updateHeaderForCourse=function(){
+  _origUpdateHeaderAI();
+  const fab=document.getElementById('fab-ai');
+  if(fab)fab.style.display=ACTIVE_COURSE_ID?'flex':'none';
+};
+
+
+// ══════════════════════════════════════════════════════════════════
+//  SUPABASE AUTH & DATA SYNC
+// ══════════════════════════════════════════════════════════════════
+
+let _authTab = 'login';
+
+function setupAuthScreen(){
+  // Allow Enter key to submit
+  ['auth-email','auth-password','auth-name'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener('keydown',e=>{if(e.key==='Enter')authSubmit();});
+  });
+}
+
+function switchAuthTab(tab){
+  _authTab=tab;
+  document.querySelectorAll('.auth-tab').forEach((b,i)=>b.classList.toggle('active',
+    (i===0&&tab==='login')||(i===1&&tab==='register')));
+  const nameField=document.getElementById('auth-name-field');
+  if(nameField) nameField.style.display=tab==='register'?'block':'none';
+  const btn=document.getElementById('auth-submit-btn');
+  if(btn) btn.textContent=tab==='login'?'Ingresar':'Crear cuenta';
+  const passEl=document.getElementById('auth-password');
+  if(passEl) passEl.autocomplete=tab==='login'?'current-password':'new-password';
+  showAuthMsg('','');
+}
+
+function showAuthMsg(msg,type){
+  const el=document.getElementById('auth-msg');
+  if(!el)return;
+  el.textContent=msg;
+  el.className='auth-msg'+(type?' '+type:'');
+  el.style.display=msg?'block':'none';
+}
+
+async function authSubmit(){
+  const sb=getSupabase();
+  if(!sb){showAuthMsg('Error: Supabase no disponible','error');return;}
+  const email=(document.getElementById('auth-email')?.value||'').trim();
+  const password=(document.getElementById('auth-password')?.value||'').trim();
+  const name=(document.getElementById('auth-name')?.value||'').trim();
+  if(!email||!password){showAuthMsg('Por favor completa todos los campos','error');return;}
+  if(password.length<6){showAuthMsg('La contraseña debe tener al menos 6 caracteres','error');return;}
+  const btn=document.getElementById('auth-submit-btn');
+  if(btn){btn.disabled=true;btn.textContent=_authTab==='login'?'Ingresando…':'Creando cuenta…';}
+  showAuthMsg('','');
+  try{
+    if(_authTab==='login'){
+      const {data,error}=await sb.auth.signInWithPassword({email,password});
+      if(error)throw error;
+      // onAuthStateChange will handle redirect
+    } else {
+      const {data,error}=await sb.auth.signUp({
+        email, password,
+        options:{data:{full_name:name||email.split('@')[0]}}
+      });
+      if(error)throw error;
+      if(data.user && !data.session){
+        showAuthMsg('✅ Revisa tu email para confirmar tu cuenta, luego ingresa.','success');
+      }
+    }
+  }catch(e){
+    showAuthMsg(e.message||'Error de autenticación','error');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent=_authTab==='login'?'Ingresar':'Crear cuenta';}
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  SUPABASE DATA SYNC
+// ══════════════════════════════════════════════════════════════════
+
+
+async function supabaseLoadCourses(){
+  if(!currentUser) return;
+  const sb=getSupabase();if(!sb)return;
+  const {data,error}=await sb.from('courses').select('*').eq('user_id',currentUser.id);
+  if(error)throw error;
+  if(data&&data.length){
+    COURSES=data.map(row=>({
+      id:row.id,name:row.name,institution:row.institution||'',
+      group:row.group_name||'',schedule:row.schedule||'',
+      professor:row.professor||'',totalWeeks:row.total_weeks||16,
+      color:row.color||'#00d4ff',createdAt:row.created_at,
+      lastSession:row.last_session||null,
+    }));
+    // Load state for each course from local first
+    const saved=localStorage.getItem('docadmin_v2_courses');
+    if(saved){try{const lc=JSON.parse(saved);
+      lc.forEach(lCourse=>{if(!COURSES.find(c=>c.id===lCourse.id))COURSES.push(lCourse);});}catch{}}
+  } else {
+    // No cloud data — use localStorage
+    const saved=localStorage.getItem('docadmin_v2_courses');
+    if(saved){try{COURSES=JSON.parse(saved);}catch{COURSES=[];}}
+    // Push local to cloud
+    if(COURSES.length)await supabasePushAllCourses().catch(()=>{});
+  }
+}
+
+async function supabasePushAllCourses(){
+  if(!currentUser)return;
+  const sb=getSupabase();if(!sb)return;
+  for(const c of COURSES){
+    await sb.from('courses').upsert({
+      id:c.id,user_id:currentUser.id,name:c.name,
+      institution:c.institution,group_name:c.group,
+      schedule:c.schedule,professor:c.professor,
+      total_weeks:c.totalWeeks,color:c.color||'#00d4ff',
+      last_session:c.lastSession||null,
+    },{onConflict:'id'}).catch(()=>{});
+  }
+}
+
+async function supabaseSync(){
+  const btn=document.getElementById('btn-supabase-sync');
+  if(btn){btn.textContent='⏳ Sincronizando…';btn.disabled=true;}
+  try{
+    if(currentUser){
+      await supabasePushAllCourses();
+      await supabaseLoadCourses();
+      renderHomeScreen();
+      toast('✅ Sincronizado con la nube');
+    } else {
+      toast('⚠️ Inicia sesión para sincronizar');
+    }
+  } catch(e){ toast('❌ Error de sincronización'); }
+  finally{
+    if(btn){btn.textContent='☁️ Sincronizar';btn.disabled=false;}
+  }
+}
+
+// ── Wompi plan selection ──────────────────────────────────────────────────────
+function selectUpgradePlan(plan, el) {
+  window._selectedPlan = plan;
+  ['starter','pro','premium'].forEach(p => {
+    const card = document.getElementById('plan-card-'+p);
+    if (card) card.style.borderColor = p===plan ? 'var(--cyan)' : 'var(--border)';
+  });
+  const labels = { starter:'Starter · $49.000 COP/mes', pro:'Pro · $149.000 COP/mes', premium:'Premium · $349.000 COP/mes' };
+  const info = document.getElementById('upgrade-selected-info');
+  if (info) info.innerHTML = `<span style="color:var(--cyan);font-weight:700">✅ Seleccionado: ${labels[plan]}</span>`;
+  const btn = document.getElementById('btn-wompi-pay');
+  if (btn) { btn.style.display='block'; btn.textContent=`💳 Pagar ${labels[plan]} con Wompi`; }
+  const container = document.getElementById('wompi-widget-container');
+  if (container) container.innerHTML = '';
+  const prev = document.getElementById('wompi-checkout-script');
+  if (prev) prev.remove();
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  setupAuthScreen();
+  init();
+  setTimeout(fetchUserPlan, 1500);
+});
 </script>
+
+<!-- ══ MODAL UPGRADE DE PLAN ══ -->
+<div class="modal-bg" id="modal-upgrade">
+  <div class="modal" style="max-width:560px;padding:0;overflow:hidden">
+    <div style="background:linear-gradient(135deg,var(--dark3),rgba(123,47,255,.3));padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:20px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">⚡ Actualiza tu Plan</div>
+        <div id="upgrade-ctx" style="font-size:12px;color:var(--gray);margin-top:3px">Más IA, más potencia para tu docencia.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-upgrade')">✕</button>
+    </div>
+    <div style="padding:20px 24px">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+        <div style="background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:.2s" onclick="selectUpgradePlan('starter',this)" id="plan-card-starter">
+          <div style="font-size:22px;margin-bottom:6px">🚀</div>
+          <div style="font-weight:800;color:var(--white);font-size:14px">Starter</div>
+          <div style="color:var(--cyan);font-size:20px;font-weight:900;margin:6px 0">$49K</div>
+          <div style="font-size:10px;color:var(--gray)">COP / mes</div>
+          <div style="margin-top:10px;font-size:11px;color:var(--light)">200 llamadas IA<br>Haiku (rápido)<br>Sincronización nube</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(123,47,255,.2),rgba(0,212,255,.1));border:2px solid var(--cyan);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:.2s" onclick="selectUpgradePlan('pro',this)" id="plan-card-pro">
+          <div style="font-size:22px;margin-bottom:6px">⚡</div>
+          <div style="font-weight:800;color:var(--white);font-size:14px">Pro <span style="font-size:9px;background:var(--cyan);color:var(--dark);padding:2px 5px;border-radius:4px;vertical-align:middle">POPULAR</span></div>
+          <div style="color:var(--cyan);font-size:20px;font-weight:900;margin:6px 0">$149K</div>
+          <div style="font-size:10px;color:var(--gray)">COP / mes</div>
+          <div style="margin-top:10px;font-size:11px;color:var(--light)">1000 llamadas IA<br>Sonnet (potente)<br>Análisis avanzado</div>
+        </div>
+        <div style="background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:.2s" onclick="selectUpgradePlan('premium',this)" id="plan-card-premium">
+          <div style="font-size:22px;margin-bottom:6px">🌟</div>
+          <div style="font-weight:800;color:var(--white);font-size:14px">Premium</div>
+          <div style="color:var(--purple);font-size:20px;font-weight:900;margin:6px 0">$349K</div>
+          <div style="font-size:10px;color:var(--gray)">COP / mes</div>
+          <div style="margin-top:10px;font-size:11px;color:var(--light)">9999 llamadas IA<br>Sonnet ilimitado<br>Soporte prioritario</div>
+        </div>
+      </div>
+      <div id="upgrade-selected-info" style="text-align:center;font-size:12px;color:var(--gray);margin-bottom:14px">Selecciona un plan para continuar</div>
+      <div id="wompi-widget-container" style="display:flex;justify-content:center;min-height:48px;margin-bottom:12px"></div>
+      <button id="btn-wompi-pay" onclick="launchWompiCheckout(window._selectedPlan)"
+        style="display:none;width:100%;background:linear-gradient(135deg,#00d4ff,#7b2fff);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 0 24px rgba(0,212,255,.3)">
+        💳 Pagar con Wompi (PSE · Nequi · Tarjeta)
+      </button>
+      <p style="font-size:10px;color:var(--gray2);text-align:center;margin-top:10px">
+        Pago seguro vía Wompi (Bancolombia). Sandbox: usa <strong>cualquier tarjeta de prueba</strong>.<br>
+        Tu plan se activa automáticamente en segundos tras confirmar el pago.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- FLOTANTE IA DOCENTE -->
+<button id="fab-ai" onclick="toggleAiChat()" title="Asistente IA Docente"
+  style="display:none;position:fixed;bottom:24px;right:24px;width:54px;height:54px;border-radius:50%;
+  background:linear-gradient(135deg,#7b2fff,#00d4ff);border:none;cursor:pointer;z-index:1000;
+  box-shadow:0 4px 20px rgba(123,47,255,0.5);font-size:24px;color:#fff;
+  transition:transform .2s;align-items:center;justify-content:center">🤖</button>
+
+<div id="ai-chat-panel" style="display:none;position:fixed;bottom:90px;right:24px;width:380px;max-width:calc(100vw - 40px);
+  height:520px;background:var(--dark2);border:1px solid var(--border);border-radius:16px;
+  box-shadow:0 8px 40px rgba(0,0,0,.5);z-index:1001;flex-direction:column;overflow:hidden">
+  <div style="padding:12px 16px;background:linear-gradient(135deg,#7b2fff22,#00d4ff22);border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div style="font-weight:700;color:var(--cyan);font-size:14px">🤖 Asistente Docente IA</div>
+      <div id="ai-chat-course-name" style="font-size:11px;color:var(--gray)">—</div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-xs btn-out" onclick="clearAiChat()" title="Limpiar chat">🗑</button>
+      <button class="btn btn-xs btn-out" onclick="toggleAiChat()">✕</button>
+    </div>
+  </div>
+  <div id="ai-chat-msgs" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px"></div>
+  <div style="padding:10px;border-top:1px solid var(--border);display:flex;gap:8px">
+    <textarea id="ai-chat-input" rows="2" placeholder="Pregunta sobre tu curso… (Enter para enviar)"
+      style="flex:1;resize:none;background:var(--dark3);border:1px solid var(--border);border-radius:8px;
+      color:var(--light);padding:8px;font-size:13px;font-family:inherit"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiChat();}"></textarea>
+    <button class="btn btn-g" style="padding:0 12px;align-self:stretch" onclick="sendAiChat()">➤</button>
+  </div>
+</div>
 </body>
 </html>
