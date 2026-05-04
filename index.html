@@ -684,7 +684,7 @@ tr:hover td{background:rgba(0,212,255,.05)}
 //  CONSTANTS & CONFIG
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 // SECURITY: Cambia este PIN desde la UI de Configuración (Settings → PIN de Admin)
-let ADMIN_PIN = '1971';
+let ADMIN_PIN = localStorage.getItem('docadmin_admin_pin') || '1971'; // Cambiar en ⚙️ Ajustes → PIN Admin
 // ── Supabase ──────────────────────────────────────────
 const SUPABASE_URL = 'https://nvgkhdrrxqdgxktfkioa.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_d1RrtE7S-9a8e8mGKRRjxQ_4HU_nkDl';
@@ -878,8 +878,17 @@ async function ghLoadCourseIndexAndRefresh(){
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 function ssLocal(){
   if(!ACTIVE_COURSE_ID)return;
-  localStorage.setItem('docadmin_v2_state_'+ACTIVE_COURSE_ID,JSON.stringify(S));
-  updateCoursesMeta();
+  try{
+    localStorage.setItem('docadmin_v2_state_'+ACTIVE_COURSE_ID,JSON.stringify(S));
+    updateCoursesMeta();
+  }catch(e){
+    if(e.name==='QuotaExceededError'||e.code===22){
+      toast('⚠️ Almacenamiento lleno. Elimina archivos adjuntos grandes para liberar espacio.',true);
+      console.error('localStorage QuotaExceeded:',e);
+    } else {
+      console.error('ssLocal error:',e);
+    }
+  }
 }
 function updateCoursesMeta(){
   const c=COURSES.find(x=>x.id===ACTIVE_COURSE_ID);
@@ -1060,7 +1069,11 @@ function saveSettings(){
     }
   }
   const newPin = document.getElementById('inp-admin-pin')?.value;
-  if (newPin && newPin.length >= 4) { ADMIN_PIN = newPin; toast('\u2705 PIN actualizado'); }
+  if (newPin && newPin.length >= 4) {
+    ADMIN_PIN = newPin;
+    localStorage.setItem('docadmin_admin_pin', newPin);
+    toast('\u2705 PIN actualizado');
+  }
   document.getElementById('inp-admin-pin').value = '';
   document.getElementById('home-inst-label').textContent=localStorage.getItem('docadmin_settings_institution');
   closeModal('modal-settings');toast('\u2705 Configuraci\u00f3n guardada');
@@ -2130,7 +2143,7 @@ function renderCourseFiles(){
       </div>
       <div class="flex gap4">
         ${!f.githubUrl?`<button class="btn btn-orange btn-xs" onclick="generateFileLink('${f.id}')">🔗 Publicar</button>`
-          :`<button class="btn btn-g btn-xs" onclick="copyToClipboard('${f.githubUrl}')">📋 Copiar</button>`}
+          :`<button class="btn btn-g btn-xs" onclick="copyToClipboard(this.dataset.url)" data-url="${escapeHtml(f.githubUrl)}">📋 Copiar</button>`}
         <button class="btn btn-red btn-xs" onclick="deleteCourseFile('${f.id}')">🗑</button>
       </div>
     </div>`;
@@ -2285,12 +2298,18 @@ function renderBlocks(tabId){
         <input value="${(b.url||'').replace(/"/g,'&quot;')}" placeholder="https://..." style="flex:1" onchange="saveBlockField('${tabId}','${b.id}','url',this.value)">
         ${b.url?`<a href="${b.url}" target="_blank" class="btn btn-g btn-xs">Abrir</a>`:''}
       </div></div>`;
-    if(b.type==='video')return`<div class="block-card">${acts}
-      <div class="fld mb8"><label>URL del Video (YouTube, Vimeo, etc.)</label>
-        <input value="${(b.url||'').replace(/"/g,'&quot;')}" placeholder="https://youtube.com/..." onchange="saveBlockField('${tabId}','${b.id}','url',this.value)" style="width:100%"></div>
-      ${b.url?`<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px">
-        <iframe src="${b.url.replace('watch?v=','embed/')}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen></iframe></div>`:''}
+    if(b.type==='video'){
+      // Sanitize video URL: only allow YouTube and Vimeo embeds
+      const allowedVideo=/^https?:\/\/(www\.)?(youtube\.com|youtu\.be|vimeo\.com)\//i.test(b.url||'');
+      const embedUrl=(b.url||'').replace('watch?v=','embed/').replace('youtu.be/','www.youtube.com/embed/');
+      return`<div class="block-card">${acts}
+      <div class="fld mb8"><label>URL del Video (YouTube o Vimeo)</label>
+        <input value="${(b.url||'').replace(/"/g,'&quot;')}" placeholder="https://youtube.com/watch?v=..." onchange="saveBlockField('${tabId}','${b.id}','url',this.value)" style="width:100%"></div>
+      ${b.url&&allowedVideo?`<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px">
+        <iframe src="${escapeHtml(embedUrl)}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen></iframe></div>`
+        :b.url?`<div class="text-sm" style="color:var(--orange)">⚠️ Solo se permiten videos de YouTube o Vimeo.</div>`:''}
       </div>`;
+    }
     if(b.type==='table')return`<div class="block-card">${acts}
       <div class="tbl-wrap"><table>${(b.rows||[['A','B'],['','']]).map((row,ri)=>`<tr>${row.map((cell,ci)=>`${ri===0?'<th>':'<td>'}
         <input value="${String(cell).replace(/"/g,'&quot;')}" onchange="const t3=S.customTabs?.find(x=>x.id==='${tabId}');const b3=t3?.blocks?.find(x=>x.id==='${b.id}');if(b3&&b3.rows){b3.rows[${ri}][${ci}]=this.value;}ssLocal()"
@@ -2744,6 +2763,9 @@ function updatePlanBadge() {
 }
 
 // ── Wompi: generar hash de integridad (SHA-256 en browser) ───────────────────
+// ⚠️ ANTES DE PRODUCCIÓN: mover esta función al Cloudflare Worker.
+// El WOMPI_INTEGRITY_SECRET NO debe estar en el frontend con llave real.
+// Actualmente es llave de prueba (test_integrity_…) — aceptable en sandbox.
 async function wompiIntegrityHash(reference, amountCents, currency) {
   const str = reference + amountCents + currency + WOMPI_INTEGRITY_SECRET;
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
@@ -3333,4 +3355,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   style="display:none;position:fixed;bottom:24px;right:24px;width:54px;height:54px;border-radius:50%;
   background:linear-gradient(135deg,#7b2fff,#00d4ff);border:none;cursor:pointer;z-index:1000;
   box-shadow:0 4px 20px rgba(123,47,255,0.5);font-size:24px;color:#fff;
-  transition:transform .2s;align-items:center;justify-content:center">�
+  transition:transform .2s;align-items:center;justify-content:center">🤖</button>
+
+<div id="ai-chat-panel" style="display:none;position:fixed;bottom:90px;right:24px;width:380px;max-width:calc(100vw - 40px);
+  height:520px;background:var(--dark2);border:1px solid var(--border);border-radius:16px;
+  box-shadow:0 8px 40px rgba(0,0,0,.5);z-index:1001;flex-direction:column;overflow:hidden">
+  <div style="padding:12px 16px;background:linear-gradient(135deg,#7b2fff22,#00d4ff22);border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div style="font-weight:70
