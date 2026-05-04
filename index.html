@@ -301,7 +301,7 @@ tr:hover td{background:rgba(0,212,255,.05)}
     <div class="home-brand-desc">Sistema multi-curso para profesores — hasta 30+ materias</div>
     <div class="home-title-row mt8">
       <span class="home-institution" id="home-inst-label">Universidad EAN</span>
-      <button class="btn-gear" onclick="openModal('modal-settings')" title="Personalizar">⚙️</button>
+      <button class="btn-gear" onclick="openSettingsModal()" title="Personalizar">⚙️</button>
     </div>
   </div>
 
@@ -788,7 +788,7 @@ let editingSessId = null;
 
 function getDefaultState(){
   return{
-    config:{courseName:'',code:'',group:'',institution:'Universidad EAN',room:'',schedule:'',professor:'',totalWeeks:16,students:[]},
+    config:{courseName:'',code:'',group:'',institution:'Universidad EAN',room:'',schedule:'',professor:'',totalWeeks:16,students:[],bibliography:[]},
     syllabus:JSON.parse(JSON.stringify(DEFAULT_SYLLABUS)),
     sessions:[],activities:[],grades:{},
     sustentaciones:[],sustScores:{},
@@ -1063,8 +1063,6 @@ function saveSettings(){
   document.getElementById('inp-admin-pin').value = '';
   document.getElementById('home-inst-label').textContent=localStorage.getItem('docadmin_settings_institution');
   closeModal('modal-settings');toast('\u2705 Configuraci\u00f3n guardada');
-  // Sync profile to Supabase if logged in
-  if(currentUser){ syncProfileToSupabase(); }
 }
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
@@ -1152,7 +1150,7 @@ function renderPanel(){
     <div class="kpi-card"><div class="kpi-val">${students.length}</div><div class="kpi-lbl">Estudiantes</div></div>
     <div class="kpi-card"><div class="kpi-val">${sessions.length}/${totalWeeks}</div><div class="kpi-lbl">Sesiones</div></div>
     <div class="kpi-card"><div class="kpi-val" style="color:${attRate>=70?'var(--green)':attRate>=50?'var(--yellow)':'var(--red)'}">${attRate}%</div><div class="kpi-lbl">Asistencia</div></div>
-    <div class="kpi-card"><div class="kpi-val" style="color:${gradeAvg>=4?'var(--green)':gradeAvg>=3?'var(--cyan)':'var(--red)'}">${gradeCnt?gradeAvg.toFixed(1):'\u2014'}</div><div class="kpi-lbl">Total</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:${gradeAvg>=60?'var(--green)':gradeAvg>=40?'var(--cyan)':'var(--red)'}">${gradeCnt?gradeAvg.toFixed(1):'\u2014'}</div><div class="kpi-lbl">Total</div></div>
     <div class="kpi-card"><div class="kpi-val">${progress}%</div><div class="kpi-lbl">Avance Curso</div></div>`;
   // Sessions preview
   const upcoming=sessions.slice(-3).reverse();
@@ -2478,7 +2476,7 @@ async function init(){
         await initAfterLogin();
       } else if(event==='SIGNED_OUT'){
         currentUser=null;
-        COURSES=[];CURRENT_COURSE_ID=null;STATE={};
+        COURSES=[];ACTIVE_COURSE_ID=null;S=getDefaultState();
         document.getElementById('auth-screen').style.display='flex';
         document.getElementById('home-screen').style.display='none';
         document.getElementById('main-app').style.display='none';
@@ -2529,7 +2527,6 @@ function repairStoredNames(){
 }
 
 async function initAfterLogin(){
-  initParticles();
   // Set institution label
   const inst=localStorage.getItem('docadmin_settings_institution')||'Universidad EAN';
   document.getElementById('home-inst-label').textContent=inst;
@@ -2538,13 +2535,6 @@ async function initAfterLogin(){
     const emailLabel = document.getElementById('home-inst-label');
     // Keep institution label as is
   }
-  // Gear button wires to modal
-  const gearBtn=document.querySelector('.btn-gear');
-  if(gearBtn){gearBtn.onclick=()=>{
-    document.getElementById('settings-institution').value=inst;
-    document.getElementById('settings-professor').value=localStorage.getItem('docadmin_settings_professor')||'';
-    openModal('modal-settings');
-  };}
   // Load COURSES
   const savedCourses=localStorage.getItem('docadmin_v2_courses');
   if(savedCourses){try{COURSES=JSON.parse(savedCourses);}catch{COURSES=[];}}
@@ -3171,14 +3161,25 @@ async function supabaseLoadCourses(){
   const {data,error}=await sb.from('courses').select('*').eq('user_id',currentUser.id);
   if(error)throw error;
   if(data&&data.length){
-    COURSES=data.map(row=>({
-      id:row.id,name:row.name,institution:row.institution||'',
-      group:row.group_name||'',schedule:row.schedule||'',
-      professor:row.professor||'',totalWeeks:row.total_weeks||16,
-      color:row.color||'#00d4ff',createdAt:row.created_at,
-      lastSession:row.last_session||null,
-    }));
-    // Load state for each course from local first
+    COURSES=data.map(row=>{
+      // Enrich with live counts from localStorage state
+      let studentCount=0,sessionCount=0,sustCount=0;
+      try{
+        const st=JSON.parse(localStorage.getItem('docadmin_v2_state_'+row.id)||'{}');
+        studentCount=(st.config?.students||[]).length;
+        sessionCount=(st.sessions||[]).length;
+        sustCount=(st.sustentaciones||[]).length;
+      }catch{}
+      return{
+        id:row.id,name:row.name,code:row.code||'',
+        institution:row.institution||'',group:row.group_name||'',
+        schedule:row.schedule||'',professor:row.professor||'',
+        totalWeeks:row.total_weeks||16,color:row.color||'#00d4ff',
+        createdAt:row.created_at,lastSession:row.last_session||null,
+        studentCount,sessionCount,sustCount,
+      };
+    });
+    // Merge any local-only courses not yet in cloud
     const saved=localStorage.getItem('docadmin_v2_courses');
     if(saved){try{const lc=JSON.parse(saved);
       lc.forEach(lCourse=>{if(!COURSES.find(c=>c.id===lCourse.id))COURSES.push(lCourse);});}catch{}}
@@ -3323,4 +3324,4 @@ document.addEventListener('DOMContentLoaded',()=>{
       style="flex:1;resize:none;background:var(--dark3);border:1px solid var(--border);border-radius:8px;
       color:var(--light);padding:8px;font-size:13px;font-family:inherit"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiChat();}"></textarea>
-    <button class="btn btn-g" style="paddin
+    <button class="btn btn-g" style="padding:0 12px;align-self:stretch" onclick="sendAiChat()">
