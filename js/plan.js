@@ -20,14 +20,14 @@ export const PLANS = {
     'Sincronización en nube',
     'Soporte por email',
   ]},
-  pro: { name:'Pro', price:149000, icon:'⚡', color:'var(--ean-blue)', calls:1000, maxCourses:8, model:'Sonnet', popular:true, tagline:'Para semestre completo', features:[
+  pro: { name:'Pro', price:99000, icon:'⚡', color:'var(--ean-blue)', calls:1000, maxCourses:8, model:'Sonnet', popular:true, tagline:'Para semestre completo', features:[
     '<b>8</b> cursos en paralelo',
     '<b>1.000</b> consultas IA / mes',
     'Modelo Sonnet (más potente)',
     'Análisis avanzado y reportes',
     'Soporte prioritario',
   ]},
-  premium: { name:'Premium', price:349000, icon:'🌟', color:'var(--purple)', calls:9999, maxCourses:999, model:'Sonnet ilimitado', tagline:'Sin límites', features:[
+  premium: { name:'Premium', price:219000, icon:'🌟', color:'var(--purple)', calls:9999, maxCourses:999, model:'Sonnet ilimitado', tagline:'Sin límites', features:[
     'Cursos <b>ilimitados</b>',
     'Consultas IA <b>ilimitadas</b>',
     'Sonnet sin límites + backup',

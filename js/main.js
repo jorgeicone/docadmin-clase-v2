@@ -1,20 +1,20 @@
 // Bootstrap principal — importa Alpine, registra store, arranca controladamente
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
-// v=20260510d — bumpear este sufijo si se cambian los módulos para invalidar caché
-import { supabase, currentUser } from './supabase-client.js?v=20260510d';
-import { toast } from './toast.js?v=20260510d';
-import { mountCourses } from './courses.js?v=20260510d';
-import { mountStudents } from './students.js?v=20260510d';
-import { mountGroups } from './groups.js?v=20260510d';
-import { mountActivities } from './activities.js?v=20260510d';
-import { mountIngest } from './ingest.js?v=20260510d';
-import { mountConsolidated } from './consolidated.js?v=20260510d';
-import { mountAsistencia } from './asistencia.js?v=20260510d';
-import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260510d';
-import { mountSustentacion } from './sustentacion.js?v=20260510d';
-import { mountChat } from './chat.js?v=20260510d';
-import { mountSyllabus } from './syllabus.js?v=20260510d';
-import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260510d';
+// v=20260510e — bumpear este sufijo si se cambian los módulos para invalidar caché
+import { supabase, currentUser } from './supabase-client.js?v=20260510e';
+import { toast } from './toast.js?v=20260510e';
+import { mountCourses } from './courses.js?v=20260510e';
+import { mountStudents } from './students.js?v=20260510e';
+import { mountGroups } from './groups.js?v=20260510e';
+import { mountActivities } from './activities.js?v=20260510e';
+import { mountIngest } from './ingest.js?v=20260510e';
+import { mountConsolidated } from './consolidated.js?v=20260510e';
+import { mountAsistencia } from './asistencia.js?v=20260510e';
+import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260510e';
+import { mountSustentacion } from './sustentacion.js?v=20260510e';
+import { mountChat } from './chat.js?v=20260510e';
+import { mountSyllabus } from './syllabus.js?v=20260510e';
+import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260510e';
 
 const VIEWS = {
   courses:      { title:'Mis cursos',          mount: mountCourses },
