@@ -1049,7 +1049,15 @@ function updateHeaderForCourse(){
   document.getElementById('hdr-meta').textContent=[S.config?.group||c.group,S.config?.institution||c.institution,S.config?.schedule||c.schedule].filter(Boolean).join(' \u00b7 ');
   document.getElementById('hdr-badge').textContent=S.config?.group||c.group||'\u2014';
 }
-function saveAndToast(){ssLocal();ghSaveCourse().catch(()=>{});toast('💾 Guardado \u2705');}
+function saveAndToast(){
+  ssLocal();
+  if(!ghToken()){
+    toast('💾 Guardado local · Sin sincronización en la nube — configura GitHub en ⚙️ Ajustes', true);
+  } else {
+    ghSaveCourse().catch(()=>{});
+    toast('💾 Guardado y sincronizado ✅');
+  }
+}
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 //  SETTINGS
