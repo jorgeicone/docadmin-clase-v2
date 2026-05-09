@@ -3154,7 +3154,13 @@ function addBibEntry(){
 function removeBibEntry(i){S.config.bibliography.splice(i,1);renderBibList();ssLocal();}
 function saveCourseResources(){
   S.config.notebookLmUrl=document.getElementById('cfg-notebooklm').value.trim();
-  ssLocal();ghSaveCourse().catch(()=>{});toast('✅ Recursos guardados');
+  ssLocal();
+  if(!ghToken()){
+    toast('💾 Recursos guardados · Sin sincronización — configura GitHub en ⚙️ Ajustes', true);
+  } else {
+    ghSaveCourse().catch(()=>{});
+    toast('✅ Recursos guardados y sincronizados');
+  }
 }
 
 // ── Chat IA Docente Flotante ─────────────────────────────────────────────────────
