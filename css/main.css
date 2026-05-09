@@ -11,15 +11,27 @@ body{min-height:100vh}
 [x-cloak]{display:none !important}
 
 /* Layout */
-.app{display:flex;min-height:100vh}
-.sidebar{width:220px;background:var(--ean-dark);color:#fff;padding:18px 0;display:flex;flex-direction:column;flex-shrink:0}
-.sidebar-brand{font-weight:900;font-size:16px;padding:0 20px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
-.sidebar-section{padding:14px 20px 6px;font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;font-weight:700}
-.sidebar nav{flex:1;display:flex;flex-direction:column;gap:2px;padding:0 8px}
+.app{display:flex;min-height:100vh;align-items:stretch}
+.sidebar{
+  width:220px;background:var(--ean-dark);color:#fff;padding:18px 0;
+  display:flex;flex-direction:column;flex-shrink:0;
+  position:sticky;top:0;height:100vh;overflow-y:auto;align-self:flex-start;
+}
+/* Custom scrollbar para el sidebar */
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-track{background:transparent}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px}
+.sidebar::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.3)}
+
+.sidebar-brand{font-weight:900;font-size:16px;padding:0 20px 18px;border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.sidebar-section{padding:14px 20px 6px;font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;font-weight:700;flex-shrink:0}
+.sidebar nav{display:flex;flex-direction:column;gap:2px;padding:0 8px;flex-shrink:0}
 .sidebar nav button{background:transparent;color:rgba(255,255,255,.85);border:none;text-align:left;padding:10px 14px;border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;transition:.15s}
 .sidebar nav button:hover{background:rgba(255,255,255,.08)}
 .sidebar nav button.active{background:var(--ean-blue);color:#fff;font-weight:600}
 .sidebar nav button:disabled{opacity:.4;cursor:not-allowed}
+/* El bloque de usuario va abajo cuando hay espacio, pero no obliga */
+.sidebar > div:last-child{margin-top:auto !important;flex-shrink:0;padding-top:14px}
 
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .topbar{background:#fff;border-bottom:1px solid var(--ean-border);padding:12px 22px;display:flex;justify-content:space-between;align-items:center}
