@@ -30,9 +30,14 @@ export async function mountConsolidated(root, store){
 }
 
 async function loadAndRender(){
+  // Feedback visible al refrescar
+  const refBtn = document.getElementById('c-refresh');
+  if (refBtn){ refBtn.disabled = true; refBtn.textContent = '🔄 Refrescando…'; }
+
   const [stuR, actR] = await Promise.all([
     supabase.from('v5_students').select('id, cedula, name').eq('course_id', courseId).order('name'),
-    supabase.from('v5_activities').select('*').eq('course_id', courseId).order('date',{ascending:true,nullsFirst:false}).order('created_at',{ascending:true}),
+    // EXCLUIR asistencia: el consolidado de notas solo muestra notas, no asistencia
+    supabase.from('v5_activities').select('*').eq('course_id', courseId).neq('type','attendance').order('date',{ascending:true,nullsFirst:false}).order('created_at',{ascending:true}),
   ]);
   students = stuR.data || [];
   activities = actR.data || [];
@@ -45,9 +50,11 @@ async function loadAndRender(){
 
   const totalWeight = activities.reduce((s,a) => s + (a.weight||0), 0);
   document.getElementById('c-summary').innerHTML =
-    `${students.length} estudiantes · ${activities.length} actividades · ${grades.length} notas registradas · Peso total: <b>${totalWeight}%</b>${totalWeight!==100 && totalWeight>0?' ⚠️ no suma 100%':''}`;
+    `${students.length} estudiantes · ${activities.length} actividades · ${grades.length} notas registradas · Peso total: <b>${totalWeight}%</b>${totalWeight!==100 && totalWeight>0?' ⚠️ no suma 100%':''} · <span style="color:var(--ean-gray)">(asistencia y sustentaciones se cuentan aparte; las sustentaciones sí entran si tienen peso)</span>`;
 
   render();
+
+  if (refBtn){ refBtn.disabled = false; refBtn.textContent = '🔄 Refrescar'; toast('Datos actualizados','success'); }
 }
 
 function gradeFor(activityId, studentId){
