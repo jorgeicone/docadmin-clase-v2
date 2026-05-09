@@ -88,6 +88,16 @@ Alpine.store('app', {
     if (!this.user) return;
     openPlanModal(this.user);
   },
+
+  planIcon(){
+    return ({ trial:'🎓', starter:'🚀', pro:'⚡', premium:'🌟' })[this.plan] || '🎓';
+  },
+  planLabel(){
+    return ({ trial:'Trial', starter:'Starter', pro:'Pro', premium:'Premium' })[this.plan] || this.plan;
+  },
+  planColor(){
+    return ({ trial:'#9E9E9E', starter:'#00B7C6', pro:'#3055A6', premium:'#6A1B9A' })[this.plan] || '#9E9E9E';
+  },
 });
 
 // 2. Definir factories globales (loginForm) que las plantillas referencian

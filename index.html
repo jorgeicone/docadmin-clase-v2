@@ -89,7 +89,15 @@
         <template x-if="$store.app.activeCourse">
           <span>📘 <b x-text="$store.app.activeCourse.name"></b></span>
         </template>
-        <span class="badge-plan" @click="$store.app.openPlan()" x-text="$store.app.plan" style="cursor:pointer" title="Click para ver tu plan y opciones de upgrade"></span>
+        <button class="plan-btn" @click="$store.app.openPlan()"
+          :style="`--plan-color:${$store.app.planColor()}`"
+          title="Click para ver tu plan y opciones de upgrade">
+          <span class="plan-icon" x-text="$store.app.planIcon()"></span>
+          <span class="plan-text">
+            <span class="plan-name" x-text="$store.app.planLabel()"></span>
+            <span class="plan-sub">Este es tu plan</span>
+          </span>
+        </button>
       </div>
     </header>
     <div class="content">
@@ -123,7 +131,7 @@
   onerror="showBootErr('No cargó XLSX desde CDN.')"></script>
 
 <!-- Mi módulo principal — importa Alpine ESM y arranca todo controladamente -->
-<script type="module" src="js/main.js?v=20260509t"></script>
+<script type="module" src="js/main.js?v=20260509u"></script>
 
 </body>
 </html>

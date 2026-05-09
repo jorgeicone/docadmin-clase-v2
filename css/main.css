@@ -45,6 +45,20 @@ body{min-height:100vh}
 .topbar-right{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--ean-gray)}
 .topbar-right .badge-plan{background:var(--ean-cyan);color:#fff;padding:3px 9px;border-radius:5px;font-weight:700;font-size:11px}
 
+/* Botón de plan en topbar (más visual con icono + label + sublabel) */
+.plan-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg, var(--plan-color, var(--ean-cyan)), color-mix(in srgb, var(--plan-color, var(--ean-cyan)) 70%, black));
+  color:#fff;border:none;border-radius:10px;padding:6px 12px 6px 10px;
+  cursor:pointer;font-family:inherit;line-height:1.2;
+  box-shadow:0 2px 6px rgba(0,0,0,.15);transition:.2s;
+}
+.plan-btn:hover{ transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.25); filter:brightness(1.05); }
+.plan-btn .plan-icon{ font-size:22px; line-height:1; }
+.plan-btn .plan-text{ display:flex;flex-direction:column;align-items:flex-start;gap:1px; }
+.plan-btn .plan-name{ font-size:13px;font-weight:800;text-transform:capitalize;letter-spacing:.3px; }
+.plan-btn .plan-sub{ font-size:9px;font-weight:500;opacity:.85;text-transform:uppercase;letter-spacing:.5px; }
+
 .content{flex:1;padding:22px;overflow-y:auto}
 
 /* Cards */
