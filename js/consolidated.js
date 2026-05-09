@@ -55,17 +55,24 @@ function gradeFor(activityId, studentId){
 }
 
 function calcAccumulated(studentId){
-  // Nota acumulativa: suma de (nota/max × peso%) de cada actividad calificada
-  // Si pesos suman 100, el acumulado final es la nota /100 del semestre
-  let acumulado = 0, pesoCompletado = 0;
+  // Acumulativa = suma de:
+  //   • Actividades CON peso: (nota/max) × peso%
+  //   • Actividades SIN peso: la nota tal cual (puntos extra/adicionales)
+  // El "máximo posible" suma los pesos calificados + los max_points de las extras calificadas
+  let acumulado = 0, maxPosible = 0;
   activities.forEach(a => {
-    if (!a.weight) return;
     const g = gradeFor(a.id, studentId);
     if (!g || g.value === null || g.value === undefined) return;
-    acumulado += (g.value / a.max_points) * a.weight;
-    pesoCompletado += a.weight;
+    if (a.weight){
+      acumulado += (g.value / a.max_points) * a.weight;
+      maxPosible += a.weight;
+    } else {
+      // Puntos adicionales/extra
+      acumulado += g.value;
+      maxPosible += a.max_points;
+    }
   });
-  return { acumulado, pesoCompletado };
+  return { acumulado, maxPosible };
 }
 
 function gradeColor(val, max){
@@ -103,13 +110,13 @@ function render(){
                 </div>
               </th>
             `).join('')}
-            <th class="num" style="min-width:110px;background:#FFF8E1">Acumulado<br><small>(de los pesos calificados)</small></th>
+            <th class="num" style="min-width:110px;background:#FFF8E1">Acumulado<br><small>(pesos + extras)</small></th>
           </tr>
         </thead>
         <tbody>
           ${students.map((s,i) => {
-            const { acumulado, pesoCompletado } = calcAccumulated(s.id);
-            const acumCls = pesoCompletado > 0 ? gradeColor(acumulado, pesoCompletado) : '';
+            const { acumulado, maxPosible } = calcAccumulated(s.id);
+            const acumCls = maxPosible > 0 ? gradeColor(acumulado, maxPosible) : '';
             return `
             <tr>
               <td class="num" style="position:sticky;left:0;background:#fff;z-index:1">${i+1}</td>
@@ -127,8 +134,8 @@ function render(){
                 return `<td class="num"><span class="chip ${cls}" ${tip} style="font-size:11px;font-weight:700">${g.value}</span></td>`;
               }).join('')}
               <td class="num" style="background:#FFFDE7">
-                ${pesoCompletado > 0
-                  ? `<span class="chip ${acumCls}" style="font-weight:800">${acumulado.toFixed(2)} / ${pesoCompletado}</span>`
+                ${maxPosible > 0
+                  ? `<span class="chip ${acumCls}" style="font-weight:800">${acumulado.toFixed(2)} / ${maxPosible}</span>`
                   : '—'}
               </td>
             </tr>`;
@@ -137,8 +144,10 @@ function render(){
       </table>
     </div>
     <div style="font-size:11px;color:var(--ean-gray);margin-top:8px">
-      💡 <b>Acumulado</b> = suma de cada actividad calificada × su peso (sobre 100 si todos los pesos suman 100).
-      Por ejemplo: 18/20 con peso 20% aporta <b>18</b> puntos al acumulado. Pasa el mouse sobre cada nota para ver el desglose.
+      💡 <b>Acumulado</b> = suma de:
+      <b>(a)</b> actividades CON peso → contribuyen <code>(nota/max) × peso%</code> (ej: 18/20 con 20% aporta 18) ·
+      <b>(b)</b> actividades SIN peso → suman como <b>puntos extra</b> tal cual (ej: 2/2 aporta 2).
+      Pasa el mouse sobre cada nota para ver el desglose.
     </div>
   `;
 }
@@ -146,16 +155,16 @@ function render(){
 function exportExcel(courseName){
   if (!students.length || !activities.length){ toast('Nada para exportar','error'); return; }
 
-  const headers = ['#', 'Cédula', 'Estudiante', ...activities.map(a => `${a.name} (/${a.max_points}${a.weight?', '+a.weight+'%':''})`), 'Acumulado', 'Peso calificado'];
+  const headers = ['#', 'Cédula', 'Estudiante', ...activities.map(a => `${a.name} (/${a.max_points}${a.weight?', '+a.weight+'%':' EXTRA'})`), 'Acumulado', 'Máximo posible'];
   const rows = students.map((s,i) => {
     const row = [i+1, s.cedula, s.name];
     activities.forEach(a => {
       const g = gradeFor(a.id, s.id);
       row.push(g?.value ?? '');
     });
-    const { acumulado, pesoCompletado } = calcAccumulated(s.id);
-    row.push(pesoCompletado > 0 ? Number(acumulado.toFixed(2)) : '');
-    row.push(pesoCompletado > 0 ? pesoCompletado : '');
+    const { acumulado, maxPosible } = calcAccumulated(s.id);
+    row.push(maxPosible > 0 ? Number(acumulado.toFixed(2)) : '');
+    row.push(maxPosible > 0 ? maxPosible : '');
     return row;
   });
 
