@@ -1,20 +1,20 @@
 // Bootstrap principal — importa Alpine, registra store, arranca controladamente
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
-// v=20260509s — bumpear este sufijo si se cambian los módulos para invalidar caché
-import { supabase, currentUser } from './supabase-client.js?v=20260509s';
-import { toast } from './toast.js?v=20260509s';
-import { mountCourses } from './courses.js?v=20260509s';
-import { mountStudents } from './students.js?v=20260509s';
-import { mountGroups } from './groups.js?v=20260509s';
-import { mountActivities } from './activities.js?v=20260509s';
-import { mountIngest } from './ingest.js?v=20260509s';
-import { mountConsolidated } from './consolidated.js?v=20260509s';
-import { mountAsistencia } from './asistencia.js?v=20260509s';
-import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260509s';
-import { mountSustentacion } from './sustentacion.js?v=20260509s';
-import { mountChat } from './chat.js?v=20260509s';
-import { mountSyllabus } from './syllabus.js?v=20260509s';
-import { openPlanModal, checkPaymentSuccess } from './plan.js?v=20260509w';
+// v=20260510b — bumpear este sufijo si se cambian los módulos para invalidar caché
+import { supabase, currentUser } from './supabase-client.js?v=20260510b';
+import { toast } from './toast.js?v=20260510b';
+import { mountCourses } from './courses.js?v=20260510b';
+import { mountStudents } from './students.js?v=20260510b';
+import { mountGroups } from './groups.js?v=20260510b';
+import { mountActivities } from './activities.js?v=20260510b';
+import { mountIngest } from './ingest.js?v=20260510b';
+import { mountConsolidated } from './consolidated.js?v=20260510b';
+import { mountAsistencia } from './asistencia.js?v=20260510b';
+import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260510b';
+import { mountSustentacion } from './sustentacion.js?v=20260510b';
+import { mountChat } from './chat.js?v=20260510b';
+import { mountSyllabus } from './syllabus.js?v=20260510b';
+import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260510b';
 
 const VIEWS = {
   courses:      { title:'Mis cursos',          mount: mountCourses },
@@ -33,7 +33,8 @@ const VIEWS = {
 // 1. Registrar store ANTES de arrancar Alpine
 Alpine.store('app', {
   user: undefined,    // undefined = aún no chequeado, null = sin sesión, object = logueado
-  plan: 'starter',
+  plan: 'trial',      // se actualiza con refreshPlan() después del login
+  planInfo: null,     // { plan, calls_used, calls_limit, calls_remaining, plan_expires_at }
   view: 'courses',
   activeCourse: null,
   courses: [],
@@ -43,9 +44,13 @@ Alpine.store('app', {
   async init(){
     const u = await currentUser();
     this.user = u || null;
+    if (this.user) await this.refreshPlan();
     supabase.auth.onAuthStateChange((_event, session) => {
       this.user = session?.user || null;
-      if (this.user) this.go('courses');
+      if (this.user){
+        this.refreshPlan();
+        this.go('courses');
+      }
     });
   },
 
@@ -87,6 +92,18 @@ Alpine.store('app', {
   openPlan(){
     if (!this.user) return;
     openPlanModal(this.user);
+  },
+
+  async refreshPlan(){
+    const info = await fetchPlanInfo();
+    if (info){
+      this.planInfo = info;
+      this.plan = info.plan;
+    }
+  },
+
+  maxCourses(){
+    return PLANS[this.plan]?.maxCourses ?? 1;
   },
 
   planIcon(){

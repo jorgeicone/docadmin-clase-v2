@@ -15,7 +15,17 @@ export async function mountCourses(root, store){
     <div id="course-modal-host"></div>
   `;
 
-  document.getElementById('btn-new-course').onclick = () => openCourseModal(null, ()=>renderList(store));
+  document.getElementById('btn-new-course').onclick = () => {
+    const maxAllowed = store.maxCourses ? store.maxCourses() : 999;
+    const currentCount = store.courses?.length || 0;
+    if (currentCount >= maxAllowed){
+      const nextPlan = store.plan === 'trial' ? 'Starter' : store.plan === 'starter' ? 'Pro' : 'Premium';
+      toast(`Tu plan ${store.plan.toUpperCase()} permite ${maxAllowed} curso${maxAllowed===1?'':'s'}. Actualiza a ${nextPlan} para crear más.`, 'error');
+      setTimeout(() => store.openPlan(), 1500);
+      return;
+    }
+    openCourseModal(null, ()=>renderList(store));
+  };
   await renderList(store);
 }
 

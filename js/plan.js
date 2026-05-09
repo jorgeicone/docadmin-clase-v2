@@ -6,7 +6,7 @@ import { toast } from './toast.js';
 // Wompi public key sandbox (igual que v4)
 const WOMPI_PUBLIC_KEY = 'pub_test_wXVTaUtLWOLZFA43MNc7ZFawWLqMOmvo';
 
-const PLANS = {
+export const PLANS = {
   trial: { name:'Trial', price:0, icon:'🎓', color:'var(--ean-gray)', calls:50, maxCourses:1, model:'Haiku', features:[
     '<b>1</b> curso',
     '<b>50</b> consultas IA / mes',
@@ -211,6 +211,19 @@ async function launchWompiButton(plan){
   }
 }
 
+// Helper exportado para otros módulos: obtener info actual del plan
+export async function fetchPlanInfo(){
+  try {
+    const session = await currentSession();
+    if (!session?.access_token) return null;
+    const r = await fetch(WORKER_URL + '/plan', {
+      headers:{ 'Authorization':'Bearer '+session.access_token }
+    });
+    if (r.ok) return await r.json();
+  } catch(e){}
+  return null;
+}
+
 // Detectar payment=success al cargar la app
 export function checkPaymentSuccess(store){
   const params = new URLSearchParams(location.search);
@@ -239,7 +252,6 @@ export function checkPaymentSuccess(store){
   document.getElementById('ps-close').onclick = async () => {
     host.innerHTML = '';
     // Refrescar plan en el store
-    await loadPlanInfo();
-    if (planInfo) store.plan = planInfo.plan;
+    if (store.refreshPlan) await store.refreshPlan();
   };
 }
