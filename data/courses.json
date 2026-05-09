@@ -7,8 +7,23 @@
     "institution": "EAN",
     "color": "#1B5E20",
     "lastModified": "2026-05-04T22:42:12.555Z",
-    "studentCount": 36,
-    "sessionCount": 3,
+    "studentCount": 46,
+    "sessionCount": 1,
     "sustCount": 1
+  },
+  {
+    "id": "curso_moyas1ob",
+    "name": "Prueba 1",
+    "code": "fff",
+    "group": "fff",
+    "institution": "fff",
+    "room": "ff",
+    "schedule": "ff",
+    "professor": "f",
+    "color": "#00e676",
+    "lastModified": "2026-05-09T12:05:49.302Z",
+    "studentCount": 0,
+    "sessionCount": 0,
+    "sustCount": 0
   }
 ]
