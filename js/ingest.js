@@ -232,7 +232,7 @@ async function processWithAI(store){
       messages = [{ role:'user', content: [contentBlock, { type:'text', text:'Extrae todas las calificaciones visibles. Si hay rúbricas con múltiples criterios, suma los puntos por estudiante o grupo.' }] }];
     }
 
-    const r = await fetch(WORKER_URL + '/ai', {
+    const r = await fetch(WORKER_URL + '/', {
       method:'POST',
       headers:{ 'Authorization':'Bearer '+session.access_token, 'Content-Type':'application/json' },
       body: JSON.stringify({ messages, system: systemPrompt, max_tokens: 4096 })
@@ -241,9 +241,14 @@ async function processWithAI(store){
     const txt = await r.text();
     if (!r.ok){ throw new Error(`Worker ${r.status}: ${txt}`); }
     const data = JSON.parse(txt);
-    state.aiResponse = data.result;
 
-    const extracted = parseAIResponse(data.result);
+    // El Worker devuelve la respuesta completa de Anthropic en data.result
+    // Extraer el texto del content array
+    const aiText = data.result?.content?.[0]?.text || data.result?.text || (typeof data.result === 'string' ? data.result : '');
+    if (!aiText) throw new Error('Respuesta vacía de la IA');
+    state.aiResponse = aiText;
+
+    const extracted = parseAIResponse(aiText);
     state.matches = matchToRoster(extracted);
 
     status.innerHTML = `<div style="color:var(--green);font-weight:600">✅ IA procesó. ${state.matches.length} calificaciones extraídas. Plan: ${data.plan} (quedan ${data.calls_remaining} llamadas).</div>`;
@@ -466,18 +471,23 @@ async function saveAll(store){
   };
   await supabase.from('v5_ai_uploads').insert(uploadRecord);
 
-  // Upsert grades
-  const rows = valid.map(m => ({
+  // Deduplicar por student_id (un mismo estudiante puede haber salido en varias filas)
+  // Estrategia: si hay duplicados, usar el ÚLTIMO (que el usuario haya editado más recientemente)
+  const dedup = new Map();
+  valid.forEach(m => dedup.set(m.studentId, m));
+  const dedupedRows = [...dedup.values()].map(m => ({
     activity_id: a.id,
     student_id: m.studentId,
     value: m.value,
     desglose: m.desglose || null,
     source: 'ai-' + state.fileType,
   }));
-  const { error } = await supabase.from('v5_grades').upsert(rows, { onConflict: 'activity_id,student_id' });
+  const dupSkipped = valid.length - dedupedRows.length;
+
+  const { error } = await supabase.from('v5_grades').upsert(dedupedRows, { onConflict: 'activity_id,student_id' });
   if (error){ toast('Error: '+error.message,'error'); return; }
 
-  toast(`✅ ${valid.length} notas guardadas en "${a.name}"`,'success');
+  toast(`✅ ${dedupedRows.length} notas guardadas en "${a.name}"${dupSkipped>0?` (${dupSkipped} duplicadas omitidas)`:''}`,'success');
   // Reset
   state = { selectedActivity:null, newActivity:null, file:null, fileType:null, rawData:null, aiResponse:null, matches:[] };
   store.go('activities');
