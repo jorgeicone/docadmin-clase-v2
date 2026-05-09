@@ -14,7 +14,7 @@ import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=202605
 import { mountSustentacion } from './sustentacion.js?v=20260509s';
 import { mountChat } from './chat.js?v=20260509s';
 import { mountSyllabus } from './syllabus.js?v=20260509s';
-import { openPlanModal, checkPaymentSuccess } from './plan.js?v=20260509t';
+import { openPlanModal, checkPaymentSuccess } from './plan.js?v=20260509v';
 
 const VIEWS = {
   courses:      { title:'Mis cursos',          mount: mountCourses },

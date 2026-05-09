@@ -7,29 +7,30 @@ import { toast } from './toast.js';
 const WOMPI_PUBLIC_KEY = 'pub_test_wXVTaUtLWOLZFA43MNc7ZFawWLqMOmvo';
 
 const PLANS = {
-  trial: { name:'Trial', price:0, icon:'🎓', color:'var(--ean-gray)', calls:50, model:'Haiku', features:[
-    '50 llamadas IA',
-    'Modelo Haiku (rápido)',
-    'Sin sincronización en nube',
-    'Para evaluar la app',
+  trial: { name:'Trial', price:0, icon:'🎓', color:'var(--ean-gray)', calls:50, maxCourses:1, model:'Haiku', features:[
+    '<b>1</b> curso',
+    '<b>50</b> consultas IA / mes',
+    'Acceso completo a toda la plataforma',
+    'Para evaluar la app antes de comprometerte',
   ]},
-  starter: { name:'Starter', price:49000, icon:'🚀', color:'var(--ean-cyan)', calls:200, model:'Haiku', features:[
-    '200 llamadas IA / mes',
+  starter: { name:'Starter', price:49000, icon:'🚀', color:'var(--ean-cyan)', calls:200, maxCourses:3, model:'Haiku', tagline:'Para empezar', features:[
+    '<b>3</b> cursos en paralelo',
+    '<b>200</b> consultas IA / mes',
     'Modelo Haiku (rápido)',
     'Sincronización en nube',
     'Soporte por email',
   ]},
-  pro: { name:'Pro', price:149000, icon:'⚡', color:'var(--ean-blue)', calls:1000, model:'Sonnet', popular:true, features:[
-    '1000 llamadas IA / mes',
+  pro: { name:'Pro', price:149000, icon:'⚡', color:'var(--ean-blue)', calls:1000, maxCourses:8, model:'Sonnet', popular:true, tagline:'Para semestre completo', features:[
+    '<b>8</b> cursos en paralelo',
+    '<b>1.000</b> consultas IA / mes',
     'Modelo Sonnet (más potente)',
-    'Sincronización en nube',
     'Análisis avanzado y reportes',
     'Soporte prioritario',
   ]},
-  premium: { name:'Premium', price:349000, icon:'🌟', color:'var(--purple)', calls:9999, model:'Sonnet ilimitado', features:[
-    'Llamadas IA ilimitadas',
-    'Modelo Sonnet sin límites',
-    'Sincronización + backup',
+  premium: { name:'Premium', price:349000, icon:'🌟', color:'var(--purple)', calls:9999, maxCourses:999, model:'Sonnet ilimitado', tagline:'Sin límites', features:[
+    'Cursos <b>ilimitados</b>',
+    'Consultas IA <b>ilimitadas</b>',
+    'Sonnet sin límites + backup',
     'Soporte prioritario 24/7',
     'Sesiones de capacitación',
   ]},
@@ -80,14 +81,19 @@ function renderModal(){
             <button class="modal-close" id="pm-close" style="background:rgba(255,255,255,.2);color:#fff;border:none;width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:16px">✕</button>
           </div>
 
-          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
             <div>
-              <div style="font-size:11px;opacity:.8">USO IA ESTE MES</div>
-              <div style="font-size:18px;font-weight:700;margin-top:4px">${planInfo.calls_used} / ${planInfo.calls_limit} llamadas</div>
+              <div style="font-size:11px;opacity:.8">CONSULTAS IA ESTE MES</div>
+              <div style="font-size:18px;font-weight:700;margin-top:4px">${planInfo.calls_used} / ${planInfo.calls_limit}</div>
               <div style="margin-top:6px;height:6px;background:rgba(255,255,255,.15);border-radius:3px;overflow:hidden">
                 <div style="height:100%;width:${Math.min(usedPct,100)}%;background:${usedPct>=90?'#FFCDD2':usedPct>=70?'#FFE082':'#A5D6A7'};border-radius:3px"></div>
               </div>
-              <div style="font-size:11px;opacity:.8;margin-top:4px">${planInfo.calls_remaining} llamadas restantes</div>
+              <div style="font-size:11px;opacity:.8;margin-top:4px">${planInfo.calls_remaining} restantes</div>
+            </div>
+            <div>
+              <div style="font-size:11px;opacity:.8">CURSOS PERMITIDOS</div>
+              <div style="font-size:18px;font-weight:700;margin-top:4px">hasta ${cur.maxCourses === 999 ? '∞' : cur.maxCourses}</div>
+              <div style="font-size:11px;opacity:.8;margin-top:4px">en paralelo</div>
             </div>
             <div>
               <div style="font-size:11px;opacity:.8">VIGENCIA</div>
@@ -138,12 +144,13 @@ function renderPlanCards(){
       <div style="text-align:center;margin-bottom:10px">
         <div style="font-size:30px">${p.icon}</div>
         <div style="font-weight:800;font-size:16px;color:var(--ean-dark);margin-top:4px">${p.name}</div>
+        ${p.tagline?`<div style="font-size:10px;color:var(--ean-gray);font-style:italic;margin-top:2px">${p.tagline}</div>`:''}
         <div style="color:${p.color};font-size:24px;font-weight:900;margin-top:6px">$${(p.price/1000).toFixed(0)}K</div>
         <div style="font-size:10px;color:var(--ean-gray)">COP / mes</div>
       </div>
 
       <ul style="list-style:none;padding:0;margin:14px 0 0;font-size:12px;color:var(--ean-dark)">
-        ${p.features.map(f => `<li style="padding:4px 0;display:flex;gap:6px"><span style="color:${p.color};font-weight:700">✓</span><span>${f}</span></li>`).join('')}
+        ${p.features.map(f => `<li style="padding:4px 0;display:flex;gap:6px;align-items:flex-start"><span style="color:${p.color};font-weight:700;line-height:1.5">✓</span><span style="line-height:1.4">${f}</span></li>`).join('')}
       </ul>
     </div>
     `;
