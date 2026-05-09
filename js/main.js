@@ -1,19 +1,19 @@
 // Bootstrap principal — importa Alpine, registra store, arranca controladamente
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
-// v=20260509n — bumpear este sufijo si se cambian los módulos para invalidar caché
-import { supabase, currentUser } from './supabase-client.js?v=20260509n';
-import { toast } from './toast.js?v=20260509n';
-import { mountCourses } from './courses.js?v=20260509n';
-import { mountStudents } from './students.js?v=20260509n';
-import { mountGroups } from './groups.js?v=20260509n';
-import { mountActivities } from './activities.js?v=20260509n';
-import { mountIngest } from './ingest.js?v=20260509n';
-import { mountConsolidated } from './consolidated.js?v=20260509n';
-import { mountAsistencia } from './asistencia.js?v=20260509n';
-import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260509n';
-import { mountSustentacion } from './sustentacion.js?v=20260509n';
-import { mountChat } from './chat.js?v=20260509n';
-import { mountSyllabus } from './syllabus.js?v=20260509n';
+// v=20260509r — bumpear este sufijo si se cambian los módulos para invalidar caché
+import { supabase, currentUser } from './supabase-client.js?v=20260509r';
+import { toast } from './toast.js?v=20260509r';
+import { mountCourses } from './courses.js?v=20260509r';
+import { mountStudents } from './students.js?v=20260509r';
+import { mountGroups } from './groups.js?v=20260509r';
+import { mountActivities } from './activities.js?v=20260509r';
+import { mountIngest } from './ingest.js?v=20260509r';
+import { mountConsolidated } from './consolidated.js?v=20260509r';
+import { mountAsistencia } from './asistencia.js?v=20260509r';
+import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260509r';
+import { mountSustentacion } from './sustentacion.js?v=20260509r';
+import { mountChat } from './chat.js?v=20260509r';
+import { mountSyllabus } from './syllabus.js?v=20260509r';
 
 const VIEWS = {
   courses:      { title:'Mis cursos',          mount: mountCourses },

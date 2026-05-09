@@ -6,8 +6,12 @@ import { toast } from './toast.js';
 let course = null;
 let courseId = null;
 let sessions = [];
+let sources = [];                 // fuentes adicionales del curso
 let pendingPlan = null;          // sesiones generadas por IA antes de guardar
 let store = null;
+
+const SOURCE_TYPE_ICONS = { pdf:'📄', image:'🖼', url:'🔗', text:'✏️' };
+const SOURCE_TYPE_LABELS = { pdf:'PDF/Documento', image:'Imagen', url:'Enlace web', text:'Texto libre' };
 
 // ───── FESTIVOS COLOMBIA (fijos + lunes de traslado + Pascua) ─────
 function getColombianHolidays(year){
@@ -114,11 +118,28 @@ export async function mountSyllabus(root, _store){
       <div id="syl-pdf-area"></div>
     </div>
 
+    <!-- STEP 2.5: Fuentes adicionales -->
+    <div class="card" style="background:#F3E5F5;border-left:4px solid var(--purple)">
+      <div class="card-row" style="justify-content:space-between">
+        <h3>📚 Fuentes adicionales (opcional)</h3>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-out btn-xs" id="src-add-pdf">📄 PDF/Imagen</button>
+          <button class="btn btn-out btn-xs" id="src-add-url">🔗 Enlace</button>
+          <button class="btn btn-out btn-xs" id="src-add-text">✏️ Texto</button>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--ean-gray);margin-top:6px">
+        Agrega bibliografía, apuntes, artículos, blogs, etc. La IA los combinará con el syllabus al generar el plan.
+        Marca/desmarca cuáles usar con el ☑.
+      </p>
+      <div id="syl-sources-list" style="margin-top:10px"></div>
+    </div>
+
     <!-- STEP 3: Generar plan -->
     <div class="card" style="background:#FFF8E1;border-left:4px solid #F57C00">
       <h3>3️⃣ Generar plan con IA</h3>
-      <p style="font-size:12px;color:var(--ean-gray)">
-        La IA leerá tu syllabus, calculará las fechas de cada sesión saltando festivos colombianos y propondrá un tema para cada clase basado en los contenidos.
+      <p style="font-size:12px;color:var(--ean-gray)" id="syl-gen-info">
+        La IA usará el syllabus + fuentes activas, calculará las fechas saltando festivos colombianos y propondrá un tema para cada clase.
       </p>
       <button class="btn btn-cyan btn-lg" id="syl-generate" style="margin-top:8px">🚀 Generar plan del semestre</button>
       <div id="syl-gen-status" style="margin-top:8px"></div>
@@ -141,18 +162,236 @@ export async function mountSyllabus(root, _store){
   document.getElementById('c-save').onclick = saveCourseDates;
   document.getElementById('syl-refresh').onclick = async () => { await loadAll(); refreshUI(); toast('Refrescado'); };
   document.getElementById('syl-generate').onclick = generatePlan;
+  document.getElementById('src-add-pdf').onclick = () => openSourceModal('pdf');
+  document.getElementById('src-add-url').onclick = () => openSourceModal('url');
+  document.getElementById('src-add-text').onclick = () => openSourceModal('text');
   renderPdfArea();
+  renderSources();
   renderSaved();
   updateStatus();
 }
 
+// Modal host helper
+function ensureModalHost(){
+  let h = document.getElementById('syl-modal-host');
+  if (!h){ h = document.createElement('div'); h.id='syl-modal-host'; document.body.appendChild(h); }
+  return h;
+}
+
+function renderSources(){
+  const div = document.getElementById('syl-sources-list');
+  if (!div) return;
+  if (!sources.length){
+    div.innerHTML = `<p class="empty-state" style="padding:14px;font-size:12px">Sin fuentes adicionales. Agrega bibliografía, blogs, apuntes con los botones de arriba.</p>`;
+    updateGenInfo();
+    return;
+  }
+  div.innerHTML = sources.map(s => `
+    <div class="card-row" style="padding:8px 12px;border:1px solid var(--ean-border);border-radius:6px;margin-bottom:6px;background:#fff;justify-content:space-between;gap:10px">
+      <label style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer">
+        <input type="checkbox" data-toggle="${s.id}" ${s.enabled?'checked':''} style="width:16px;height:16px">
+        <div style="flex:1">
+          <div style="font-size:13px"><b>${SOURCE_TYPE_ICONS[s.type]||''} ${escape(s.name)}</b></div>
+          <div style="font-size:10px;color:var(--ean-gray)">
+            ${SOURCE_TYPE_LABELS[s.type]||s.type} ·
+            ${s.url?'<a href="'+escapeAttr(s.url)+'" target="_blank">'+escape(s.url.substring(0,60))+'</a> · ':''}
+            ${(s.content||'').length} chars
+          </div>
+        </div>
+      </label>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-xs btn-out" data-view="${s.id}">👁</button>
+        <button class="btn btn-xs btn-danger" data-del="${s.id}">🗑</button>
+      </div>
+    </div>
+  `).join('');
+
+  div.querySelectorAll('[data-toggle]').forEach(cb => cb.onchange = async () => {
+    const sid = cb.dataset.toggle;
+    const { error } = await supabase.from('v5_course_sources').update({ enabled: cb.checked }).eq('id', sid);
+    if (error){ toast('Error: '+error.message,'error'); cb.checked = !cb.checked; return; }
+    const s = sources.find(x => x.id === sid);
+    if (s) s.enabled = cb.checked;
+    updateGenInfo();
+  });
+  div.querySelectorAll('[data-view]').forEach(b => b.onclick = () => {
+    const s = sources.find(x => x.id === b.dataset.view);
+    openViewModal(s);
+  });
+  div.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
+    const s = sources.find(x => x.id === b.dataset.del);
+    if (!confirm(`¿Eliminar la fuente "${s.name}"?`)) return;
+    const { error } = await supabase.from('v5_course_sources').delete().eq('id', s.id);
+    if (error){ toast('Error: '+error.message,'error'); return; }
+    sources = sources.filter(x => x.id !== s.id);
+    renderSources();
+    toast('Eliminada');
+  });
+
+  updateGenInfo();
+}
+
+function updateGenInfo(){
+  const info = document.getElementById('syl-gen-info');
+  if (!info) return;
+  const enabled = sources.filter(s => s.enabled);
+  const totalChars = enabled.reduce((a,s) => a+(s.content||'').length, 0);
+  info.innerHTML = `
+    La IA usará el <b>syllabus</b> + <b>${enabled.length}</b> fuente${enabled.length===1?'':'s'} activa${enabled.length===1?'':'s'}
+    (${(totalChars/1000).toFixed(1)}KB de contexto adicional), calculará las fechas saltando festivos colombianos y propondrá un tema para cada clase.
+  `;
+}
+
+function openViewModal(s){
+  const host = ensureModalHost();
+  host.innerHTML = `
+    <div class="modal-bg">
+      <div class="modal" style="max-width:720px">
+        <h2>${SOURCE_TYPE_ICONS[s.type]||''} ${escape(s.name)}</h2>
+        <div style="font-size:11px;color:var(--ean-gray);margin-bottom:8px">
+          ${SOURCE_TYPE_LABELS[s.type]||s.type}${s.url?' · '+escape(s.url):''}
+        </div>
+        <pre style="font-size:11px;background:#f5f5f5;padding:10px;border-radius:6px;max-height:400px;overflow:auto;white-space:pre-wrap">${escape((s.content||'(sin contenido)').substring(0,8000))}${(s.content||'').length>8000?'\n\n[… truncado]':''}</pre>
+        <div class="modal-actions">
+          <button class="btn btn-out" id="vm-close">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('vm-close').onclick = () => host.innerHTML='';
+}
+
+function openSourceModal(type){
+  const host = ensureModalHost();
+  let bodyHtml = '';
+  if (type === 'pdf'){
+    bodyHtml = `
+      <div class="dropzone" id="src-dz">
+        <div class="icon">📄</div>
+        <div><b>Arrastra PDF/imagen aquí</b> o haz click</div>
+        <div class="hint">.pdf, .jpg, .png · La IA extrae el contenido</div>
+        <input type="file" id="src-file" accept=".pdf,.jpg,.jpeg,.png,.webp" style="display:none">
+      </div>
+      <div class="field" style="margin-top:10px"><label>Nombre (opcional)</label><input id="src-name" placeholder="Ej: Capítulo 3 Chaffey"></div>
+    `;
+  } else if (type === 'url'){
+    bodyHtml = `
+      <div class="field"><label>URL del enlace *</label><input id="src-url" type="url" placeholder="https://..."></div>
+      <div class="field"><label>Nombre (opcional, default = la URL)</label><input id="src-name" placeholder="Ej: Blog HubSpot Marketing Digital"></div>
+    `;
+  } else {
+    bodyHtml = `
+      <div class="field"><label>Nombre *</label><input id="src-name" placeholder="Ej: Apuntes de mi clase 2024"></div>
+      <div class="field"><label>Contenido (texto libre) *</label><textarea id="src-text" rows="10" style="width:100%;font-family:inherit;font-size:13px;border:1px solid var(--ean-border);border-radius:6px;padding:8px;resize:vertical" placeholder="Pega aquí cualquier texto: apuntes, articulos, resumen de un libro, etc."></textarea></div>
+    `;
+  }
+
+  host.innerHTML = `
+    <div class="modal-bg">
+      <div class="modal">
+        <h2>${SOURCE_TYPE_ICONS[type]} Agregar fuente — ${SOURCE_TYPE_LABELS[type]}</h2>
+        ${bodyHtml}
+        <div id="src-status"></div>
+        <div class="modal-actions">
+          <button class="btn btn-out" id="src-cancel">Cancelar</button>
+          <button class="btn btn-cyan" id="src-save">Guardar</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  let pendingFile = null;
+  if (type === 'pdf'){
+    const dz = document.getElementById('src-dz');
+    const inp = document.getElementById('src-file');
+    dz.onclick = () => inp.click();
+    dz.ondragover = e => { e.preventDefault(); dz.classList.add('dragover'); };
+    dz.ondragleave = () => dz.classList.remove('dragover');
+    dz.ondrop = e => { e.preventDefault(); dz.classList.remove('dragover'); if (e.dataTransfer.files[0]){ pendingFile = e.dataTransfer.files[0]; if (!document.getElementById('src-name').value) document.getElementById('src-name').value = pendingFile.name; document.getElementById('src-status').innerHTML = '<div style="font-size:12px;color:var(--ean-blue);margin-top:6px">📎 ' + escape(pendingFile.name) + '</div>'; } };
+    inp.onchange = () => { if (inp.files[0]){ pendingFile = inp.files[0]; if (!document.getElementById('src-name').value) document.getElementById('src-name').value = pendingFile.name; document.getElementById('src-status').innerHTML = '<div style="font-size:12px;color:var(--ean-blue);margin-top:6px">📎 ' + escape(pendingFile.name) + '</div>'; } };
+  }
+
+  document.getElementById('src-cancel').onclick = () => host.innerHTML='';
+  document.getElementById('src-save').onclick = async () => {
+    const status = document.getElementById('src-status');
+    const btn = document.getElementById('src-save');
+    btn.disabled = true; btn.textContent = 'Procesando…';
+    status.innerHTML = '<div style="display:flex;align-items:center;gap:6px;margin-top:6px"><span class="loader"></span> <span style="font-size:12px">Procesando…</span></div>';
+
+    try {
+      let content = '', url = null, file_url = null, srcType = type;
+      const name = (document.getElementById('src-name')?.value || '').trim();
+
+      if (type === 'pdf'){
+        if (!pendingFile){ throw new Error('Sube un archivo'); }
+        const isPdf = pendingFile.name.toLowerCase().endsWith('.pdf');
+        srcType = isPdf ? 'pdf' : 'image';
+        content = await extractWithVision(pendingFile, isPdf);
+        file_url = pendingFile.name;
+      } else if (type === 'url'){
+        url = document.getElementById('src-url').value.trim();
+        if (!/^https?:\/\//i.test(url)) throw new Error('URL inválida');
+        content = await fetchUrlContent(url);
+      } else {
+        content = (document.getElementById('src-text').value || '').trim();
+        if (!content) throw new Error('El contenido no puede estar vacío');
+      }
+
+      const finalName = name || (url ? url.substring(0,60) : 'Fuente sin nombre');
+      const { data, error } = await supabase.from('v5_course_sources').insert({
+        course_id: courseId, type: srcType, name: finalName, content, url, file_url, enabled: true
+      }).select().single();
+      if (error) throw error;
+
+      sources.push(data);
+      host.innerHTML = '';
+      renderSources();
+      toast(`✅ Fuente "${finalName}" agregada (${content.length} chars)`,'success');
+    } catch (e){
+      status.innerHTML = '<div style="background:#FFEBEE;color:var(--red);padding:8px;border-radius:4px;margin-top:6px;font-size:12px">❌ ' + escape(e.message) + '</div>';
+      btn.disabled = false; btn.textContent = 'Guardar';
+    }
+  };
+}
+
+async function extractWithVision(file, isPdf){
+  const session = await currentSession();
+  const b64 = await fileToBase64(file);
+  const block = isPdf
+    ? { type:'document', source:{ type:'base64', media_type:'application/pdf', data:b64 } }
+    : { type:'image', source:{ type:'base64', media_type: file.type || 'image/jpeg', data:b64 } };
+  const messages = [{ role:'user', content:[block, { type:'text', text:'Extrae todo el texto significativo del documento. Devuélvelo en texto plano organizado por secciones.' }] }];
+  const r = await fetch(WORKER_URL + '/', {
+    method:'POST',
+    headers:{ 'Authorization':'Bearer '+session.access_token, 'Content-Type':'application/json' },
+    body: JSON.stringify({ messages, system:'Eres un OCR. Devuelve solo texto plano limpio.', max_tokens: 4096 })
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error('Worker '+r.status);
+  return data.result?.content?.[0]?.text || '';
+}
+
+async function fetchUrlContent(url){
+  const session = await currentSession();
+  const r = await fetch(WORKER_URL + '/fetch-url', {
+    method:'POST',
+    headers:{ 'Authorization':'Bearer '+session.access_token, 'Content-Type':'application/json' },
+    body: JSON.stringify({ url })
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || 'Error '+r.status);
+  return data.text || '';
+}
+
 async function loadAll(){
-  const [cR, sesR] = await Promise.all([
+  const [cR, sesR, srcR] = await Promise.all([
     supabase.from('v5_courses').select('*').eq('id', courseId).single(),
     supabase.from('v5_sessions').select('*').eq('course_id', courseId).order('date', { ascending:true }),
+    supabase.from('v5_course_sources').select('*').eq('course_id', courseId).order('created_at', { ascending:true }),
   ]);
   course = cR.data;
   sessions = sesR.data || [];
+  sources = srcR.data || [];
 }
 
 function refreshUI(){
@@ -161,6 +400,7 @@ function refreshUI(){
   document.getElementById('c-spw').value = course.sessions_per_week??2;
   document.getElementById('c-hps').value = course.hours_per_session??2;
   renderPdfArea();
+  renderSources();
   renderSaved();
   updateStatus();
 }
@@ -283,14 +523,26 @@ async function generatePlan(){
     const session = await currentSession();
     const sysPrompt = `Eres un planificador académico. Te paso el syllabus de un curso universitario y un calendario de fechas posibles de clase. Tu tarea: asignar un tema/contenido a cada fecha, distribuyendo los contenidos del syllabus a lo largo del semestre. Considera que algunas sesiones pueden ser sustentaciones, parciales o talleres según lo que diga el syllabus. Responde SOLO con JSON sin markdown.`;
 
-    const userPrompt = `═══ SYLLABUS ═══
-${course.syllabus_text.substring(0, 8000)}
+    // Construir contexto: syllabus + fuentes activas
+    const enabledSources = sources.filter(s => s.enabled);
+    let contextBlock = `═══ SYLLABUS (FUENTE PRINCIPAL) ═══\n${course.syllabus_text.substring(0, 6000)}`;
+    if (enabledSources.length){
+      contextBlock += `\n\n═══ FUENTES ADICIONALES (${enabledSources.length}) ═══`;
+      // Distribuir presupuesto: ~2000 chars por fuente, máximo
+      enabledSources.forEach(s => {
+        const snippet = (s.content||'').substring(0, 2000);
+        contextBlock += `\n\n--- [${SOURCE_TYPE_ICONS[s.type]} ${s.name}] ---\n${snippet}`;
+      });
+    }
+
+    const userPrompt = `${contextBlock}
 
 ═══ FECHAS DE CLASE (ya excluyen festivos colombianos) ═══
 ${candidates.map((d,i) => `${i+1}. ${d}`).join('\n')}
 
 ═══ INSTRUCCIONES ═══
-Genera un plan distribuyendo los contenidos del syllabus en estas ${candidates.length} sesiones.
+Genera un plan distribuyendo los contenidos en estas ${candidates.length} sesiones.
+Usa el syllabus como guía principal. Las fuentes adicionales sirven para enriquecer los temas (referencias, ejemplos, profundidad).
 Para cada sesión devuelve: número, fecha, tema (corto, máximo 80 chars), tipo (magistral|taller|abp|caso|sustentacion|parcial|asesoria), y notas opcionales.
 Si el syllabus menciona evaluaciones, asigna sustentaciones/parciales en fechas estratégicas (mitad y final del semestre).
 
