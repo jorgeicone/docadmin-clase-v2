@@ -30,9 +30,19 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-  background:var(--ean-light);color:var(--ean-text);font-size:14px;line-height:1.5;
+  color:var(--ean-text);font-size:14px;line-height:1.5;
   -webkit-font-smoothing:antialiased}
-body{min-height:100vh;position:relative}
+body{
+  min-height:100vh;position:relative;
+  /* Capa 1: grid de puntos tech (3% opacity) · Capa 2 y 3: glows en esquinas · Capa 4: color base */
+  background-color:var(--ean-light);
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(26,200,219,.07) 0%, transparent 35%),
+    radial-gradient(circle at 88% 82%, rgba(122,60,255,.08) 0%, transparent 38%),
+    radial-gradient(rgba(7,30,43,.10) 1px, transparent 1px);
+  background-size: auto, auto, 24px 24px;
+  background-position: 0 0, 0 0, 0 0;
+}
 
 /* Canvas de partículas (red neuronal de fondo) */
 #neural-bg{
