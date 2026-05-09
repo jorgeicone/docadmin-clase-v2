@@ -1,16 +1,17 @@
 // Bootstrap principal — importa Alpine, registra store, arranca controladamente
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
-// v=20260509k — bumpear este sufijo si se cambian los módulos para invalidar caché
-import { supabase, currentUser } from './supabase-client.js?v=20260509k';
-import { toast } from './toast.js?v=20260509k';
-import { mountCourses } from './courses.js?v=20260509k';
-import { mountStudents } from './students.js?v=20260509k';
-import { mountGroups } from './groups.js?v=20260509k';
-import { mountActivities } from './activities.js?v=20260509k';
-import { mountIngest } from './ingest.js?v=20260509k';
-import { mountConsolidated } from './consolidated.js?v=20260509k';
-import { mountAsistencia } from './asistencia.js?v=20260509k';
-import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260509k';
+// v=20260509l — bumpear este sufijo si se cambian los módulos para invalidar caché
+import { supabase, currentUser } from './supabase-client.js?v=20260509l';
+import { toast } from './toast.js?v=20260509l';
+import { mountCourses } from './courses.js?v=20260509l';
+import { mountStudents } from './students.js?v=20260509l';
+import { mountGroups } from './groups.js?v=20260509l';
+import { mountActivities } from './activities.js?v=20260509l';
+import { mountIngest } from './ingest.js?v=20260509l';
+import { mountConsolidated } from './consolidated.js?v=20260509l';
+import { mountAsistencia } from './asistencia.js?v=20260509l';
+import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260509l';
+import { mountSustentacion } from './sustentacion.js?v=20260509l';
 
 const VIEWS = {
   courses:      { title:'Mis cursos',          mount: mountCourses },
@@ -19,6 +20,7 @@ const VIEWS = {
   activities:   { title:'Actividades y notas', mount: mountActivities,  needsCourse:true },
   ingest:       { title:'Ingesta IA',          mount: mountIngest,      needsCourse:true },
   asistencia:   { title:'Asistencia',          mount: mountAsistencia,  needsCourse:true },
+  sustentacion: { title:'Sustentación',        mount: mountSustentacion,needsCourse:true },
   conAsistencia:{ title:'Consolidado Asistencia',mount: mountConsolidadoAsistencia, needsCourse:true },
   consolidated: { title:'Consolidado',         mount: mountConsolidated,needsCourse:true },
 };
