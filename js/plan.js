@@ -145,7 +145,9 @@ function renderPlanCards(){
         <div style="font-size:30px">${p.icon}</div>
         <div style="font-weight:800;font-size:16px;color:var(--ean-dark);margin-top:4px">${p.name}</div>
         ${p.tagline?`<div style="font-size:10px;color:var(--ean-gray);font-style:italic;margin-top:2px">${p.tagline}</div>`:''}
-        <div style="color:${p.color};font-size:24px;font-weight:900;margin-top:6px">$${p.price.toLocaleString('es-CO')}</div>
+        <div style="color:${p.color};font-size:26px;font-weight:900;margin-top:6px">
+          $${(p.price/1000).toLocaleString('es-CO')} <span style="font-size:14px;font-weight:600;opacity:.85">mil</span>
+        </div>
         <div style="font-size:10px;color:var(--ean-gray)">COP / mes</div>
       </div>
 
