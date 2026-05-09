@@ -54,18 +54,18 @@ function gradeFor(activityId, studentId){
   return grades.find(g => g.activity_id===activityId && g.student_id===studentId);
 }
 
-function calcWeightedAvg(studentId){
-  // Promedio ponderado escalado a la escala de cada actividad → 0-5 unificado
-  let wpSum = 0, wSum = 0;
+function calcAccumulated(studentId){
+  // Nota acumulativa: suma de (nota/max × peso%) de cada actividad calificada
+  // Si pesos suman 100, el acumulado final es la nota /100 del semestre
+  let acumulado = 0, pesoCompletado = 0;
   activities.forEach(a => {
     if (!a.weight) return;
     const g = gradeFor(a.id, studentId);
     if (!g || g.value === null || g.value === undefined) return;
-    const normalized = (g.value / a.max_points) * 5; // todo a escala 0-5
-    wpSum += normalized * a.weight;
-    wSum += a.weight;
+    acumulado += (g.value / a.max_points) * a.weight;
+    pesoCompletado += a.weight;
   });
-  return wSum > 0 ? wpSum/wSum : null;
+  return { acumulado, pesoCompletado };
 }
 
 function gradeColor(val, max){
@@ -103,13 +103,13 @@ function render(){
                 </div>
               </th>
             `).join('')}
-            <th class="num" style="min-width:90px;background:#FFF8E1">Promedio<br><small>(ponderado /5)</small></th>
+            <th class="num" style="min-width:110px;background:#FFF8E1">Acumulado<br><small>(de los pesos calificados)</small></th>
           </tr>
         </thead>
         <tbody>
           ${students.map((s,i) => {
-            const avg = calcWeightedAvg(s.id);
-            const avgCls = avg!==null ? gradeColor(avg, 5) : '';
+            const { acumulado, pesoCompletado } = calcAccumulated(s.id);
+            const acumCls = pesoCompletado > 0 ? gradeColor(acumulado, pesoCompletado) : '';
             return `
             <tr>
               <td class="num" style="position:sticky;left:0;background:#fff;z-index:1">${i+1}</td>
@@ -127,7 +127,9 @@ function render(){
                 return `<td class="num"><span class="chip ${cls}" ${tip} style="font-size:11px;font-weight:700">${g.value}</span></td>`;
               }).join('')}
               <td class="num" style="background:#FFFDE7">
-                ${avg!==null ? `<span class="chip ${avgCls}" style="font-weight:800">${avg.toFixed(2)}</span>` : '—'}
+                ${pesoCompletado > 0
+                  ? `<span class="chip ${acumCls}" style="font-weight:800">${acumulado.toFixed(2)} / ${pesoCompletado}</span>`
+                  : '—'}
               </td>
             </tr>`;
           }).join('')}
@@ -135,8 +137,8 @@ function render(){
       </table>
     </div>
     <div style="font-size:11px;color:var(--ean-gray);margin-top:8px">
-      💡 El promedio pondera cada actividad por su <b>%</b> y normaliza todas las escalas a 0-5. Las actividades sin peso no entran en el cálculo.
-      Pasa el mouse sobre cada nota para ver el desglose.
+      💡 <b>Acumulado</b> = suma de cada actividad calificada × su peso (sobre 100 si todos los pesos suman 100).
+      Por ejemplo: 18/20 con peso 20% aporta <b>18</b> puntos al acumulado. Pasa el mouse sobre cada nota para ver el desglose.
     </div>
   `;
 }
@@ -144,15 +146,16 @@ function render(){
 function exportExcel(courseName){
   if (!students.length || !activities.length){ toast('Nada para exportar','error'); return; }
 
-  const headers = ['#', 'Cédula', 'Estudiante', ...activities.map(a => `${a.name} (/${a.max_points}${a.weight?', '+a.weight+'%':''})`), 'Promedio /5'];
+  const headers = ['#', 'Cédula', 'Estudiante', ...activities.map(a => `${a.name} (/${a.max_points}${a.weight?', '+a.weight+'%':''})`), 'Acumulado', 'Peso calificado'];
   const rows = students.map((s,i) => {
     const row = [i+1, s.cedula, s.name];
     activities.forEach(a => {
       const g = gradeFor(a.id, s.id);
       row.push(g?.value ?? '');
     });
-    const avg = calcWeightedAvg(s.id);
-    row.push(avg!==null ? avg.toFixed(2) : '');
+    const { acumulado, pesoCompletado } = calcAccumulated(s.id);
+    row.push(pesoCompletado > 0 ? Number(acumulado.toFixed(2)) : '');
+    row.push(pesoCompletado > 0 ? pesoCompletado : '');
     return row;
   });
 
