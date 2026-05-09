@@ -1,15 +1,16 @@
 // Bootstrap principal — importa Alpine, registra store, arranca controladamente
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
-// v=20260509j — bumpear este sufijo si se cambian los módulos para invalidar caché
-import { supabase, currentUser } from './supabase-client.js?v=20260509j';
-import { toast } from './toast.js?v=20260509j';
-import { mountCourses } from './courses.js?v=20260509j';
-import { mountStudents } from './students.js?v=20260509j';
-import { mountGroups } from './groups.js?v=20260509j';
-import { mountActivities } from './activities.js?v=20260509j';
-import { mountIngest } from './ingest.js?v=20260509j';
-import { mountConsolidated } from './consolidated.js?v=20260509j';
-import { mountAsistencia } from './asistencia.js?v=20260509j';
+// v=20260509k — bumpear este sufijo si se cambian los módulos para invalidar caché
+import { supabase, currentUser } from './supabase-client.js?v=20260509k';
+import { toast } from './toast.js?v=20260509k';
+import { mountCourses } from './courses.js?v=20260509k';
+import { mountStudents } from './students.js?v=20260509k';
+import { mountGroups } from './groups.js?v=20260509k';
+import { mountActivities } from './activities.js?v=20260509k';
+import { mountIngest } from './ingest.js?v=20260509k';
+import { mountConsolidated } from './consolidated.js?v=20260509k';
+import { mountAsistencia } from './asistencia.js?v=20260509k';
+import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260509k';
 
 const VIEWS = {
   courses:      { title:'Mis cursos',          mount: mountCourses },
@@ -18,6 +19,7 @@ const VIEWS = {
   activities:   { title:'Actividades y notas', mount: mountActivities,  needsCourse:true },
   ingest:       { title:'Ingesta IA',          mount: mountIngest,      needsCourse:true },
   asistencia:   { title:'Asistencia',          mount: mountAsistencia,  needsCourse:true },
+  conAsistencia:{ title:'Consolidado Asistencia',mount: mountConsolidadoAsistencia, needsCourse:true },
   consolidated: { title:'Consolidado',         mount: mountConsolidated,needsCourse:true },
 };
 
