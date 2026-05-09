@@ -89,7 +89,7 @@
         <template x-if="$store.app.activeCourse">
           <span>📘 <b x-text="$store.app.activeCourse.name"></b></span>
         </template>
-        <span class="badge-plan" x-text="$store.app.plan"></span>
+        <span class="badge-plan" @click="$store.app.openPlan()" x-text="$store.app.plan" style="cursor:pointer" title="Click para ver tu plan y opciones de upgrade"></span>
       </div>
     </header>
     <div class="content">
@@ -123,7 +123,7 @@
   onerror="showBootErr('No cargó XLSX desde CDN.')"></script>
 
 <!-- Mi módulo principal — importa Alpine ESM y arranca todo controladamente -->
-<script type="module" src="js/main.js?v=20260509s"></script>
+<script type="module" src="js/main.js?v=20260509t"></script>
 
 </body>
 </html>

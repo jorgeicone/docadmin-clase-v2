@@ -14,6 +14,7 @@ import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=202605
 import { mountSustentacion } from './sustentacion.js?v=20260509s';
 import { mountChat } from './chat.js?v=20260509s';
 import { mountSyllabus } from './syllabus.js?v=20260509s';
+import { openPlanModal, checkPaymentSuccess } from './plan.js?v=20260509t';
 
 const VIEWS = {
   courses:      { title:'Mis cursos',          mount: mountCourses },
@@ -82,6 +83,11 @@ Alpine.store('app', {
     this.activeCourse = null;
     toast('Sesión cerrada');
   },
+
+  openPlan(){
+    if (!this.user) return;
+    openPlanModal(this.user);
+  },
 });
 
 // 2. Definir factories globales (loginForm) que las plantillas referencian
@@ -113,7 +119,11 @@ Alpine.start();
 Alpine.store('app').init().then(() => {
   // Quitar pantalla de carga
   document.getElementById('boot-fallback')?.remove();
-  if (Alpine.store('app').user) Alpine.store('app').renderView();
+  if (Alpine.store('app').user){
+    Alpine.store('app').renderView();
+    // Detectar regreso desde Wompi
+    checkPaymentSuccess(Alpine.store('app'));
+  }
 }).catch(err => {
   document.getElementById('boot-msg').textContent = 'Error al iniciar';
   const box = document.getElementById('boot-err');
