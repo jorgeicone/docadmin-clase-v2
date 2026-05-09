@@ -42,19 +42,27 @@ async function renderList(courseId){
   list.innerHTML = `
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>#</th><th>Cédula</th><th>Nombre</th><th>Email</th><th class="num">Acciones</th></tr></thead>
+        <thead><tr><th>#</th><th>Cédula</th><th>Nombre y datos extra</th><th>Email</th><th class="num">Acciones</th></tr></thead>
         <tbody>
-          ${data.map((s,i)=>`
+          ${data.map((s,i)=>{
+            const meta = s.metadata && typeof s.metadata === 'object' ? s.metadata : {};
+            const metaKeys = Object.keys(meta).filter(k => meta[k] !== '' && meta[k] !== null);
+            return `
             <tr>
-              <td class="num">${i+1}</td>
-              <td><code>${escape(s.cedula)}</code></td>
-              <td><b>${escape(s.name)}</b></td>
-              <td>${escape(s.email||'—')}</td>
-              <td class="num">
+              <td class="num" style="vertical-align:top">${i+1}</td>
+              <td style="vertical-align:top"><code>${escape(s.cedula)}</code></td>
+              <td>
+                <b>${escape(s.name)}</b>
+                ${metaKeys.length ? `<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">
+                  ${metaKeys.map(k=>`<span class="chip" title="${escapeAttr(k)}" style="font-size:10px;padding:2px 6px"><b>${escape(k)}:</b> ${escape(String(meta[k]).substring(0,40))}</span>`).join('')}
+                </div>`:''}
+              </td>
+              <td style="vertical-align:top">${escape(s.email||'—')}</td>
+              <td class="num" style="vertical-align:top">
                 <button class="btn btn-xs btn-out" data-edit="${s.id}">✏️</button>
                 <button class="btn btn-xs btn-danger" data-del="${s.id}">🗑</button>
               </td>
-            </tr>`).join('')}
+            </tr>`}).join('')}
         </tbody>
       </table>
     </div>
@@ -146,49 +154,160 @@ function openImportModal(courseId, onDone){
   };
   fileInput.onchange = () => fileInput.files[0] && handleFile(fileInput.files[0]);
 
+  let rawRows = null, rawKeys = null;
+
   async function handleFile(f){
     const buf = await f.arrayBuffer();
     const wb = XLSX.read(buf, { type: 'array' });
     const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-    if (!rows.length){ toast('El archivo está vacío','error'); return; }
+    rawRows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+    if (!rawRows.length){ toast('El archivo está vacío','error'); return; }
+    rawKeys = Object.keys(rawRows[0]);
 
-    // Detectar columnas: cédula y nombre con tolerancia
-    const sample = rows[0];
-    const keys = Object.keys(sample);
-    const cedKey = keys.find(k => /c[ée]dula|documento|^id$|identificaci/i.test(k));
-    const nomKey = keys.find(k => /nombre|estudiante|alumno|apellido/i.test(k));
-    const emailKey = keys.find(k => /correo|email|e-mail/i.test(k));
+    // Auto-detect con regex amplio (cubre formatos universitarios)
+    const guess = guessColumns(rawKeys);
+    renderColumnPicker(guess);
+    refreshPreview();
+  }
+
+  function guessColumns(keys){
+    const norm = s => s.toLowerCase().replace(/[áéíóúñ]/g,c=>({á:'a',é:'e',í:'i',ó:'o',ú:'u',ñ:'n'}[c])).replace(/[°º.]/g,'').trim();
+    const find = patterns => keys.find(k => patterns.some(p => p.test(norm(k))));
+    return {
+      cedula: find([/^n.?\s*matricul/, /^matricul/, /\bcedula\b/, /\bdocumento\b/, /^numero\s*id$/, /\bid\s*(estudiante|alumno)/, /^id$/, /identificaci/]),
+      nombre: find([/^estudiante$/, /^alumno$/, /\bnombre.*estudiante/, /\bnombre.*completo/, /\bapellidos.*nombres/, /^nombre$/]),
+      email:  find([/email.*estudiante/, /correo.*estudiante/, /^email$/, /^correo$/, /correo.*electr/, /e-?mail/]),
+    };
+  }
+
+  function renderColumnPicker(guess){
+    const opts = ['<option value="">— Selecciona —</option>', ...rawKeys.map(k => `<option value="${escapeAttr(k)}">${escape(k)}</option>`)];
+    const optsOpt = ['<option value="">(ninguna)</option>', ...rawKeys.map(k => `<option value="${escapeAttr(k)}">${escape(k)}</option>`)];
+    const usedKeys = [guess.cedula, guess.nombre, guess.email].filter(Boolean);
+    const extras = rawKeys.filter(k => !usedKeys.includes(k));
+
+    document.getElementById('preview-area').innerHTML = `
+      <div class="card-row" style="background:#FFF8E1;padding:12px;border-radius:8px;margin-bottom:12px;flex-direction:column;align-items:stretch;gap:10px">
+        <div style="font-size:12px;color:#E65100"><b>Mapea las columnas:</b> ${guess.cedula||guess.nombre?'detecté algunas, ajusta si hace falta.':'no detecté ninguna automáticamente — selecciónalas manualmente.'}</div>
+        <div class="grid-3">
+          <div class="field" style="margin:0">
+            <label>Columna de cédula *</label>
+            <select id="map-ced">${opts.map(o => o.includes(`value="${escapeAttr(guess.cedula||'')}"`) && guess.cedula ? o.replace('<option','<option selected') : o).join('')}</select>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Columna de nombre *</label>
+            <select id="map-nom">${opts.map(o => o.includes(`value="${escapeAttr(guess.nombre||'')}"`) && guess.nombre ? o.replace('<option','<option selected') : o).join('')}</select>
+          </div>
+          <div class="field" style="margin:0">
+            <label>Columna de email (opcional)</label>
+            <select id="map-email">${optsOpt.map(o => o.includes(`value="${escapeAttr(guess.email||'')}"`) && guess.email ? o.replace('<option','<option selected') : o).join('')}</select>
+          </div>
+        </div>
+      </div>
+
+      <details style="background:#F0F4F8;padding:10px 12px;border-radius:8px;margin-bottom:12px">
+        <summary style="cursor:pointer;font-size:13px;font-weight:600;color:var(--ean-blue)">
+          📦 Incluir más columnas como datos extra (opcional) — ${extras.length} disponibles
+        </summary>
+        <div style="margin-top:10px;font-size:12px;color:var(--ean-gray)">
+          Estas columnas se guardan en cada estudiante. Útil para programa, plan, campus, horario, etc.
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;margin-top:10px" id="extras-grid">
+          ${extras.map(k => `
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;background:#fff;padding:6px 10px;border-radius:6px;border:1px solid var(--ean-border);cursor:pointer">
+              <input type="checkbox" class="extra-cb" value="${escapeAttr(k)}" style="width:14px;height:14px"> ${escape(k)}
+            </label>
+          `).join('')}
+        </div>
+        <div style="margin-top:8px;display:flex;gap:6px">
+          <button type="button" class="btn btn-xs btn-out" id="extras-all">Marcar todas</button>
+          <button type="button" class="btn btn-xs btn-out" id="extras-none">Ninguna</button>
+        </div>
+      </details>
+
+      <div id="preview-table"></div>
+    `;
+    document.getElementById('map-ced').onchange = refreshPreview;
+    document.getElementById('map-nom').onchange = refreshPreview;
+    document.getElementById('map-email').onchange = refreshPreview;
+    document.querySelectorAll('.extra-cb').forEach(cb => cb.onchange = refreshPreview);
+    document.getElementById('extras-all').onclick = () => {
+      document.querySelectorAll('.extra-cb').forEach(cb => cb.checked = true);
+      refreshPreview();
+    };
+    document.getElementById('extras-none').onclick = () => {
+      document.querySelectorAll('.extra-cb').forEach(cb => cb.checked = false);
+      refreshPreview();
+    };
+  }
+
+  function refreshPreview(){
+    const cedKey   = document.getElementById('map-ced').value;
+    const nomKey   = document.getElementById('map-nom').value;
+    const emailKey = document.getElementById('map-email').value;
+    const tbl = document.getElementById('preview-table');
+    const importBtn = document.getElementById('m-import');
 
     if (!cedKey || !nomKey){
-      document.getElementById('preview-area').innerHTML = `
-        <div class="login-error">No detecté las columnas. Encontré: ${keys.map(k=>'<code>'+escape(k)+'</code>').join(', ')}.<br>
-        Asegúrate de tener al menos columnas de cédula y nombre.</div>`;
+      parsed = null;
+      importBtn.disabled = true;
+      tbl.innerHTML = `<p class="empty-state">Selecciona las columnas de cédula y nombre para continuar.</p>`;
       return;
     }
 
-    parsed = rows.map(r => ({
-      cedula: String(r[cedKey]).trim(),
-      name:   String(r[nomKey]).trim(),
-      email:  emailKey ? String(r[emailKey]||'').trim() || null : null,
-    })).filter(s => s.cedula && s.name);
+    const extraKeys = [...document.querySelectorAll('.extra-cb:checked')].map(cb => cb.value);
 
-    document.getElementById('preview-area').innerHTML = `
+    const all = rawRows.map(r => {
+      const meta = {};
+      extraKeys.forEach(k => {
+        const v = r[k];
+        if (v !== '' && v !== null && v !== undefined) meta[k] = typeof v === 'string' ? v.trim() : v;
+      });
+      return {
+        cedula: String(r[cedKey]||'').trim(),
+        name:   String(r[nomKey]||'').trim(),
+        email:  emailKey ? (String(r[emailKey]||'').trim() || null) : null,
+        metadata: meta,
+      };
+    }).filter(s => s.cedula && s.name);
+
+    // Deduplicar por cédula (Excel suele tener al estudiante en varias listas/secciones)
+    const seen = new Set();
+    parsed = all.filter(s => seen.has(s.cedula) ? false : (seen.add(s.cedula), true));
+    const dupCount = all.length - parsed.length;
+
+    if (!parsed.length){
+      tbl.innerHTML = `<p class="empty-state" style="color:var(--red)">No quedaron filas válidas con esas columnas.</p>`;
+      importBtn.disabled = true;
+      return;
+    }
+
+    const extraColCount = extraKeys.length;
+    tbl.innerHTML = `
       <div class="preview-header">
-        <span><b>${parsed.length}</b> estudiantes detectados</span>
-        <span style="font-size:11px;color:var(--ean-gray)">Cédula: <b>${escape(cedKey)}</b> · Nombre: <b>${escape(nomKey)}</b>${emailKey?' · Email: <b>'+escape(emailKey)+'</b>':''}</span>
+        <span><b>${parsed.length}</b> estudiantes únicos listos para importar
+          ${extraColCount>0?`<span class="chip chip-cyan" style="margin-left:6px">+${extraColCount} columna${extraColCount===1?'':'s'} extra</span>`:''}
+        </span>
+        ${dupCount>0?`<span style="font-size:11px;color:var(--ean-gray)">🔁 <b>${dupCount}</b> duplicado${dupCount===1?'':'s'} eliminado${dupCount===1?'':'s'}</span>`:''}
       </div>
       <div class="tbl-wrap" style="max-height:300px">
         <table>
-          <thead><tr><th>#</th><th>Cédula</th><th>Nombre</th><th>Email</th></tr></thead>
+          <thead><tr><th>#</th><th>Cédula</th><th>Nombre</th><th>Email</th>${extraKeys.map(k=>`<th>${escape(k)}</th>`).join('')}</tr></thead>
           <tbody>
-            ${parsed.slice(0,15).map((s,i)=>`<tr><td class="num">${i+1}</td><td><code>${escape(s.cedula)}</code></td><td>${escape(s.name)}</td><td>${escape(s.email||'—')}</td></tr>`).join('')}
-            ${parsed.length>15?`<tr><td colspan="4" style="text-align:center;font-style:italic;color:var(--ean-gray)">… ${parsed.length-15} más</td></tr>`:''}
+            ${parsed.slice(0,15).map((s,i)=>`
+              <tr>
+                <td class="num">${i+1}</td>
+                <td><code>${escape(s.cedula)}</code></td>
+                <td>${escape(s.name)}</td>
+                <td>${escape(s.email||'—')}</td>
+                ${extraKeys.map(k=>`<td>${escape(String(s.metadata?.[k]??'—'))}</td>`).join('')}
+              </tr>`).join('')}
+            ${parsed.length>15?`<tr><td colspan="${4+extraKeys.length}" style="text-align:center;font-style:italic;color:var(--ean-gray)">… ${parsed.length-15} más</td></tr>`:''}
           </tbody>
         </table>
       </div>
     `;
-    document.getElementById('m-import').disabled = false;
+    importBtn.disabled = false;
   }
 
   document.getElementById('m-cancel').onclick = () => host.innerHTML='';
