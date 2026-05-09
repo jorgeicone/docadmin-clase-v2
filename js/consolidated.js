@@ -56,9 +56,10 @@ function gradeFor(activityId, studentId){
 
 function calcAccumulated(studentId){
   // Acumulativa = suma de:
-  //   • Actividades CON peso: (nota/max) × peso%
-  //   • Actividades SIN peso: la nota tal cual (puntos extra/adicionales)
-  // El "máximo posible" suma los pesos calificados + los max_points de las extras calificadas
+  //   • Actividades CON peso: (nota/max) × peso%   (cuentan al divisor)
+  //   • Actividades SIN peso: la nota tal cual     (suman como EXTRA, NO al divisor)
+  // Resultado: el divisor solo refleja los pesos obligatorios calificados;
+  // los extras pueden empujar la nota POR ENCIMA del máximo.
   let acumulado = 0, maxPosible = 0;
   activities.forEach(a => {
     const g = gradeFor(a.id, studentId);
@@ -67,9 +68,8 @@ function calcAccumulated(studentId){
       acumulado += (g.value / a.max_points) * a.weight;
       maxPosible += a.weight;
     } else {
-      // Puntos adicionales/extra
-      acumulado += g.value;
-      maxPosible += a.max_points;
+      acumulado += g.value;          // suma como extra
+      // maxPosible NO se incrementa — los extras no cuentan al divisor
     }
   });
   return { acumulado, maxPosible };
@@ -144,10 +144,9 @@ function render(){
       </table>
     </div>
     <div style="font-size:11px;color:var(--ean-gray);margin-top:8px">
-      💡 <b>Acumulado</b> = suma de:
-      <b>(a)</b> actividades CON peso → contribuyen <code>(nota/max) × peso%</code> (ej: 18/20 con 20% aporta 18) ·
-      <b>(b)</b> actividades SIN peso → suman como <b>puntos extra</b> tal cual (ej: 2/2 aporta 2).
-      Pasa el mouse sobre cada nota para ver el desglose.
+      💡 <b>Acumulado X / Y</b>: <b>Y</b> = suma de los pesos calificados (solo obligatorias) ·
+      <b>X</b> = aportes ponderados <i>+ puntos extras</i> (los extras pueden empujar X por encima de Y).
+      Ejemplo: nota 19/20 con peso 20% (=19) + 2 puntos extras = <b>21 / 20</b>.
     </div>
   `;
 }

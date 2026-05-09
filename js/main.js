@@ -1,14 +1,14 @@
 // Bootstrap principal — importa Alpine, registra store, arranca controladamente
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
-// v=20260509h — bumpear este sufijo si se cambian los módulos para invalidar caché
-import { supabase, currentUser } from './supabase-client.js?v=20260509h';
-import { toast } from './toast.js?v=20260509h';
-import { mountCourses } from './courses.js?v=20260509h';
-import { mountStudents } from './students.js?v=20260509h';
-import { mountGroups } from './groups.js?v=20260509h';
-import { mountActivities } from './activities.js?v=20260509h';
-import { mountIngest } from './ingest.js?v=20260509h';
-import { mountConsolidated } from './consolidated.js?v=20260509h';
+// v=20260509i — bumpear este sufijo si se cambian los módulos para invalidar caché
+import { supabase, currentUser } from './supabase-client.js?v=20260509i';
+import { toast } from './toast.js?v=20260509i';
+import { mountCourses } from './courses.js?v=20260509i';
+import { mountStudents } from './students.js?v=20260509i';
+import { mountGroups } from './groups.js?v=20260509i';
+import { mountActivities } from './activities.js?v=20260509i';
+import { mountIngest } from './ingest.js?v=20260509i';
+import { mountConsolidated } from './consolidated.js?v=20260509i';
 
 const VIEWS = {
   courses:      { title:'Mis cursos',          mount: mountCourses },
