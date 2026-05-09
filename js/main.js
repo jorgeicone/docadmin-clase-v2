@@ -1,17 +1,18 @@
 // Bootstrap principal — importa Alpine, registra store, arranca controladamente
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
-// v=20260509l — bumpear este sufijo si se cambian los módulos para invalidar caché
-import { supabase, currentUser } from './supabase-client.js?v=20260509l';
-import { toast } from './toast.js?v=20260509l';
-import { mountCourses } from './courses.js?v=20260509l';
-import { mountStudents } from './students.js?v=20260509l';
-import { mountGroups } from './groups.js?v=20260509l';
-import { mountActivities } from './activities.js?v=20260509l';
-import { mountIngest } from './ingest.js?v=20260509l';
-import { mountConsolidated } from './consolidated.js?v=20260509l';
-import { mountAsistencia } from './asistencia.js?v=20260509l';
-import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260509l';
-import { mountSustentacion } from './sustentacion.js?v=20260509l';
+// v=20260509m — bumpear este sufijo si se cambian los módulos para invalidar caché
+import { supabase, currentUser } from './supabase-client.js?v=20260509m';
+import { toast } from './toast.js?v=20260509m';
+import { mountCourses } from './courses.js?v=20260509m';
+import { mountStudents } from './students.js?v=20260509m';
+import { mountGroups } from './groups.js?v=20260509m';
+import { mountActivities } from './activities.js?v=20260509m';
+import { mountIngest } from './ingest.js?v=20260509m';
+import { mountConsolidated } from './consolidated.js?v=20260509m';
+import { mountAsistencia } from './asistencia.js?v=20260509m';
+import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260509m';
+import { mountSustentacion } from './sustentacion.js?v=20260509m';
+import { mountChat } from './chat.js?v=20260509m';
 
 const VIEWS = {
   courses:      { title:'Mis cursos',          mount: mountCourses },
@@ -23,6 +24,7 @@ const VIEWS = {
   sustentacion: { title:'Sustentación',        mount: mountSustentacion,needsCourse:true },
   conAsistencia:{ title:'Consolidado Asistencia',mount: mountConsolidadoAsistencia, needsCourse:true },
   consolidated: { title:'Consolidado',         mount: mountConsolidated,needsCourse:true },
+  chat:         { title:'AI Chat',             mount: mountChat,        needsCourse:true },
 };
 
 // 1. Registrar store ANTES de arrancar Alpine
