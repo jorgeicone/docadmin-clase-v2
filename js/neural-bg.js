@@ -53,7 +53,7 @@
       if (p.y < 0 || p.y > h) p.vy *= -1;
       ctx.beginPath();
       ctx.arc(p.x, p.y, CONFIG.radius, 0, Math.PI * 2);
-      ctx.fillStyle = p.color + '0.55)';
+      ctx.fillStyle = p.color + '0.75)';
       ctx.fill();
     });
 
@@ -64,12 +64,12 @@
         const dx = a.x - b.x, dy = a.y - b.y;
         const d = Math.sqrt(dx*dx + dy*dy);
         if (d < CONFIG.maxDistance){
-          const alpha = (1 - d / CONFIG.maxDistance) * 0.32;
+          const alpha = (1 - d / CONFIG.maxDistance) * 0.50;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
           ctx.strokeStyle = a.color + alpha + ')';
-          ctx.lineWidth = 0.6;
+          ctx.lineWidth = 0.8;
           ctx.stroke();
         }
       }
