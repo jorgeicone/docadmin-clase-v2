@@ -34,10 +34,10 @@ html,body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,"Segoe UI
   -webkit-font-smoothing:antialiased}
 body{min-height:100vh;position:relative}
 
-/* Canvas de partículas (red neuronal sutil — casi imperceptible) */
+/* Canvas de partículas (red neuronal de fondo) */
 #neural-bg{
   position:fixed;inset:0;z-index:0;pointer-events:none;
-  opacity:.22;
+  opacity:.45;
 }
 .app, .login-bg{ position:relative; z-index:1; }
 
