@@ -5,14 +5,29 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>ICONE.DocAdmin v5</title>
 <link rel="stylesheet" href="css/main.css">
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script type="module" src="js/main.js"></script>
+<style>
+  #boot-fallback{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#1B2745,#3055A6);color:#fff;flex-direction:column;gap:12px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;z-index:99999}
+  #boot-fallback .spinner{width:42px;height:42px;border:3px solid rgba(255,255,255,.2);
+    border-top-color:#00B7C6;border-radius:50%;animation:spin .9s linear infinite}
+  #boot-fallback h1{font-size:18px;font-weight:700}
+  #boot-fallback .err{background:#C62828;color:#fff;padding:10px 14px;border-radius:8px;
+    font-size:12px;max-width:520px;text-align:left;white-space:pre-wrap;font-family:monospace}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
 </head>
 <body>
 
+<div id="boot-fallback">
+  <div class="spinner"></div>
+  <h1>📚 ICONE.DocAdmin v5</h1>
+  <div style="font-size:12px;opacity:.85" id="boot-msg">Cargando módulos…</div>
+  <div id="boot-err" class="err" style="display:none"></div>
+</div>
+
 <!-- ───────────── LOGIN SCREEN ───────────── -->
-<div x-data x-show="!$store.app.user" x-cloak class="login-bg">
+<div x-data x-show="$store.app.user===null" x-cloak class="login-bg">
   <div class="login-card" x-data="loginForm()">
     <h1>📚 ICONE.DocAdmin</h1>
     <div class="sub">Gestión docente con IA · v5</div>
@@ -39,16 +54,12 @@
 
 <!-- ───────────── APP MAIN ───────────── -->
 <div x-data x-show="$store.app.user" x-cloak class="app">
-
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-brand">📚 ICONE.DocAdmin <span style="opacity:.5;font-weight:400">v5</span></div>
-
     <div class="sidebar-section">Cursos</div>
     <nav>
       <button :class="{active:$store.app.view==='courses'}" @click="$store.app.go('courses')">📋 Mis cursos</button>
     </nav>
-
     <template x-if="$store.app.activeCourse">
       <div>
         <div class="sidebar-section" x-text="$store.app.activeCourse.name"></div>
@@ -61,14 +72,11 @@
         </nav>
       </div>
     </template>
-
     <div style="padding:14px 18px;font-size:11px;color:rgba(255,255,255,.5);border-top:1px solid rgba(255,255,255,.08);margin-top:auto">
       <div x-text="$store.app.user?.email" style="margin-bottom:6px;word-break:break-all"></div>
       <a href="#" @click.prevent="$store.app.signOut()" style="color:rgba(255,255,255,.7)">Cerrar sesión →</a>
     </div>
   </aside>
-
-  <!-- MAIN AREA -->
   <main class="main">
     <header class="topbar">
       <div class="topbar-title" x-text="$store.app.viewTitle()"></div>
@@ -79,13 +87,38 @@
         <span class="badge-plan" x-text="$store.app.plan"></span>
       </div>
     </header>
-
     <div class="content">
-      <!-- View slot — cada módulo monta aquí -->
       <div id="view-root"></div>
     </div>
   </main>
 </div>
+
+<!-- Captura errores y los muestra -->
+<script>
+  function showBootErr(msg){
+    const box = document.getElementById('boot-err');
+    if (!box) return;
+    box.style.display = 'block';
+    box.textContent = '❌ ' + msg;
+  }
+  window.addEventListener('error', e => {
+    showBootErr((e.message||'Error') + (e.filename?'\n@ '+e.filename.split('/').pop()+':'+e.lineno:''));
+  });
+  window.addEventListener('unhandledrejection', e => {
+    showBootErr('Promise: ' + (e.reason?.message || e.reason || 'unknown'));
+  });
+</script>
+
+<!-- Supabase UMD (global window.supabase) — más confiable que ESM -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js" crossorigin="anonymous"
+  onerror="showBootErr('No cargó Supabase desde CDN. ¿Sin internet?')"></script>
+
+<!-- XLSX (global window.XLSX) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" crossorigin="anonymous"
+  onerror="showBootErr('No cargó XLSX desde CDN.')"></script>
+
+<!-- Mi módulo principal — importa Alpine ESM y arranca todo controladamente -->
+<script type="module" src="js/main.js"></script>
 
 </body>
 </html>

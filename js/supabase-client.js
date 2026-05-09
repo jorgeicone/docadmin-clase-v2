@@ -1,7 +1,11 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+// Usa el global window.supabase del UMD cargado en index.html
 import { SUPABASE_URL, SUPABASE_ANON } from './config.js';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
+if (!window.supabase || !window.supabase.createClient){
+  throw new Error('Supabase UMD no se cargó. Verifica conexión a internet.');
+}
+
+export const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
 });
 
