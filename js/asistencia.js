@@ -23,7 +23,10 @@ export async function mountAsistencia(root, store){
       <div class="card" style="position:sticky;top:0">
         <div class="card-row" style="justify-content:space-between;margin-bottom:8px">
           <h3 style="margin:0">📅 Sesiones</h3>
-          <button class="btn btn-xs btn-cyan" id="a-new">＋ Nueva</button>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-xs btn-out" id="a-import" title="Importar desde JSON (v4 dashboard)">📥</button>
+            <button class="btn btn-xs btn-cyan" id="a-new">＋ Nueva</button>
+          </div>
         </div>
         <div id="a-sessions-list" style="max-height:60vh;overflow-y:auto">
           <p class="empty-state">Cargando…</p>
@@ -61,6 +64,7 @@ export async function mountAsistencia(root, store){
 
   // Wire-up
   document.getElementById('a-new').onclick = newSession;
+  document.getElementById('a-import').onclick = openImportModal;
   document.getElementById('a-save').onclick = saveSession;
   document.getElementById('a-all-p').onclick = () => markAll('P');
   document.getElementById('a-all-t').onclick = () => markAll('T');
@@ -301,6 +305,144 @@ function renderTable(){
     if (!currentRecords[sid]) currentRecords[sid] = { status:'', obs:'' };
     currentRecords[sid].obs = inp.value;
   });
+}
+
+// ───── IMPORTAR DESDE V4 (JSON dashboard) ─────
+function openImportModal(){
+  let host = document.getElementById('a-import-host');
+  if (!host){ host = document.createElement('div'); host.id='a-import-host'; document.body.appendChild(host); }
+  host.innerHTML = `
+    <div class="modal-bg">
+      <div class="modal" style="max-width:720px">
+        <h2>📥 Importar sesiones de asistencia desde JSON</h2>
+        <p style="font-size:12px;color:var(--ean-gray);margin-bottom:10px">
+          Pega el JSON exportado de tu dashboard v4. Formato esperado: <code>{"sessions":{"2026-03-10":{"date":"...","week":"...","topic":"...","records":{"cedula":{"status":"P","obs":""}}}}}</code>
+        </p>
+        <textarea id="imp-json" rows="10" placeholder='Pega aquí el JSON…' style="width:100%;font-family:monospace;font-size:11px;border:1px solid var(--ean-border);border-radius:6px;padding:8px;resize:vertical"></textarea>
+        <div id="imp-preview" style="margin-top:10px"></div>
+        <div class="modal-actions">
+          <button class="btn btn-out" id="imp-cancel">Cancelar</button>
+          <button class="btn btn-out" id="imp-analyze">🔍 Analizar</button>
+          <button class="btn btn-cyan" id="imp-go" disabled>📥 Importar</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  let parsed = null;
+
+  document.getElementById('imp-cancel').onclick = () => host.innerHTML='';
+
+  document.getElementById('imp-analyze').onclick = () => {
+    const txt = document.getElementById('imp-json').value.trim();
+    if (!txt){ toast('Pega el JSON primero','error'); return; }
+
+    try {
+      const raw = JSON.parse(txt);
+      // Aceptar tanto {sessions:{...}} como directamente {fecha:{...}}
+      const sessionsMap = raw.sessions || raw;
+
+      const list = Object.entries(sessionsMap).map(([date, s]) => ({
+        date: s.date || date,
+        week: s.week || '',
+        topic: s.topic || '',
+        records: s.records || {},
+      }));
+
+      // Mapear cédulas a students
+      const cedToStu = new Map();
+      students.forEach(s => cedToStu.set(s.cedula, s));
+
+      let totalRecords = 0, matched = 0, unmatched = new Set();
+      list.forEach(s => {
+        Object.entries(s.records).forEach(([ced, rec]) => {
+          if (!rec?.status) return;
+          totalRecords++;
+          if (cedToStu.has(ced)) matched++;
+          else unmatched.add(ced);
+        });
+      });
+
+      parsed = list;
+
+      const preview = document.getElementById('imp-preview');
+      preview.innerHTML = `
+        <div class="preview-header" style="flex-direction:column;align-items:stretch;gap:8px">
+          <div><b>${list.length}</b> sesiones detectadas · <b>${totalRecords}</b> marcas P/T/A · <b>${matched}</b> coinciden con tus estudiantes${unmatched.size?` · <b style="color:var(--red)">${unmatched.size}</b> cédulas no encontradas`:''}</div>
+          ${unmatched.size ? `<div style="font-size:11px;color:var(--ean-gray)">Cédulas sin match (se ignoran): ${[...unmatched].slice(0,8).map(c=>`<code>${escape(c)}</code>`).join(' ')}${unmatched.size>8?` … +${unmatched.size-8}`:''}</div>` : ''}
+        </div>
+        <div class="tbl-wrap" style="max-height:240px">
+          <table><thead><tr><th>Fecha</th><th>Semana</th><th>Tema</th><th class="num">P</th><th class="num">T</th><th class="num">A</th></tr></thead><tbody>
+            ${list.map(s => {
+              const recs = Object.values(s.records);
+              const p = recs.filter(r=>r?.status==='P').length;
+              const t = recs.filter(r=>r?.status==='T').length;
+              const a = recs.filter(r=>r?.status==='A').length;
+              return `<tr><td><b>${escape(s.date)}</b></td><td>${escape(s.week)}</td><td style="font-size:11px">${escape(s.topic.substring(0,50))}</td><td class="num"><span class="chip chip-green" style="font-size:10px">${p}</span></td><td class="num"><span class="chip chip-yellow" style="font-size:10px">${t}</span></td><td class="num"><span class="chip chip-red" style="font-size:10px">${a}</span></td></tr>`;
+            }).join('')}
+          </tbody></table>
+        </div>
+      `;
+      document.getElementById('imp-go').disabled = !list.length || !matched;
+    } catch(e){
+      document.getElementById('imp-preview').innerHTML = `<div class="login-error">JSON inválido: ${escape(e.message)}</div>`;
+      parsed = null;
+      document.getElementById('imp-go').disabled = true;
+    }
+  };
+
+  document.getElementById('imp-go').onclick = async () => {
+    if (!parsed?.length) return;
+    const btn = document.getElementById('imp-go');
+    btn.disabled = true; btn.textContent = 'Importando…';
+
+    const cedToStu = new Map();
+    students.forEach(s => cedToStu.set(s.cedula, s));
+
+    let createdSessions = 0, createdGrades = 0, errors = 0;
+
+    for (const s of parsed){
+      // Crear actividad
+      const actPayload = {
+        course_id: courseId,
+        type: 'attendance',
+        name: `Asistencia ${s.date}${s.week?' · '+s.week:''}`,
+        date: s.date,
+        topic: s.week && s.topic ? `${s.week} | ${s.topic}` : (s.topic || s.week || null),
+        max_points: 1,
+      };
+      const { data: act, error: e1 } = await supabase.from('v5_activities').insert(actPayload).select().single();
+      if (e1){ errors++; continue; }
+      createdSessions++;
+
+      // Crear grades
+      const rows = [];
+      Object.entries(s.records).forEach(([ced, rec]) => {
+        if (!rec?.status) return;
+        const stu = cedToStu.get(ced);
+        if (!stu) return; // no match, skip
+        rows.push({
+          activity_id: act.id,
+          student_id: stu.id,
+          status: rec.status,
+          observation: rec.obs || null,
+          value: rec.status === 'P' ? 1 : (rec.status === 'T' ? 0.5 : 0),
+          source: 'manual',
+        });
+      });
+      if (rows.length){
+        const { error: e2 } = await supabase.from('v5_grades').upsert(rows, { onConflict: 'activity_id,student_id' });
+        if (e2) errors++;
+        else createdGrades += rows.length;
+      }
+    }
+
+    toast(`✅ ${createdSessions} sesiones · ${createdGrades} marcas importadas${errors?` · ${errors} errores`:''}`,'success');
+    host.innerHTML = '';
+    await loadAll();
+    renderSessionsList();
+    renderTable();
+  };
 }
 
 const escape = s => String(s||'').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
