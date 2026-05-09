@@ -72,6 +72,7 @@
           <button :class="{active:$store.app.view==='sustentacion'}" @click="$store.app.go('sustentacion')">🏆 Sustentación</button>
           <button :class="{active:$store.app.view==='conAsistencia'}" @click="$store.app.go('conAsistencia')">📋 Consolidado Asistencia</button>
           <button :class="{active:$store.app.view==='consolidated'}" @click="$store.app.go('consolidated')">📊 Consolidado Notas</button>
+          <button :class="{active:$store.app.view==='syllabus'}" @click="$store.app.go('syllabus')">📅 Plan del semestre</button>
           <button :class="{active:$store.app.view==='chat'}" @click="$store.app.go('chat')">💬 AI Chat</button>
         </nav>
       </div>
@@ -122,7 +123,7 @@
   onerror="showBootErr('No cargó XLSX desde CDN.')"></script>
 
 <!-- Mi módulo principal — importa Alpine ESM y arranca todo controladamente -->
-<script type="module" src="js/main.js?v=20260509m"></script>
+<script type="module" src="js/main.js?v=20260509n"></script>
 
 </body>
 </html>

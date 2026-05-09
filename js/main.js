@@ -1,18 +1,19 @@
 // Bootstrap principal — importa Alpine, registra store, arranca controladamente
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
-// v=20260509m — bumpear este sufijo si se cambian los módulos para invalidar caché
-import { supabase, currentUser } from './supabase-client.js?v=20260509m';
-import { toast } from './toast.js?v=20260509m';
-import { mountCourses } from './courses.js?v=20260509m';
-import { mountStudents } from './students.js?v=20260509m';
-import { mountGroups } from './groups.js?v=20260509m';
-import { mountActivities } from './activities.js?v=20260509m';
-import { mountIngest } from './ingest.js?v=20260509m';
-import { mountConsolidated } from './consolidated.js?v=20260509m';
-import { mountAsistencia } from './asistencia.js?v=20260509m';
-import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260509m';
-import { mountSustentacion } from './sustentacion.js?v=20260509m';
-import { mountChat } from './chat.js?v=20260509m';
+// v=20260509n — bumpear este sufijo si se cambian los módulos para invalidar caché
+import { supabase, currentUser } from './supabase-client.js?v=20260509n';
+import { toast } from './toast.js?v=20260509n';
+import { mountCourses } from './courses.js?v=20260509n';
+import { mountStudents } from './students.js?v=20260509n';
+import { mountGroups } from './groups.js?v=20260509n';
+import { mountActivities } from './activities.js?v=20260509n';
+import { mountIngest } from './ingest.js?v=20260509n';
+import { mountConsolidated } from './consolidated.js?v=20260509n';
+import { mountAsistencia } from './asistencia.js?v=20260509n';
+import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260509n';
+import { mountSustentacion } from './sustentacion.js?v=20260509n';
+import { mountChat } from './chat.js?v=20260509n';
+import { mountSyllabus } from './syllabus.js?v=20260509n';
 
 const VIEWS = {
   courses:      { title:'Mis cursos',          mount: mountCourses },
@@ -25,6 +26,7 @@ const VIEWS = {
   conAsistencia:{ title:'Consolidado Asistencia',mount: mountConsolidadoAsistencia, needsCourse:true },
   consolidated: { title:'Consolidado',         mount: mountConsolidated,needsCourse:true },
   chat:         { title:'AI Chat',             mount: mountChat,        needsCourse:true },
+  syllabus:     { title:'Plan del semestre',   mount: mountSyllabus,    needsCourse:true },
 };
 
 // 1. Registrar store ANTES de arrancar Alpine
