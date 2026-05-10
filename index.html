@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/main.css?v=20260510h">
+<link rel="stylesheet" href="css/main.css?v=20260510i">
 <style>
   #boot-fallback{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
     background:linear-gradient(135deg,#1B2745,#3055A6);color:#fff;flex-direction:column;gap:12px;
@@ -118,6 +118,23 @@
   </main>
 </div>
 
+<!-- Sugerencia rotar a horizontal — solo mobile portrait, dismiss persistente -->
+<div class="rotate-hint" x-data="{
+       show: window.matchMedia('(max-width:768px) and (orientation:portrait)').matches
+             && !localStorage.getItem('docadmin_rotate_dismissed'),
+       dismiss(){ this.show = false; localStorage.setItem('docadmin_rotate_dismissed','1'); }
+     }"
+     x-init="window.matchMedia('(orientation:landscape)').addEventListener('change', e => { if (e.matches) show = false });
+             window.matchMedia('(orientation:portrait)').addEventListener('change', e => { if (e.matches && !localStorage.getItem('docadmin_rotate_dismissed')) show = true })"
+     x-show="show" x-transition x-cloak>
+  <span class="rotate-icon">📱</span>
+  <div class="rotate-text">
+    <b>Mejor en horizontal</b>
+    <span>Gira tu celular para ver más contenido</span>
+  </div>
+  <button class="rotate-close" @click="dismiss()" aria-label="Cerrar sugerencia">✕</button>
+</div>
+
 <!-- Captura errores y los muestra -->
 <script>
   function showBootErr(msg){
@@ -143,10 +160,10 @@
   onerror="showBootErr('No cargó XLSX desde CDN.')"></script>
 
 <!-- Red neuronal sutil de fondo — defer (incluye guard mobile + reduced-motion internos) -->
-<script defer src="js/neural-bg.js?v=20260510h"></script>
+<script defer src="js/neural-bg.js?v=20260510i"></script>
 
 <!-- Mi módulo principal — type=module ya es defer-by-default -->
-<script type="module" src="js/main.js?v=20260510h"></script>
+<script type="module" src="js/main.js?v=20260510i"></script>
 
 </body>
 </html>
