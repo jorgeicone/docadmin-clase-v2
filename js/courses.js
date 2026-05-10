@@ -31,7 +31,10 @@ export async function mountCourses(root, store){
 
 async function renderList(store){
   const list = document.getElementById('course-list');
-  const u = await currentUser();
+  // P0.5 mobile fix: usar store.user (poblado por onAuthStateChange/getSession)
+  // en vez de currentUser() (=getUser, network call). En mobile lento esto colgaba
+  // la vista en "Cargando…" indefinidamente esperando /auth/v1/user.
+  const u = store.user;
   if (!u){ list.innerHTML = '<p class="empty-state">Sesión expirada.</p>'; return; }
 
   const { data, error } = await supabase.from('v5_courses').select('*').order('created_at',{ascending:false});
