@@ -144,10 +144,10 @@ export async function mountSyllabus(root, _store){
     </details>
 
     <!-- STEP 4: Plan editable -->
-    <div class="card" style="background:#E8F5E9;border-left:4px solid var(--green)" id="syl-plan-card" style="display:none">
-      <h3>4️⃣ Plan generado — revisa y guarda</h3>
+    <details class="card acc acc-section" id="syl-plan-card" style="background:#E8F5E9;border-left:4px solid var(--green);display:none">
+      <summary><h3>4️⃣ Plan generado — revisa y guarda</h3></summary>
       <div id="syl-plan-table"></div>
-    </div>
+    </details>
 
     <!-- Plan actual guardado — siempre visible, header sticky -->
     <div class="card" id="syl-saved-card">
@@ -606,8 +606,9 @@ function computeCandidateDates(startISO, endISO, perWeek){
 function renderPlan(){
   const card = document.getElementById('syl-plan-card');
   const div = document.getElementById('syl-plan-table');
-  if (!pendingPlan || !pendingPlan.length){ card.style.display='none'; return; }
+  if (!pendingPlan || !pendingPlan.length){ card.style.display='none'; card.open=false; return; }
   card.style.display='block';
+  card.open = true;  // abrir el acordeón automáticamente al generar plan
 
   div.innerHTML = `
     <div style="font-size:12px;color:var(--ean-gray);margin-bottom:8px">
@@ -649,7 +650,12 @@ function renderPlan(){
     pendingPlan.splice(+b.dataset.rm, 1);
     renderPlan();
   });
-  document.getElementById('plan-discard').onclick = () => { pendingPlan=null; document.getElementById('syl-plan-card').style.display='none'; };
+  document.getElementById('plan-discard').onclick = () => {
+    pendingPlan = null;
+    const c = document.getElementById('syl-plan-card');
+    c.style.display = 'none';
+    c.open = false;
+  };
   document.getElementById('plan-save').onclick = saveSessions;
 }
 
