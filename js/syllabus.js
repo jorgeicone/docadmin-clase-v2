@@ -149,11 +149,11 @@ export async function mountSyllabus(root, _store){
       <div id="syl-plan-table"></div>
     </details>
 
-    <!-- Plan actual guardado — siempre visible, header sticky -->
-    <div class="card" id="syl-saved-card">
-      <h3>📋 Plan actual del semestre</h3>
+    <!-- Plan actual guardado — acordeón abierto por defecto, header sticky en tabla -->
+    <details class="card acc acc-section" id="syl-saved-card" open>
+      <summary><h3>📋 Plan actual del semestre</h3></summary>
       <div id="syl-saved-table" style="margin-top:10px"></div>
-    </div>
+    </details>
   `;
 
   // Wire up

@@ -2,19 +2,19 @@
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
 // v=20260510e — bumpear este sufijo si se cambian los módulos para invalidar caché
 import { supabase, currentSession } from './supabase-client.js?v=20260510f';
-import { toast } from './toast.js?v=20260510m';
-import { mountCourses } from './courses.js?v=20260510m';
-import { mountStudents } from './students.js?v=20260510m';
-import { mountGroups } from './groups.js?v=20260510m';
-import { mountActivities } from './activities.js?v=20260510m';
-import { mountIngest } from './ingest.js?v=20260510m';
-import { mountConsolidated } from './consolidated.js?v=20260510m';
-import { mountAsistencia } from './asistencia.js?v=20260510m';
-import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260510m';
-import { mountSustentacion } from './sustentacion.js?v=20260510m';
-import { mountChat } from './chat.js?v=20260510m';
-import { mountSyllabus } from './syllabus.js?v=20260510m';
-import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260510m';
+import { toast } from './toast.js?v=20260510n';
+import { mountCourses } from './courses.js?v=20260510n';
+import { mountStudents } from './students.js?v=20260510n';
+import { mountGroups } from './groups.js?v=20260510n';
+import { mountActivities } from './activities.js?v=20260510n';
+import { mountIngest } from './ingest.js?v=20260510n';
+import { mountConsolidated } from './consolidated.js?v=20260510n';
+import { mountAsistencia } from './asistencia.js?v=20260510n';
+import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260510n';
+import { mountSustentacion } from './sustentacion.js?v=20260510n';
+import { mountChat } from './chat.js?v=20260510n';
+import { mountSyllabus } from './syllabus.js?v=20260510n';
+import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260510n';
 
 const VIEWS = {
   courses:      { title:'Mis cursos',          mount: mountCourses },
