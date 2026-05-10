@@ -6,6 +6,7 @@
 <title>ICONE.DocAdmin v5</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/main.css?v=20260510a">
 <style>
@@ -125,19 +126,19 @@
   });
 </script>
 
-<!-- Supabase UMD (global window.supabase) — más confiable que ESM -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js" crossorigin="anonymous"
+<!-- Supabase UMD — defer para no bloquear parsing; carga antes de main.js (también defer) -->
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js" crossorigin="anonymous"
   onerror="showBootErr('No cargó Supabase desde CDN. ¿Sin internet?')"></script>
 
-<!-- XLSX (global window.XLSX) -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" crossorigin="anonymous"
+<!-- XLSX — defer (270 KiB, solo se usa al exportar; no debe bloquear LCP) -->
+<script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" crossorigin="anonymous"
   onerror="showBootErr('No cargó XLSX desde CDN.')"></script>
 
-<!-- Red neuronal sutil de fondo (~3KB, IIFE no-module) -->
-<script src="js/neural-bg.js?v=20260510a"></script>
+<!-- Red neuronal sutil de fondo — defer (incluye guard mobile + reduced-motion internos) -->
+<script defer src="js/neural-bg.js?v=20260510b"></script>
 
-<!-- Mi módulo principal — importa Alpine ESM y arranca todo controladamente -->
-<script type="module" src="js/main.js?v=20260510e"></script>
+<!-- Mi módulo principal — type=module ya es defer-by-default -->
+<script type="module" src="js/main.js?v=20260510f"></script>
 
 </body>
 </html>

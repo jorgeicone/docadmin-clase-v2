@@ -1,6 +1,11 @@
 // 🧠 Red neuronal sutil de fondo — partículas conectadas
 // Sin dependencias, ~3KB, pausada cuando la pestaña no está visible
 (() => {
+  // P0 mobile fix: no ejecutar en mobile ni si el usuario pidió menos animación.
+  // El cálculo O(n²) de distancias entre 38 partículas saturaba CPU en celulares.
+  const mq = window.matchMedia;
+  if (mq && (mq('(prefers-reduced-motion: reduce)').matches || mq('(max-width: 768px)').matches)) return;
+
   const canvas = document.createElement('canvas');
   canvas.id = 'neural-bg';
   document.body.insertBefore(canvas, document.body.firstChild);

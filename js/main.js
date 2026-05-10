@@ -1,7 +1,7 @@
 // Bootstrap principal — importa Alpine, registra store, arranca controladamente
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
 // v=20260510e — bumpear este sufijo si se cambian los módulos para invalidar caché
-import { supabase, currentUser } from './supabase-client.js?v=20260510e';
+import { supabase, currentSession } from './supabase-client.js?v=20260510f';
 import { toast } from './toast.js?v=20260510e';
 import { mountCourses } from './courses.js?v=20260510e';
 import { mountStudents } from './students.js?v=20260510e';
@@ -42,9 +42,12 @@ Alpine.store('app', {
   viewTitle(){ return VIEWS[this.view]?.title || ''; },
 
   async init(){
-    const u = await currentUser();
-    this.user = u || null;
-    if (this.user) await this.refreshPlan();
+    // P0 mobile fix: usar getSession() (lee localStorage, sin red) en vez de getUser()
+    // (que dispara /v1/user con 401 ~2s en cadena crítica si no hay token).
+    // Render del login no se bloquea más con un round-trip a Supabase.
+    const session = await currentSession();
+    this.user = session?.user || null;
+
     supabase.auth.onAuthStateChange((_event, session) => {
       this.user = session?.user || null;
       if (this.user){
@@ -52,6 +55,9 @@ Alpine.store('app', {
         this.go('courses');
       }
     });
+
+    // Si había sesión persistida, refrescar plan en background (no bloquea UI)
+    if (this.user) this.refreshPlan();
   },
 
   go(view){
