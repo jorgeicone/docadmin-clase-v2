@@ -2,13 +2,13 @@
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
 // v=20260510e — bumpear este sufijo si se cambian los módulos para invalidar caché
 // Imports CRÍTICOS (necesarios para login + boot inicial):
-import { supabase, currentSession } from './supabase-client.js?v=20260510q';
-import { toast } from './toast.js?v=20260510q';
-import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260510q';
+import { supabase, currentSession } from './supabase-client.js?v=20260510r';
+import { toast } from './toast.js?v=20260510r';
+import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260510r';
 
 // Bloque 5 (LCP): lazy import de los 11 módulos de vistas.
 // Solo se descarga al navegar a esa vista. Reduce JS inicial ~50 KiB.
-const VERSION = '?v=20260510q';
+const VERSION = '?v=20260510r';
 const VIEWS = {
   courses:      { title:'Mis cursos',                loader: () => import('./courses.js'+VERSION).then(m => m.mountCourses) },
   students:     { title:'Estudiantes',               needsCourse:true, loader: () => import('./students.js'+VERSION).then(m => m.mountStudents) },
@@ -41,12 +41,22 @@ Alpine.store('app', {
     const session = await currentSession();
     this.user = session?.user || null;
 
-    supabase.auth.onAuthStateChange((_event, session) => {
-      this.user = session?.user || null;
-      if (this.user){
+    // Bug fix: el listener dispara con INITIAL_SESSION + TOKEN_REFRESHED en cada boot.
+    // Antes ejecutaba go('courses') en cada disparo → 3 queries v5_courses paralelas.
+    // Ahora solo reaccionamos a cambios REALES de auth (login fresco o logout).
+    let wasLoggedIn = !!this.user;
+    supabase.auth.onAuthStateChange((event, session) => {
+      const newUser = session?.user || null;
+      this.user = newUser;
+      const isLoggedIn = !!newUser;
+      // Solo cambio real de estado: de fuera a dentro, o de dentro a fuera
+      if (isLoggedIn && !wasLoggedIn){
         this.refreshPlan();
         this.go('courses');
+      } else if (!isLoggedIn && wasLoggedIn){
+        this.activeCourse = null;
       }
+      wasLoggedIn = isLoggedIn;
     });
 
     // Si había sesión persistida, refrescar plan en background (no bloquea UI)
