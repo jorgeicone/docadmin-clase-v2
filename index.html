@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/main.css?v=20260510a">
+<link rel="stylesheet" href="css/main.css?v=20260510h">
 <style>
   #boot-fallback{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
     background:linear-gradient(135deg,#1B2745,#3055A6);color:#fff;flex-direction:column;gap:12px;
@@ -57,17 +57,25 @@
 </div>
 
 <!-- ───────────── APP MAIN ───────────── -->
-<div x-data x-show="$store.app.user" x-cloak class="app">
-  <aside class="sidebar">
+<div x-data="{ drawerOpen: false }" x-show="$store.app.user" x-cloak class="app">
+  <!-- Botón hamburger (solo visible en mobile via CSS) -->
+  <button class="menu-toggle" @click="drawerOpen = !drawerOpen" aria-label="Abrir menú" :aria-expanded="drawerOpen">
+    <span x-show="!drawerOpen">☰</span>
+    <span x-show="drawerOpen" x-cloak>✕</span>
+  </button>
+  <!-- Overlay (cierra drawer al tocar fuera) -->
+  <div class="sidebar-overlay" x-show="drawerOpen" @click="drawerOpen = false" x-cloak></div>
+
+  <aside class="sidebar" :class="{ 'sidebar-open': drawerOpen }">
     <div class="sidebar-brand">📚 ICONE.DocAdmin <span style="opacity:.5;font-weight:400">v5</span></div>
     <div class="sidebar-section">Cursos</div>
-    <nav>
+    <nav @click="drawerOpen = false">
       <button :class="{active:$store.app.view==='courses'}" @click="$store.app.go('courses')">📋 Mis cursos</button>
     </nav>
     <template x-if="$store.app.activeCourse">
       <div>
         <div class="sidebar-section" x-text="$store.app.activeCourse.name"></div>
-        <nav>
+        <nav @click="drawerOpen = false">
           <button :class="{active:$store.app.view==='students'}" @click="$store.app.go('students')">👥 Estudiantes</button>
           <button :class="{active:$store.app.view==='groups'}" @click="$store.app.go('groups')">🧑‍🤝‍🧑 Grupos</button>
           <button :class="{active:$store.app.view==='activities'}" @click="$store.app.go('activities')">📝 Actividades y notas</button>
@@ -135,10 +143,10 @@
   onerror="showBootErr('No cargó XLSX desde CDN.')"></script>
 
 <!-- Red neuronal sutil de fondo — defer (incluye guard mobile + reduced-motion internos) -->
-<script defer src="js/neural-bg.js?v=20260510b"></script>
+<script defer src="js/neural-bg.js?v=20260510h"></script>
 
 <!-- Mi módulo principal — type=module ya es defer-by-default -->
-<script type="module" src="js/main.js?v=20260510g"></script>
+<script type="module" src="js/main.js?v=20260510h"></script>
 
 </body>
 </html>
