@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>ICONE.DocAdmin v5</title>
+<meta name="description" content="ICONE.DocAdmin: gestión docente con IA. Asistencia, notas, sustentación, plan del semestre y consolidados — listo para tu curso universitario.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/main.css?v=20260510p">
+<link rel="stylesheet" href="css/main.css?v=20260510q">
 <style>
   #boot-fallback{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
     background:linear-gradient(135deg,#1B2745,#3055A6);color:#fff;flex-direction:column;gap:12px;
@@ -31,19 +32,19 @@
 </div>
 
 <!-- ───────────── LOGIN SCREEN ───────────── -->
-<div x-data x-show="$store.app.user===null" x-cloak class="login-bg">
+<div x-data x-show="$store.app.user===null" x-cloak class="login-bg" role="main" aria-label="Iniciar sesión">
   <div class="login-card" x-data="loginForm()">
     <h1>📚 ICONE.DocAdmin</h1>
     <div class="sub">Gestión docente con IA · v5</div>
     <template x-if="error"><div class="login-error" x-text="error"></div></template>
     <form @submit.prevent="submit">
       <div class="field">
-        <label>Email institucional</label>
-        <input type="email" x-model="email" required autocomplete="email">
+        <label for="login-email">Email institucional</label>
+        <input id="login-email" type="email" x-model="email" required autocomplete="email">
       </div>
       <div class="field">
-        <label>Contraseña</label>
-        <input type="password" x-model="password" required autocomplete="current-password">
+        <label for="login-password">Contraseña</label>
+        <input id="login-password" type="password" x-model="password" required autocomplete="current-password">
       </div>
       <button class="btn btn-lg" style="width:100%" :disabled="loading">
         <template x-if="loading"><span class="loader"></span></template>
@@ -159,10 +160,10 @@
      Ver js/xlsx-loader.js — ahorra 270 KiB de transferencia inicial. -->
 
 <!-- Red neuronal sutil de fondo — defer (incluye guard mobile + reduced-motion internos) -->
-<script defer src="js/neural-bg.js?v=20260510p"></script>
+<script defer src="js/neural-bg.js?v=20260510q"></script>
 
 <!-- Mi módulo principal — type=module ya es defer-by-default -->
-<script type="module" src="js/main.js?v=20260510p"></script>
+<script type="module" src="js/main.js?v=20260510q"></script>
 
 </body>
 </html>
