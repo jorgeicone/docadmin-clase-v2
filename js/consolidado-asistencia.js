@@ -80,10 +80,13 @@ function studentStats(studentId){
     const st = statusOf(s.id, studentId);
     if (st==='P') p++; else if (st==='T') t++; else if (st==='A') a++; else sin++;
   });
-  const totalAttended = p + (t * 0.5);
   const totalScored = p + t + a;
-  const pct = totalScored > 0 ? Math.round(totalAttended / totalScored * 100) : 0;
-  return { p, t, a, sin, pct };
+  // % asistencia = (presentes + tardes) / total marcadas. Tarde cuenta como asistencia.
+  const pct = totalScored > 0 ? Math.round((p + t) / totalScored * 100) : 0;
+  const pPct = totalScored > 0 ? Math.round(p / totalScored * 100) : 0;
+  const tPct = totalScored > 0 ? Math.round(t / totalScored * 100) : 0;
+  const aPct = totalScored > 0 ? Math.round(a / totalScored * 100) : 0;
+  return { p, t, a, sin, pct, pPct, tPct, aPct };
 }
 
 function groupOf(studentId){
@@ -148,7 +151,11 @@ function render(searchTerm, filter){
   document.getElementById('ca-count').textContent = `Mostrando ${filtered.length} de ${students.length} estudiantes`;
 
   document.getElementById('ca-table').innerHTML = `
-    <div class="tbl-wrap" style="max-height:70vh">
+    <details class="acc acc-block" open>
+      <summary>
+        <span class="acc-label">👥 Estudiantes (${filtered.length}${filtered.length!==students.length?' de '+students.length:''})</span>
+      </summary>
+      <div class="tbl-wrap" style="max-height:70vh;margin-top:10px">
       <table>
         <thead>
           <tr>
@@ -156,10 +163,10 @@ function render(searchTerm, filter){
             <th style="position:sticky;left:32px;top:0;background:var(--ean-light);z-index:3;min-width:200px;max-width:200px">Estudiante</th>
             <th style="position:sticky;left:232px;top:0;background:var(--ean-light);z-index:3;min-width:110px;max-width:110px">Grupo</th>
             ${sessions.map(s => `<th class="num" style="position:sticky;top:0;background:var(--ean-light);z-index:2;min-width:60px;font-size:10px" title="${escapeAttr(s.topic||'')}">${escape(s.date||'')}</th>`).join('')}
-            <th class="num" style="position:sticky;top:0;background:#E8F5E9;color:var(--green);z-index:2">✅<br>P</th>
-            <th class="num" style="position:sticky;top:0;background:#FFFDE7;color:#E65100;z-index:2">⏰<br>T</th>
-            <th class="num" style="position:sticky;top:0;background:#FFEBEE;color:var(--red);z-index:2">❌<br>A</th>
-            <th class="num" style="position:sticky;top:0;background:#E3F2FD;color:var(--ean-blue);z-index:2">%</th>
+            <th class="num" style="position:sticky;top:0;background:#E8F5E9;color:var(--green);z-index:2;min-width:75px">✅<br>P %</th>
+            <th class="num" style="position:sticky;top:0;background:#FFFDE7;color:#E65100;z-index:2;min-width:75px">⏰<br>T %</th>
+            <th class="num" style="position:sticky;top:0;background:#FFEBEE;color:var(--red);z-index:2;min-width:75px">❌<br>A %</th>
+            <th class="num" style="position:sticky;top:0;background:#E3F2FD;color:var(--ean-blue);z-index:2;min-width:90px">% asistencia</th>
           </tr>
         </thead>
         <tbody>
@@ -180,18 +187,19 @@ function render(searchTerm, filter){
                 if (!status) return `<td class="num" style="color:var(--ean-gray)">—</td>`;
                 return `<td class="num"><span class="chip ${STATUS_COLORS[status]}" style="font-size:10px;padding:2px 6px;font-weight:700">${status}</span></td>`;
               }).join('')}
-              <td class="num" style="background:#E8F5E9;font-weight:700;color:var(--green)">${st.p}</td>
-              <td class="num" style="background:#FFFDE7;font-weight:700;color:#E65100">${st.t}</td>
-              <td class="num" style="background:#FFEBEE;font-weight:700;color:var(--red)">${st.a}</td>
+              <td class="num" style="background:#E8F5E9;font-weight:700;color:var(--green)">${st.p}<br><small style="font-weight:400;font-size:10px">${st.pPct}%</small></td>
+              <td class="num" style="background:#FFFDE7;font-weight:700;color:#E65100">${st.t}<br><small style="font-weight:400;font-size:10px">${st.tPct}%</small></td>
+              <td class="num" style="background:#FFEBEE;font-weight:700;color:var(--red)">${st.a}<br><small style="font-weight:400;font-size:10px">${st.aPct}%</small></td>
               <td class="num" style="background:#E3F2FD"><span class="chip ${pctCls}" style="font-weight:700">${st.pct}%</span></td>
             </tr>`;
           }).join('')}
         </tbody>
       </table>
-    </div>
+      </div>
+    </details>
     <div style="font-size:11px;color:var(--ean-gray);margin-top:8px">
-      💡 <b>%</b> calcula: Presentes cuentan 100%, Tarde 50%, Ausentes 0%. Sesiones sin marca no entran al cálculo.
-      Pasa el mouse sobre cada fecha para ver el tema de la sesión.
+      💡 <b>% asistencia</b> = (Presentes + Tardes) / sesiones marcadas. Las llegadas tarde cuentan como asistencia.
+      Sesiones sin marca no entran al cálculo. Pasa el mouse sobre cada fecha para ver el tema de la sesión.
     </div>
   `;
 }

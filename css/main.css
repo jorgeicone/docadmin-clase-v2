@@ -294,6 +294,7 @@ td.num,th.num{text-align:center}
 .chip-red{background:#FBD9DD;color:#8B1322}
 .chip-cyan{background:var(--ean-cyan-soft);color:#0B7B89}
 .chip-purple{background:var(--ean-purple-soft);color:#5128B5}
+.chip-gold{background:#FFF3CD;color:#8B6914;border:1px solid #D4A017}
 
 /* ═══════ Login screen ═══════ */
 .login-bg{min-height:100vh;display:flex;align-items:center;justify-content:center;

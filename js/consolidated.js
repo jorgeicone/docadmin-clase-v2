@@ -143,7 +143,9 @@ function render(){
                 if (!g || g.value === null || g.value === undefined){
                   return `<td class="num" style="color:var(--ean-gray)">—</td>`;
                 }
-                const cls = gradeColor(g.value, a.max_points);
+                // Actividades sin peso = puntos extras → siempre color oro
+                // (cualquier punto extra es positivo, no debe verse como mala nota)
+                const cls = !a.weight ? 'chip-gold' : gradeColor(g.value, a.max_points);
                 const tip = g.desglose ? `title="${escapeAttr(g.desglose)}"` : '';
                 return `<td class="num"><span class="chip ${cls}" ${tip} style="font-size:11px;font-weight:700">${g.value}</span></td>`;
               }).join('')}

@@ -40,7 +40,11 @@ async function renderList(courseId){
   }
 
   list.innerHTML = `
-    <div class="tbl-wrap">
+    <details class="acc acc-block" open>
+      <summary>
+        <span class="acc-label">👥 Todos los estudiantes (${data.length})</span>
+      </summary>
+      <div class="tbl-wrap" style="margin-top:10px">
       <table>
         <thead><tr><th>#</th><th>Cédula</th><th>Nombre y datos extra</th><th>Email</th><th class="num">Acciones</th></tr></thead>
         <tbody>
@@ -68,7 +72,8 @@ async function renderList(courseId){
             </tr>`}).join('')}
         </tbody>
       </table>
-    </div>
+      </div>
+    </details>
   `;
 
   list.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
