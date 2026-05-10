@@ -69,10 +69,10 @@ function renderModal(){
 
   host.innerHTML = `
     <div class="modal-bg">
-      <div class="modal" style="max-width:880px;padding:0;overflow:hidden">
+      <div class="modal" style="max-width:880px;padding:0">
 
         <!-- Header con plan actual -->
-        <div style="background:linear-gradient(135deg,var(--ean-dark),var(--ean-blue));color:#fff;padding:18px 24px">
+        <div style="background:linear-gradient(135deg,var(--ean-dark),var(--ean-blue));color:#fff;padding:18px 24px;border-radius:14px 14px 0 0">
           <div style="display:flex;justify-content:space-between;align-items:start">
             <div>
               <div style="font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:1px">Tu plan actual</div>
@@ -81,7 +81,7 @@ function renderModal(){
             <button class="modal-close" id="pm-close" style="background:rgba(255,255,255,.2);color:#fff;border:none;width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:16px">✕</button>
           </div>
 
-          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+          <div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px">
             <div>
               <div style="font-size:11px;opacity:.8">CONSULTAS IA ESTE MES</div>
               <div style="font-size:18px;font-weight:700;margin-top:4px">${planInfo.calls_used} / ${planInfo.calls_limit}</div>
@@ -105,7 +105,7 @@ function renderModal(){
         <!-- Cuerpo: 3 planes -->
         <div style="padding:18px 24px">
           <h3 style="text-align:center;margin-bottom:14px">⚡ Planes disponibles</h3>
-          <div class="grid-3" id="pm-plans" style="gap:12px"></div>
+          <div id="pm-plans" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px"></div>
 
           <!-- Wompi widget container -->
           <div id="wompi-widget-container" style="display:flex;justify-content:center;min-height:48px;margin-top:14px"></div>
