@@ -21,7 +21,12 @@ export async function mountConsolidadoAsistencia(root, store){
       </div>
     </div>
 
-    <div id="ca-kpis"></div>
+    <details class="acc acc-block" id="ca-kpis-acc" open>
+      <summary>
+        <span class="acc-label">📊 <span id="ca-kpis-summary-text">Resumen</span></span>
+      </summary>
+      <div id="ca-kpis" style="margin-top:10px"></div>
+    </details>
 
     <div class="card">
       <div class="card-row" style="margin-bottom:10px">
@@ -104,8 +109,13 @@ function calcKpis(){
 
 function render(searchTerm, filter){
   const k = calcKpis();
+  // Resumen corto en summary del acordeón
+  const sumText = document.getElementById('ca-kpis-summary-text');
+  if (sumText){
+    sumText.innerHTML = `Resumen — ${k.totalSessions} sesiones · ${k.avgPct}% promedio · ${k.totalFallas} fallas · <span style="color:var(--red)">${k.riesgo} en riesgo</span>`;
+  }
   document.getElementById('ca-kpis').innerHTML = `
-    <div class="card" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
+    <div class="card" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:0">
       ${kpiCard('SESIONES REGISTRADAS', k.totalSessions, 'var(--ean-blue)')}
       ${kpiCard('% ASISTENCIA PROMEDIO', k.avgPct + '%', k.avgPct >= 80 ? 'var(--green)' : k.avgPct >= 60 ? 'var(--yellow)' : 'var(--red)')}
       ${kpiCard('TOTAL FALLAS ACUM.', k.totalFallas, 'var(--ean-dark)')}
@@ -142,14 +152,14 @@ function render(searchTerm, filter){
       <table>
         <thead>
           <tr>
-            <th style="position:sticky;left:0;background:var(--ean-light);z-index:2">#</th>
-            <th style="position:sticky;left:32px;background:var(--ean-light);z-index:2;min-width:170px">Estudiante</th>
-            <th style="min-width:100px">Grupo</th>
-            ${sessions.map(s => `<th class="num" style="min-width:60px;font-size:10px" title="${escapeAttr(s.topic||'')}">${escape(s.date||'')}</th>`).join('')}
-            <th class="num" style="background:#E8F5E9;color:var(--green)">✅<br>P</th>
-            <th class="num" style="background:#FFFDE7;color:#E65100">⏰<br>T</th>
-            <th class="num" style="background:#FFEBEE;color:var(--red)">❌<br>A</th>
-            <th class="num" style="background:#E3F2FD;color:var(--ean-blue)">%</th>
+            <th style="position:sticky;left:0;top:0;background:var(--ean-light);z-index:3;width:32px">#</th>
+            <th style="position:sticky;left:32px;top:0;background:var(--ean-light);z-index:3;min-width:200px;max-width:200px">Estudiante</th>
+            <th style="position:sticky;left:232px;top:0;background:var(--ean-light);z-index:3;min-width:110px;max-width:110px">Grupo</th>
+            ${sessions.map(s => `<th class="num" style="position:sticky;top:0;background:var(--ean-light);z-index:2;min-width:60px;font-size:10px" title="${escapeAttr(s.topic||'')}">${escape(s.date||'')}</th>`).join('')}
+            <th class="num" style="position:sticky;top:0;background:#E8F5E9;color:var(--green);z-index:2">✅<br>P</th>
+            <th class="num" style="position:sticky;top:0;background:#FFFDE7;color:#E65100;z-index:2">⏰<br>T</th>
+            <th class="num" style="position:sticky;top:0;background:#FFEBEE;color:var(--red);z-index:2">❌<br>A</th>
+            <th class="num" style="position:sticky;top:0;background:#E3F2FD;color:var(--ean-blue);z-index:2">%</th>
           </tr>
         </thead>
         <tbody>
@@ -159,12 +169,12 @@ function render(searchTerm, filter){
             const pctCls = st.pct >= 80 ? 'chip-green' : st.pct >= 60 ? 'chip-yellow' : 'chip-red';
             return `
             <tr>
-              <td class="num" style="position:sticky;left:0;background:#fff;z-index:1">${i+1}</td>
-              <td style="position:sticky;left:32px;background:#fff;z-index:1">
-                <b style="font-size:12px">${escape(s.name)}</b>
+              <td class="num" style="position:sticky;left:0;background:#fff;z-index:1;width:32px">${i+1}</td>
+              <td style="position:sticky;left:32px;background:#fff;z-index:1;min-width:200px;max-width:200px;overflow:hidden">
+                <b style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block" title="${escapeAttr(s.name)}">${escape(s.name)}</b>
                 <div style="font-size:10px;color:var(--ean-gray)"><code>${escape(s.cedula)}</code></div>
               </td>
-              <td>${grp ? `<span class="chip" style="font-size:10px">${escape(grp.name)}</span>` : '—'}</td>
+              <td style="position:sticky;left:232px;background:#fff;z-index:1;min-width:110px;max-width:110px">${grp ? `<span class="chip" style="font-size:10px">${escape(grp.name)}</span>` : '—'}</td>
               ${sessions.map(sess => {
                 const status = statusOf(sess.id, s.id);
                 if (!status) return `<td class="num" style="color:var(--ean-gray)">—</td>`;

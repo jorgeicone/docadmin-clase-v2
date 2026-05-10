@@ -16,7 +16,14 @@ export async function mountConsolidated(root, store){
           <button class="btn btn-cyan" id="c-export">📥 Exportar Excel</button>
         </div>
       </div>
-      <div id="c-summary" style="margin-top:8px;font-size:12px;color:var(--ean-gray)"></div>
+      <details class="acc acc-block" open style="margin-top:8px">
+        <summary>
+          <span class="acc-label">📊 <span id="c-summary"></span></span>
+        </summary>
+        <div id="c-summary-extra" style="margin-top:6px;font-size:11px;color:var(--ean-gray)">
+          💡 (asistencia y sustentaciones se cuentan aparte; las sustentaciones sí entran si tienen peso)
+        </div>
+      </details>
     </div>
 
     <div class="card">
@@ -50,7 +57,7 @@ async function loadAndRender(){
 
   const totalWeight = activities.reduce((s,a) => s + (a.weight||0), 0);
   document.getElementById('c-summary').innerHTML =
-    `${students.length} estudiantes · ${activities.length} actividades · ${grades.length} notas registradas · Peso total: <b>${totalWeight}%</b>${totalWeight!==100 && totalWeight>0?' ⚠️ no suma 100%':''} · <span style="color:var(--ean-gray)">(asistencia y sustentaciones se cuentan aparte; las sustentaciones sí entran si tienen peso)</span>`;
+    `${students.length} estudiantes · ${activities.length} actividades · ${grades.length} notas · Peso: <b>${totalWeight}%</b>${totalWeight!==100 && totalWeight>0?' ⚠️ no suma 100%':''}`;
 
   render();
 
@@ -107,17 +114,17 @@ function render(){
       <table>
         <thead>
           <tr>
-            <th style="position:sticky;left:0;background:var(--ean-light);z-index:2">#</th>
-            <th style="position:sticky;left:32px;background:var(--ean-light);z-index:2;min-width:200px">Estudiante</th>
+            <th style="position:sticky;left:0;top:0;background:var(--ean-light);z-index:3;width:32px">#</th>
+            <th style="position:sticky;left:32px;top:0;background:var(--ean-light);z-index:3;min-width:220px;max-width:220px">Estudiante</th>
             ${activities.map(a => `
-              <th class="num" style="min-width:90px" title="${escapeAttr(a.topic||'')}">
+              <th class="num" style="position:sticky;top:0;background:var(--ean-light);z-index:2;min-width:90px" title="${escapeAttr(a.topic||'')}">
                 ${escape(a.name)}
                 <div style="font-size:9px;color:var(--ean-gray);font-weight:400">
                   /${a.max_points}${a.weight?` · ${a.weight}%`:''}
                 </div>
               </th>
             `).join('')}
-            <th class="num" style="min-width:110px;background:#FFF8E1">Acumulado<br><small>(pesos + extras)</small></th>
+            <th class="num" style="position:sticky;top:0;z-index:2;min-width:110px;background:#FFF8E1">Acumulado<br><small>(pesos + extras)</small></th>
           </tr>
         </thead>
         <tbody>
@@ -126,9 +133,9 @@ function render(){
             const acumCls = maxPosible > 0 ? gradeColor(acumulado, maxPosible) : '';
             return `
             <tr>
-              <td class="num" style="position:sticky;left:0;background:#fff;z-index:1">${i+1}</td>
-              <td style="position:sticky;left:32px;background:#fff;z-index:1">
-                <b style="font-size:12px">${escape(s.name)}</b>
+              <td class="num" style="position:sticky;left:0;background:#fff;z-index:1;width:32px">${i+1}</td>
+              <td style="position:sticky;left:32px;background:#fff;z-index:1;min-width:220px;max-width:220px;overflow:hidden">
+                <b style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block" title="${escapeAttr(s.name)}">${escape(s.name)}</b>
                 <div style="font-size:10px;color:var(--ean-gray)"><code>${escape(s.cedula)}</code></div>
               </td>
               ${activities.map(a => {

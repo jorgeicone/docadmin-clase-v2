@@ -28,9 +28,14 @@ export async function mountAsistencia(root, store){
             <button class="btn btn-xs btn-cyan" id="a-new">＋ Nueva</button>
           </div>
         </div>
-        <div id="a-sessions-list" style="max-height:60vh;overflow-y:auto">
-          <p class="empty-state">Cargando…</p>
-        </div>
+        <details class="acc acc-block" id="a-sessions-acc" open>
+          <summary>
+            <span class="acc-label">📅 <span id="a-sessions-summary-text">Todas las sesiones</span></span>
+          </summary>
+          <div id="a-sessions-list" style="max-height:60vh;overflow-y:auto;margin-top:8px">
+            <p class="empty-state">Cargando…</p>
+          </div>
+        </details>
       </div>
 
       <!-- AREA PRINCIPAL -->
@@ -184,6 +189,13 @@ async function saveSession(){
 
 function renderSessionsList(){
   const list = document.getElementById('a-sessions-list');
+  // Actualizar contador del summary del acordeón
+  const summaryText = document.getElementById('a-sessions-summary-text');
+  if (summaryText){
+    summaryText.textContent = sessions.length
+      ? `Todas las sesiones (${sessions.length})`
+      : 'Todas las sesiones';
+  }
   if (!sessions.length){
     list.innerHTML = `<p class="empty-state" style="padding:14px">Sin sesiones aún. Crea una con la fecha y "Guardar sesión".</p>`;
     return;

@@ -182,6 +182,22 @@ details.acc.acc-block[open] > summary{
   border-bottom-color:transparent
 }
 
+/* Variante "section": para cards completas (Plan del semestre).
+   Mantiene background/border-left del .card y agrega marker rotable */
+details.acc.acc-section > summary{
+  cursor:pointer;list-style:none;user-select:none;
+  display:flex;align-items:center;gap:8px;
+  margin:-2px 0 0 0
+}
+details.acc.acc-section > summary::-webkit-details-marker{display:none}
+details.acc.acc-section > summary::before{
+  content:'▶';font-size:11px;color:var(--ean-cyan);
+  transition:transform .2s;display:inline-block;flex-shrink:0
+}
+details.acc.acc-section[open] > summary::before{transform:rotate(90deg)}
+details.acc.acc-section > summary > h3{margin:0;display:inline}
+details.acc.acc-section > *:not(summary){margin-top:12px}
+
 /* ═══════ Rotate hint (mobile portrait) ═══════ */
 .rotate-hint{
   position:fixed;bottom:14px;left:50%;transform:translateX(-50%);

@@ -97,9 +97,9 @@ export async function mountSyllabus(root, _store){
     </div>
 
     <!-- STEP 1: Datos del semestre -->
-    <div class="card" style="background:#F0F4F8;border-left:4px solid var(--ean-blue)">
-      <h3>1️⃣ Datos del semestre</h3>
-      <div class="grid-3" style="margin-top:10px">
+    <details class="card acc acc-section" style="background:#F0F4F8;border-left:4px solid var(--ean-blue)">
+      <summary><h3>1️⃣ Datos del semestre</h3></summary>
+      <div class="grid-3">
         <div class="field"><label>Fecha inicio *</label><input id="c-start" type="date" value="${course.start_date||''}"></div>
         <div class="field"><label>Fecha fin *</label><input id="c-end" type="date" value="${course.end_date||''}"></div>
         <div class="field"><label>Sesiones / semana *</label><input id="c-spw" type="number" value="${course.sessions_per_week??2}" min="1" max="7"></div>
@@ -110,40 +110,38 @@ export async function mountSyllabus(root, _store){
         </div>
       </div>
       <button class="btn btn-out btn-xs" id="c-save">💾 Guardar datos del semestre</button>
-    </div>
+    </details>
 
     <!-- STEP 2: Syllabus -->
-    <div class="card" style="background:#F0FCFD;border-left:4px solid var(--ean-cyan)">
-      <h3>2️⃣ Syllabus del curso</h3>
+    <details class="card acc acc-section" style="background:#F0FCFD;border-left:4px solid var(--ean-cyan)">
+      <summary><h3>2️⃣ Syllabus del curso</h3></summary>
       <div id="syl-pdf-area"></div>
-    </div>
+    </details>
 
     <!-- STEP 2.5: Fuentes adicionales -->
-    <div class="card" style="background:#F3E5F5;border-left:4px solid var(--purple)">
-      <div class="card-row" style="justify-content:space-between">
-        <h3>📚 Fuentes adicionales (opcional)</h3>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-out btn-xs" id="src-add-pdf">📄 PDF/Imagen</button>
-          <button class="btn btn-out btn-xs" id="src-add-url">🔗 Enlace</button>
-          <button class="btn btn-out btn-xs" id="src-add-text">✏️ Texto</button>
-        </div>
+    <details class="card acc acc-section" style="background:#F3E5F5;border-left:4px solid var(--purple)">
+      <summary><h3>📚 Fuentes adicionales (opcional)</h3></summary>
+      <div class="card-row" style="justify-content:flex-end;gap:6px">
+        <button class="btn btn-out btn-xs" id="src-add-pdf">📄 PDF/Imagen</button>
+        <button class="btn btn-out btn-xs" id="src-add-url">🔗 Enlace</button>
+        <button class="btn btn-out btn-xs" id="src-add-text">✏️ Texto</button>
       </div>
       <p style="font-size:12px;color:var(--ean-gray);margin-top:6px">
         Agrega bibliografía, apuntes, artículos, blogs, etc. La IA los combinará con el syllabus al generar el plan.
         Marca/desmarca cuáles usar con el ☑.
       </p>
       <div id="syl-sources-list" style="margin-top:10px"></div>
-    </div>
+    </details>
 
     <!-- STEP 3: Generar plan -->
-    <div class="card" style="background:#FFF8E1;border-left:4px solid #F57C00">
-      <h3>3️⃣ Generar plan con IA</h3>
+    <details class="card acc acc-section" style="background:#FFF8E1;border-left:4px solid #F57C00">
+      <summary><h3>3️⃣ Generar plan con IA</h3></summary>
       <p style="font-size:12px;color:var(--ean-gray)" id="syl-gen-info">
         La IA usará el syllabus + fuentes activas, calculará las fechas saltando festivos colombianos y propondrá un tema para cada clase.
       </p>
       <button class="btn btn-cyan btn-lg" id="syl-generate" style="margin-top:8px">🚀 Generar plan del semestre</button>
       <div id="syl-gen-status" style="margin-top:8px"></div>
-    </div>
+    </details>
 
     <!-- STEP 4: Plan editable -->
     <div class="card" style="background:#E8F5E9;border-left:4px solid var(--green)" id="syl-plan-card" style="display:none">
@@ -151,10 +149,10 @@ export async function mountSyllabus(root, _store){
       <div id="syl-plan-table"></div>
     </div>
 
-    <!-- Plan actual guardado -->
+    <!-- Plan actual guardado — siempre visible, header sticky -->
     <div class="card" id="syl-saved-card">
       <h3>📋 Plan actual del semestre</h3>
-      <div id="syl-saved-table"></div>
+      <div id="syl-saved-table" style="margin-top:10px"></div>
     </div>
   `;
 
@@ -688,7 +686,13 @@ function renderSaved(){
   div.innerHTML = `
     <div class="tbl-wrap" style="max-height:50vh">
       <table>
-        <thead><tr><th>#</th><th>Fecha</th><th>Tema</th><th>Tipo</th><th>Notas</th></tr></thead>
+        <thead><tr>
+          <th style="position:sticky;top:0;background:var(--ean-light);z-index:2">#</th>
+          <th style="position:sticky;top:0;background:var(--ean-light);z-index:2">Fecha</th>
+          <th style="position:sticky;top:0;background:var(--ean-light);z-index:2">Tema</th>
+          <th style="position:sticky;top:0;background:var(--ean-light);z-index:2">Tipo</th>
+          <th style="position:sticky;top:0;background:var(--ean-light);z-index:2">Notas</th>
+        </tr></thead>
         <tbody>
           ${sessions.map(s => `
             <tr>
