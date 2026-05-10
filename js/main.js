@@ -1,33 +1,26 @@
 // Bootstrap principal — importa Alpine, registra store, arranca controladamente
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
 // v=20260510e — bumpear este sufijo si se cambian los módulos para invalidar caché
-import { supabase, currentSession } from './supabase-client.js?v=20260510f';
-import { toast } from './toast.js?v=20260510n';
-import { mountCourses } from './courses.js?v=20260510n';
-import { mountStudents } from './students.js?v=20260510n';
-import { mountGroups } from './groups.js?v=20260510n';
-import { mountActivities } from './activities.js?v=20260510n';
-import { mountIngest } from './ingest.js?v=20260510n';
-import { mountConsolidated } from './consolidated.js?v=20260510n';
-import { mountAsistencia } from './asistencia.js?v=20260510n';
-import { mountConsolidadoAsistencia } from './consolidado-asistencia.js?v=20260510n';
-import { mountSustentacion } from './sustentacion.js?v=20260510n';
-import { mountChat } from './chat.js?v=20260510n';
-import { mountSyllabus } from './syllabus.js?v=20260510n';
-import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260510n';
+// Imports CRÍTICOS (necesarios para login + boot inicial):
+import { supabase, currentSession } from './supabase-client.js?v=20260510o';
+import { toast } from './toast.js?v=20260510o';
+import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260510o';
 
+// Bloque 5 (LCP): lazy import de los 11 módulos de vistas.
+// Solo se descarga al navegar a esa vista. Reduce JS inicial ~50 KiB.
+const VERSION = '?v=20260510o';
 const VIEWS = {
-  courses:      { title:'Mis cursos',          mount: mountCourses },
-  students:     { title:'Estudiantes',         mount: mountStudents,    needsCourse:true },
-  groups:       { title:'Grupos',              mount: mountGroups,      needsCourse:true },
-  activities:   { title:'Actividades y notas', mount: mountActivities,  needsCourse:true },
-  ingest:       { title:'Ingesta IA',          mount: mountIngest,      needsCourse:true },
-  asistencia:   { title:'Asistencia',          mount: mountAsistencia,  needsCourse:true },
-  sustentacion: { title:'Sustentación',        mount: mountSustentacion,needsCourse:true },
-  conAsistencia:{ title:'Consolidado Asistencia',mount: mountConsolidadoAsistencia, needsCourse:true },
-  consolidated: { title:'Consolidado',         mount: mountConsolidated,needsCourse:true },
-  chat:         { title:'AI Chat',             mount: mountChat,        needsCourse:true },
-  syllabus:     { title:'Plan del semestre',   mount: mountSyllabus,    needsCourse:true },
+  courses:      { title:'Mis cursos',                loader: () => import('./courses.js'+VERSION).then(m => m.mountCourses) },
+  students:     { title:'Estudiantes',               needsCourse:true, loader: () => import('./students.js'+VERSION).then(m => m.mountStudents) },
+  groups:       { title:'Grupos',                    needsCourse:true, loader: () => import('./groups.js'+VERSION).then(m => m.mountGroups) },
+  activities:   { title:'Actividades y notas',       needsCourse:true, loader: () => import('./activities.js'+VERSION).then(m => m.mountActivities) },
+  ingest:       { title:'Ingesta IA',                needsCourse:true, loader: () => import('./ingest.js'+VERSION).then(m => m.mountIngest) },
+  asistencia:   { title:'Asistencia',                needsCourse:true, loader: () => import('./asistencia.js'+VERSION).then(m => m.mountAsistencia) },
+  sustentacion: { title:'Sustentación',              needsCourse:true, loader: () => import('./sustentacion.js'+VERSION).then(m => m.mountSustentacion) },
+  conAsistencia:{ title:'Consolidado Asistencia',    needsCourse:true, loader: () => import('./consolidado-asistencia.js'+VERSION).then(m => m.mountConsolidadoAsistencia) },
+  consolidated: { title:'Consolidado',               needsCourse:true, loader: () => import('./consolidated.js'+VERSION).then(m => m.mountConsolidated) },
+  chat:         { title:'AI Chat',                   needsCourse:true, loader: () => import('./chat.js'+VERSION).then(m => m.mountChat) },
+  syllabus:     { title:'Plan del semestre',         needsCourse:true, loader: () => import('./syllabus.js'+VERSION).then(m => m.mountSyllabus) },
 };
 
 // 1. Registrar store ANTES de arrancar Alpine
@@ -80,12 +73,22 @@ Alpine.store('app', {
     this.go('courses');
   },
 
-  renderView(){
+  async renderView(){
     const root = document.getElementById('view-root');
     if (!root) return;
-    root.innerHTML = '';
     const def = VIEWS[this.view];
-    if (def) def.mount(root, this);
+    if (!def) return;
+    // Spinner mientras se descarga el chunk del módulo (primera vez)
+    root.innerHTML = `<div style="padding:30px;text-align:center;color:var(--ean-gray)"><span class="loader" style="margin-right:8px"></span>Cargando vista…</div>`;
+    try {
+      const mount = await def.loader();
+      // Verificar que el usuario no haya cambiado de vista mientras se descargaba
+      if (this.view !== Object.keys(VIEWS).find(k => VIEWS[k] === def)) return;
+      root.innerHTML = '';
+      mount(root, this);
+    } catch(err){
+      root.innerHTML = `<div class="card" style="color:var(--red)"><b>❌ Error cargando la vista</b><br><small>${err.message||err}</small></div>`;
+    }
   },
 
   async signOut(){
