@@ -309,7 +309,10 @@ td.num,th.num{text-align:center}
 }
 .login-card{background:#fff;padding:32px;border-radius:16px;width:100%;max-width:400px;
   box-shadow:0 20px 60px rgba(7,30,43,.4);position:relative;z-index:1}
+.login-logo{display:block;margin:0 auto 10px;border-radius:14px;box-shadow:0 4px 16px rgba(7,30,43,.2)}
+.login-card{text-align:center}
 .login-card h1{font-size:22px;margin-bottom:6px;color:var(--ean-dark);font-weight:700;letter-spacing:.3px}
+.login-card form{text-align:left;margin-top:8px}
 .login-card .sub{color:var(--ean-gray);font-size:13px;margin-bottom:18px}
 .login-error{background:#FBE9EC;color:var(--red);padding:8px 12px;border-radius:8px;font-size:12px;margin-bottom:12px;border:1px solid #F5C2CB}
 

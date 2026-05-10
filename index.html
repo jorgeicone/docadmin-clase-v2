@@ -3,13 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ICONE.DocAdmin v5</title>
+<title>ICONE.DocAdmin v5 — Gestión docente con IA</title>
 <meta name="description" content="ICONE.DocAdmin: gestión docente con IA. Asistencia, notas, sustentación, plan del semestre y consolidados — listo para tu curso universitario.">
+
+<!-- Favicons + iOS/Android -->
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icone-logo-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/icone-logo-192.png">
+<link rel="apple-touch-icon" sizes="192x192" href="assets/icone-logo-192.png">
+<meta name="theme-color" content="#071E2B">
+
+<!-- Open Graph (preview al compartir en WhatsApp/LinkedIn/Slack) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="ICONE.DocAdmin v5 — Gestión docente con IA">
+<meta property="og:description" content="Asistencia, notas, sustentación, plan del semestre y consolidados — listo para tu curso universitario.">
+<meta property="og:image" content="https://jorgeicone.github.io/docadmin-clase-v2/assets/icone-logo-full-400.png">
+<meta property="og:url" content="https://jorgeicone.github.io/docadmin-clase-v2/">
+<meta name="twitter:card" content="summary_large_image">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/main.css?v=20260510r">
+<link rel="stylesheet" href="css/main.css?v=20260510s">
 <style>
   #boot-fallback{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
     background:linear-gradient(135deg,#1B2745,#3055A6);color:#fff;flex-direction:column;gap:12px;
@@ -25,8 +40,9 @@
 <body>
 
 <div id="boot-fallback">
+  <img src="assets/icone-logo-128.png" alt="ICONE ialabs" width="96" height="96" style="border-radius:18px">
+  <h1>ICONE.DocAdmin v5</h1>
   <div class="spinner"></div>
-  <h1>📚 ICONE.DocAdmin v5</h1>
   <div style="font-size:12px;opacity:.85" id="boot-msg">Cargando módulos…</div>
   <div id="boot-err" class="err" style="display:none"></div>
 </div>
@@ -34,7 +50,8 @@
 <!-- ───────────── LOGIN SCREEN ───────────── -->
 <div x-data x-show="$store.app.user===null" x-cloak class="login-bg" role="main" aria-label="Iniciar sesión">
   <div class="login-card" x-data="loginForm()">
-    <h1>📚 ICONE.DocAdmin</h1>
+    <img src="assets/icone-logo-128.png" alt="ICONE ialabs" width="72" height="72" class="login-logo">
+    <h1>ICONE.DocAdmin</h1>
     <div class="sub">Gestión docente con IA · v5</div>
     <template x-if="error"><div class="login-error" x-text="error"></div></template>
     <form @submit.prevent="submit">
@@ -68,7 +85,7 @@
   <div class="sidebar-overlay" x-show="drawerOpen" @click="drawerOpen = false" x-cloak></div>
 
   <aside class="sidebar" :class="{ 'sidebar-open': drawerOpen }">
-    <div class="sidebar-brand">📚 ICONE.DocAdmin <span style="opacity:.5;font-weight:400">v5</span></div>
+    <div class="sidebar-brand"><img src="assets/icone-logo-32.png" alt="" width="22" height="22" style="vertical-align:middle;border-radius:5px;margin-right:6px"> ICONE.DocAdmin <span style="opacity:.5;font-weight:400">v5</span></div>
     <div class="sidebar-section">Cursos</div>
     <nav @click="drawerOpen = false">
       <button :class="{active:$store.app.view==='courses'}" @click="$store.app.go('courses')">📋 Mis cursos</button>
@@ -160,10 +177,10 @@
      Ver js/xlsx-loader.js — ahorra 270 KiB de transferencia inicial. -->
 
 <!-- Red neuronal sutil de fondo — defer (incluye guard mobile + reduced-motion internos) -->
-<script defer src="js/neural-bg.js?v=20260510r"></script>
+<script defer src="js/neural-bg.js?v=20260510s"></script>
 
 <!-- Mi módulo principal — type=module ya es defer-by-default -->
-<script type="module" src="js/main.js?v=20260510r"></script>
+<script type="module" src="js/main.js?v=20260510s"></script>
 
 </body>
 </html>
