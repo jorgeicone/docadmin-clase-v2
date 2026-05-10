@@ -53,9 +53,12 @@ async function renderList(courseId){
               <td style="vertical-align:top"><code>${escape(s.cedula)}</code></td>
               <td>
                 <b>${escape(s.name)}</b>
-                ${metaKeys.length ? `<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">
-                  ${metaKeys.map(k=>`<span class="chip" title="${escapeAttr(k)}" style="font-size:10px;padding:2px 6px"><b>${escape(k)}:</b> ${escape(String(meta[k]).substring(0,40))}</span>`).join('')}
-                </div>`:''}
+                ${metaKeys.length ? `<details class="acc">
+                  <summary>Ver ${metaKeys.length} dato${metaKeys.length===1?'':'s'} extra</summary>
+                  <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+                    ${metaKeys.map(k=>`<span class="chip" title="${escapeAttr(k)}" style="font-size:10px;padding:2px 6px"><b>${escape(k)}:</b> ${escape(String(meta[k]).substring(0,40))}</span>`).join('')}
+                  </div>
+                </details>`:''}
               </td>
               <td style="vertical-align:top">${escape(s.email||'—')}</td>
               <td class="num" style="vertical-align:top">

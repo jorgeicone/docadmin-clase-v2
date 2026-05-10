@@ -77,9 +77,14 @@ function renderGrid(courseId){
               <button class="btn btn-xs btn-danger" data-del="${g.id}">🗑</button>
             </div>
           </div>
-          <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px">
+          <div style="margin-top:10px">
             ${mems.length === 0 ? '<span class="empty-state" style="padding:6px">Sin integrantes</span>' :
-              mems.map(s => `<span class="chip" style="font-size:11px" title="${escapeAttr(s.cedula)}">${escape(s.name.split(' ').slice(0,2).join(' '))}${s.id===g.leader_student_id?' 👑':''}</span>`).join('')}
+              `<details class="acc">
+                <summary>👥 Ver ${mems.length} integrante${mems.length===1?'':'s'}</summary>
+                <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">
+                  ${mems.map(s => `<span class="chip" style="font-size:11px" title="${escapeAttr(s.cedula)}">${escape(s.name.split(' ').slice(0,2).join(' '))}${s.id===g.leader_student_id?' 👑':''}</span>`).join('')}
+                </div>
+              </details>`}
           </div>
         </div>
       `}).join('')}

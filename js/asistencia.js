@@ -52,8 +52,13 @@ export async function mountAsistencia(root, store){
         </div>
 
         <div class="card">
-          <div id="a-counters" style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap"></div>
-          <div id="a-table-wrap"><p class="empty-state">Cargando estudiantes…</p></div>
+          <details class="acc acc-block" open>
+            <summary>
+              <span class="acc-label">👥 Estudiantes — sesión actual</span>
+              <span id="a-counters" style="display:inline-flex;gap:6px;flex-wrap:wrap;margin-left:auto"></span>
+            </summary>
+            <div id="a-table-wrap" style="margin-top:10px"><p class="empty-state">Cargando estudiantes…</p></div>
+          </details>
         </div>
       </div>
     </div>

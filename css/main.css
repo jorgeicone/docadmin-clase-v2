@@ -151,6 +151,37 @@ body{
   .menu-toggle{display:none !important}
 }
 
+/* ═══════ Acordeón <details class="acc"> ═══════ */
+details.acc{margin-top:6px}
+details.acc > summary{
+  cursor:pointer;font-size:12px;font-weight:600;color:var(--ean-cyan);
+  padding:4px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:6px;
+  list-style:none;user-select:none;transition:background .15s;
+}
+details.acc > summary::-webkit-details-marker{display:none}
+details.acc > summary::before{
+  content:'▶';font-size:9px;color:var(--ean-cyan);
+  transition:transform .2s;display:inline-block
+}
+details.acc[open] > summary::before{transform:rotate(90deg)}
+details.acc > summary:hover{background:var(--ean-cyan-soft)}
+
+/* Variante "block": ocupa todo el ancho (para tabla de asistencia) */
+details.acc.acc-block > summary{
+  display:flex;width:100%;
+  background:var(--ean-light);
+  padding:10px 14px;border-radius:8px;
+  font-size:13px;color:var(--ean-dark);
+  border:1px solid var(--ean-border);
+}
+details.acc.acc-block > summary .acc-label{
+  display:inline-flex;align-items:center;gap:6px;font-weight:700
+}
+details.acc.acc-block[open] > summary{
+  border-bottom-left-radius:0;border-bottom-right-radius:0;
+  border-bottom-color:transparent
+}
+
 /* ═══════ Rotate hint (mobile portrait) ═══════ */
 .rotate-hint{
   position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
