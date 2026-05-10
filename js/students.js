@@ -1,6 +1,7 @@
 // Roster de estudiantes con import desde Excel
 import { supabase } from './supabase-client.js';
 import { toast } from './toast.js';
+import { loadXLSX } from './xlsx-loader.js';
 
 export async function mountStudents(root, store){
   const courseId = store.activeCourse.id;
@@ -165,6 +166,9 @@ function openImportModal(courseId, onDone){
   let rawRows = null, rawKeys = null;
 
   async function handleFile(f){
+    let XLSX;
+    try { XLSX = await loadXLSX(); }
+    catch(e){ toast(e.message,'error'); return; }
     const buf = await f.arrayBuffer();
     const wb = XLSX.read(buf, { type: 'array' });
     const ws = wb.Sheets[wb.SheetNames[0]];

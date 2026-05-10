@@ -3,6 +3,7 @@ import { supabase, currentSession } from './supabase-client.js';
 import { toast } from './toast.js';
 import { ACTIVITY_TYPES } from './config.js';
 import { WORKER_URL } from './config.js';
+import { loadXLSX } from './xlsx-loader.js';
 
 let activities = [], students = [], groups = [], memberships = [];
 let courseId = null;
@@ -185,6 +186,9 @@ async function handleFile(f){
   let preInner = `<div style="background:#fff;padding:10px;border-radius:6px"><b>📎 ${escape(f.name)}</b> · ${(f.size/1024).toFixed(1)} KB · <span class="chip">${state.fileType.toUpperCase()}</span></div>`;
 
   if (state.fileType === 'excel'){
+    let XLSX;
+    try { XLSX = await loadXLSX(); }
+    catch(e){ toast(e.message,'error'); return; }
     const buf = await f.arrayBuffer();
     const wb = XLSX.read(buf, { type:'array' });
     const ws = wb.Sheets[wb.SheetNames[0]];

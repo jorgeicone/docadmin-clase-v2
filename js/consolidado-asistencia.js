@@ -1,6 +1,7 @@
 // 📋 CONSOLIDADO DE ASISTENCIA — matriz estudiantes × sesiones + KPIs
 import { supabase } from './supabase-client.js';
 import { toast } from './toast.js';
+import { loadXLSX } from './xlsx-loader.js';
 
 let students = [], sessions = [], grades = [], groups = [], memberships = [];
 let courseId = null;
@@ -213,8 +214,11 @@ function kpiCard(label, value, color){
   `;
 }
 
-function exportExcel(courseName){
+async function exportExcel(courseName){
   if (!students.length || !sessions.length){ toast('Nada para exportar','error'); return; }
+  let XLSX;
+  try { XLSX = await loadXLSX(); }
+  catch(e){ toast(e.message,'error'); return; }
 
   const headers = ['#', 'Cédula', 'Estudiante', 'Grupo', ...sessions.map(s => s.date), 'P', 'T', 'A', '% Asistencia'];
   const rows = students.map((s,i) => {

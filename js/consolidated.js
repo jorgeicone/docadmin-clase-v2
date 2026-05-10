@@ -1,6 +1,7 @@
 // 📊 CONSOLIDADO — matriz de estudiantes × actividades + promedio ponderado + export
 import { supabase } from './supabase-client.js';
 import { toast } from './toast.js';
+import { loadXLSX } from './xlsx-loader.js';
 
 let students = [], activities = [], grades = [];
 let courseId = null;
@@ -167,8 +168,11 @@ function render(){
   `;
 }
 
-function exportExcel(courseName){
+async function exportExcel(courseName){
   if (!students.length || !activities.length){ toast('Nada para exportar','error'); return; }
+  let XLSX;
+  try { XLSX = await loadXLSX(); }
+  catch(e){ toast(e.message,'error'); return; }
 
   const headers = ['#', 'Cédula', 'Estudiante', ...activities.map(a => `${a.name} (/${a.max_points}${a.weight?', '+a.weight+'%':' EXTRA'})`), 'Acumulado', 'Máximo posible'];
   const rows = students.map((s,i) => {
