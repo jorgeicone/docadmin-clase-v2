@@ -9,6 +9,9 @@ let viewMode = 'list';        // 'list' | 'grade'
 let activeSust = null;        // actividad sustentación activa para calificar
 let pendingPts = {};          // {criterionIndex: pts}
 let activeGroupId = null;
+let presence = {};            // {studentId: true/false} — true si estuvo presente en la sustentación
+
+const ABSENT_PREFIX = 'AUSENTE en la sustentación';
 
 const PLANTILLAS = {
   diagnostico: {
@@ -366,6 +369,7 @@ function renderGradeView(root, store){
 function loadGroupForGrading(groupId){
   activeGroupId = groupId;
   pendingPts = {};
+  presence = {};
   document.getElementById('g-obs').value = '';
 
   if (!groupId){
@@ -380,23 +384,91 @@ function loadGroupForGrading(groupId){
   const mems = membersOf(groupId);
   const leader = students.find(s => s.id === group.leader_student_id);
 
-  document.getElementById('g-members-info').innerHTML = `
-    <div style="background:#F0F4F8;padding:10px;border-radius:6px;font-size:12px">
-      <b>${escape(group.name)}</b> · <b>${mems.length}</b> integrantes${leader?` · 👑 Líder: <b>${escape(leader.name)}</b>`:''}
-      <div style="margin-top:4px;font-size:11px;color:var(--ean-gray)">${mems.map(m => escape(m.name)).join(' · ') || 'Sin integrantes'}</div>
-    </div>
-  `;
-
-  // Verificar si ya estaba calificado → cargar pts existentes
-  const existing = grades.find(g => g.activity_id === activeSust.id && g.group_id === groupId);
-  if (existing?.raw_pts){
-    pendingPts = { ...existing.raw_pts };
-    document.getElementById('g-obs').value = existing.observation || '';
+  // Cargar pts y obs si ya existen (cualquier grade del grupo en esta sustentación)
+  const groupGrades = grades.filter(g => g.activity_id === activeSust.id && g.group_id === groupId);
+  // raw_pts y observation grupal vienen del primer grade NO marcado como ausente
+  const sample = groupGrades.find(g => !(g.observation||'').startsWith(ABSENT_PREFIX)) || groupGrades[0];
+  if (sample?.raw_pts){
+    // Filtrar campos no numéricos (pueden ser strings o objetos viejos)
+    Object.entries(sample.raw_pts).forEach(([k,v]) => {
+      if (!isNaN(parseInt(k))) pendingPts[parseInt(k)] = v;
+    });
+    const obs = sample.observation || '';
+    document.getElementById('g-obs').value = obs.startsWith(ABSENT_PREFIX) ? '' : obs;
   }
 
+  // Calcular presence: por defecto todos presentes; el que tiene grade con obs "AUSENTE..." → ausente
+  mems.forEach(m => {
+    const myGrade = groupGrades.find(g => g.student_id === m.id);
+    if (myGrade && (myGrade.observation||'').startsWith(ABSENT_PREFIX)){
+      presence[m.id] = false;
+    } else {
+      presence[m.id] = true;
+    }
+  });
+
+  renderMembers(group, mems, leader);
   renderCriteriaGrading();
   updateTotal();
   document.getElementById('g-save').disabled = false;
+}
+
+function renderMembers(group, mems, leader){
+  const presentCount = mems.filter(m => presence[m.id]).length;
+  const absentCount = mems.length - presentCount;
+  const div = document.getElementById('g-members-info');
+  div.innerHTML = `
+    <div style="background:#F0F4F8;padding:12px;border-radius:8px;font-size:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <div>
+          <b>${escape(group.name)}</b> · <b>${mems.length}</b> integrantes${leader?` · 👑 Líder: <b>${escape(leader.name)}</b>`:''}
+        </div>
+        <div style="display:flex;gap:6px">
+          <span class="chip chip-green" style="font-size:10px;padding:2px 8px">✅ ${presentCount} presentes</span>
+          ${absentCount > 0 ? `<span class="chip chip-red" style="font-size:10px;padding:2px 8px">❌ ${absentCount} ausentes</span>` : ''}
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--ean-gray);font-style:italic">
+        💡 Click ✏️ para marcar quién presentó. Los ausentes reciben nota 0.
+      </div>
+      <button type="button" class="btn btn-out btn-xs" id="g-edit-presence" style="margin-top:6px">
+        ✏️ Editar presencia de integrantes
+      </button>
+      <div id="g-presence-list" style="display:none;margin-top:10px;display:none"></div>
+    </div>
+  `;
+
+  document.getElementById('g-edit-presence').onclick = () => {
+    const list = document.getElementById('g-presence-list');
+    const isOpen = list.style.display === 'block';
+    list.style.display = isOpen ? 'none' : 'block';
+    document.getElementById('g-edit-presence').textContent = isOpen
+      ? '✏️ Editar presencia de integrantes'
+      : '▲ Cerrar edición de presencia';
+    if (!isOpen){
+      list.innerHTML = mems.map(m => {
+        const isLeader = m.id === leader?.id;
+        const isPresent = presence[m.id];
+        return `
+          <label style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#fff;border-radius:6px;border:1px solid var(--ean-border);margin-bottom:4px;cursor:pointer">
+            <input type="checkbox" data-pid="${m.id}" ${isPresent?'checked':''} style="width:16px;height:16px">
+            <span style="flex:1;font-size:12px">${escape(m.name)}${isLeader?' 👑':''}</span>
+            <span class="chip ${isPresent?'chip-green':'chip-red'}" style="font-size:9px;padding:1px 6px">${isPresent?'Presente':'Ausente'}</span>
+          </label>
+        `;
+      }).join('');
+
+      list.querySelectorAll('input[data-pid]').forEach(cb => {
+        cb.onchange = () => {
+          presence[cb.dataset.pid] = cb.checked;
+          // Re-render para actualizar contadores y chips
+          renderMembers(group, mems, leader);
+          // Reabrir la edición
+          document.getElementById('g-edit-presence').click();
+        };
+      });
+    }
+  };
 }
 
 function renderCriteriaGrading(){
@@ -462,7 +534,7 @@ async function saveGroupGrade(root, store){
   const totalActual = Object.values(pendingPts).reduce((a,v)=>a+(v||0), 0);
   const scaled = totalMax > 0 ? Math.round((totalActual/totalMax)*activeSust.max_points) : 0;
   const desglose = rubric.map((c,i) => `${c.name}:${pendingPts[i]??0}`).join(' + ');
-  const obs = document.getElementById('g-obs').value.trim() || null;
+  const obsRaw = document.getElementById('g-obs').value.trim() || null;
 
   const mems = membersOf(activeGroupId);
   if (!mems.length){ toast('El grupo no tiene integrantes','error'); return; }
@@ -470,22 +542,32 @@ async function saveGroupGrade(root, store){
   // 1. Borrar grades viejas de este grupo en esta actividad (por si era edición)
   await supabase.from('v5_grades').delete().eq('activity_id', activeSust.id).eq('group_id', activeGroupId);
 
-  // 2. Insertar una grade por cada integrante con el mismo total
-  const rows = mems.map(m => ({
-    activity_id: activeSust.id,
-    student_id: m.id,
-    group_id: activeGroupId,
-    value: scaled,
-    raw_pts: pendingPts,
-    desglose,
-    observation: obs,
-    source: 'manual',
-  }));
+  // 2. Insertar una grade por cada integrante. Los ausentes reciben value=0
+  //    con observation marcada con ABSENT_PREFIX para distinguirlos.
+  const presentes = mems.filter(m => presence[m.id] !== false);
+  const ausentes  = mems.filter(m => presence[m.id] === false);
+
+  const rows = mems.map(m => {
+    const isAbsent = presence[m.id] === false;
+    return {
+      activity_id: activeSust.id,
+      student_id: m.id,
+      group_id: activeGroupId,
+      value: isAbsent ? 0 : scaled,
+      raw_pts: isAbsent ? {} : pendingPts,
+      desglose: isAbsent ? 'AUSENTE' : desglose,
+      observation: isAbsent
+        ? `${ABSENT_PREFIX} de ${activeSust.name}`
+        : obsRaw,
+      source: 'manual',
+    };
+  });
 
   const { error } = await supabase.from('v5_grades').upsert(rows, { onConflict: 'activity_id,student_id' });
   if (error){ toast('Error: '+error.message,'error'); return; }
 
-  toast(`✅ ${mems.length} estudiantes calificados con ${scaled}/${activeSust.max_points}`,'success');
+  const ausenteMsg = ausentes.length ? ` (${ausentes.length} ausente${ausentes.length===1?'':'s'} con 0)` : '';
+  toast(`✅ ${presentes.length} calificado${presentes.length===1?'':'s'} con ${scaled}/${activeSust.max_points}${ausenteMsg}`,'success');
   await loadAll();
   loadGroupForGrading(activeGroupId);  // recargar para que aparezca el ✅
   renderHistory();
