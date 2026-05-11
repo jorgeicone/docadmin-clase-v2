@@ -3,6 +3,24 @@ import { supabase } from './supabase-client.js';
 import { toast } from './toast.js';
 import { loadXLSX } from './xlsx-loader.js';
 
+// Campos extra del curso (definidos por el profe o detectados al importar Excel).
+// Se guardan en localStorage por curso para que estén disponibles al editar
+// estudiantes aunque ninguno aún tenga datos en esa columna.
+function getCourseExtraKeys(courseId){
+  const saved = localStorage.getItem('course_meta_keys_' + courseId);
+  if (saved){ try { return JSON.parse(saved); } catch(e){} }
+  return [];
+}
+function setCourseExtraKeys(courseId, keys){
+  // Unique + non-empty
+  const uniq = [...new Set(keys.filter(k => k && k.trim()))];
+  localStorage.setItem('course_meta_keys_' + courseId, JSON.stringify(uniq));
+}
+function addCourseExtraKeys(courseId, newKeys){
+  const cur = getCourseExtraKeys(courseId);
+  setCourseExtraKeys(courseId, [...cur, ...newKeys]);
+}
+
 export async function mountStudents(root, store){
   const courseId = store.activeCourse.id;
   root.innerHTML = `
@@ -22,13 +40,23 @@ export async function mountStudents(root, store){
   `;
 
   document.getElementById('btn-add').onclick = async () => {
-    // Para "+ Agregar manual" pasamos el roster actual para que conozca las keys
     const { data } = await supabase.from('v5_students').select('metadata').eq('course_id', courseId);
     const rosterMeta = (data || []).map(d => d.metadata).filter(m => m && typeof m === 'object');
     openStudentModal(courseId, null, ()=>renderList(courseId), rosterMeta);
   };
   document.getElementById('btn-import').onclick = () => openImportModal(courseId, ()=>renderList(courseId));
 
+  // Botón nuevo: configurar campos extras del curso (sin importar Excel)
+  if (!document.getElementById('btn-configure-fields')){
+    const btnRow = document.getElementById('btn-add').parentElement;
+    const btnCfg = document.createElement('button');
+    btnCfg.id = 'btn-configure-fields';
+    btnCfg.className = 'btn btn-out';
+    btnCfg.title = 'Define los campos extras del curso (programa, plan, campus, etc.)';
+    btnCfg.innerHTML = '⚙️ Campos del curso';
+    btnCfg.onclick = () => openCourseFieldsModal(courseId, () => renderList(courseId));
+    btnRow.insertBefore(btnCfg, document.getElementById('btn-import'));
+  }
   await renderList(courseId);
 }
 
@@ -100,12 +128,11 @@ async function renderList(courseId){
 function openStudentModal(courseId, student, onDone, rosterMeta = []){
   const isEdit = !!student;
   const host = document.getElementById('stu-modal-host');
-  // Datos extra existentes (metadata es un objeto)
   const existingMeta = (student?.metadata && typeof student.metadata === 'object') ? student.metadata : {};
 
-  // Claves de datos extra que existen en CUALQUIER estudiante del curso (vienen del Excel).
-  // El profe NO debe inventar keys; debe ver y editar las que ya existen.
+  // Claves del curso: definidas explicitamente + las que se ven en el roster + las del estudiante actual
   const knownKeys = new Set();
+  getCourseExtraKeys(courseId).forEach(k => knownKeys.add(k));
   rosterMeta.forEach(m => Object.keys(m || {}).forEach(k => knownKeys.add(k)));
   Object.keys(existingMeta).forEach(k => knownKeys.add(k));
   const sortedKeys = [...knownKeys].sort();
@@ -267,6 +294,64 @@ function openStudentModal(courseId, student, onDone, rosterMeta = []){
     } else {
       toast(isEdit?'Actualizado':'Agregado','success');
     }
+    host.innerHTML='';
+    onDone?.();
+  };
+}
+
+// Modal de configuración de campos extras del curso
+function openCourseFieldsModal(courseId, onDone){
+  const host = document.getElementById('stu-modal-host');
+  const existingKeys = getCourseExtraKeys(courseId);
+
+  host.innerHTML = `
+    <div class="modal-bg">
+      <div class="modal" style="max-width:560px">
+        <h2>⚙️ Campos del curso</h2>
+        <p style="font-size:12px;color:var(--ean-gray);margin-bottom:14px">
+          Define los campos extras (programa, plan, campus, etc.) que tendrán todos los estudiantes de este curso.
+          Aparecerán automáticamente en el modal de editar/agregar estudiante.
+        </p>
+
+        <div id="cfk-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
+        <button type="button" class="btn btn-out btn-xs" id="cfk-add">＋ Agregar campo</button>
+
+        <div style="margin-top:14px;padding:10px;background:#FFF8E1;border-radius:6px;font-size:11px;color:var(--ean-gray)">
+          💡 Estos son solo los <b>nombres</b> de los campos. Después, en cada estudiante, podrás
+          escribir el valor (ej: campo "Programa" → valor "Comunicación Digital").
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-out" id="m-cancel">Cancelar</button>
+          <button class="btn" id="m-save">Guardar</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const listDiv = document.getElementById('cfk-list');
+  function addRow(key=''){
+    const row = document.createElement('div');
+    row.className = 'cfk-row';
+    row.style.cssText = 'display:flex;gap:6px;align-items:center';
+    row.innerHTML = `
+      <input class="cfk-name" type="text" placeholder="Ej: Programa, Plan, Campus, Horario" value="${escapeAttr(key)}" style="flex:1">
+      <button type="button" class="btn btn-xs btn-danger cfk-del" title="Quitar">🗑</button>
+    `;
+    row.querySelector('.cfk-del').onclick = () => row.remove();
+    listDiv.appendChild(row);
+  }
+  existingKeys.forEach(addRow);
+  if (!existingKeys.length){ addRow(); addRow(); addRow(); }
+  document.getElementById('cfk-add').onclick = () => addRow();
+
+  document.getElementById('m-cancel').onclick = () => host.innerHTML='';
+  document.getElementById('m-save').onclick = () => {
+    const newKeys = [...listDiv.querySelectorAll('.cfk-name')]
+      .map(inp => inp.value.trim())
+      .filter(Boolean);
+    setCourseExtraKeys(courseId, newKeys);
+    toast(`✅ ${newKeys.length} campo${newKeys.length===1?'':'s'} guardado${newKeys.length===1?'':'s'}`,'success');
     host.innerHTML='';
     onDone?.();
   };
@@ -477,7 +562,16 @@ function openImportModal(courseId, onDone){
     const payload = parsed.map(s => ({ ...s, course_id: courseId }));
     const { data, error } = await supabase.from('v5_students').upsert(payload, { onConflict: 'course_id,cedula', ignoreDuplicates: false }).select();
     if (error){ toast('Error: '+error.message,'error'); btn.disabled=false; btn.textContent='Importar'; return; }
-    toast(`✅ ${data?.length||parsed.length} estudiantes importados`,'success');
+
+    // Guardar las claves usadas como definición de columnas del curso
+    // (asi aparecen en el modal de editar aunque ningun estudiante tenga valor)
+    const keysFromImport = new Set();
+    parsed.forEach(s => Object.keys(s.metadata || {}).forEach(k => keysFromImport.add(k)));
+    if (keysFromImport.size){
+      addCourseExtraKeys(courseId, [...keysFromImport]);
+    }
+
+    toast(`✅ ${data?.length||parsed.length} estudiantes importados${keysFromImport.size ? ` con ${keysFromImport.size} campos extras` : ''}`,'success');
     host.innerHTML='';
     onDone?.();
   };
