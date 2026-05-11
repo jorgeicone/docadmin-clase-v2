@@ -2,13 +2,13 @@
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
 // v=20260510e — bumpear este sufijo si se cambian los módulos para invalidar caché
 // Imports CRÍTICOS (necesarios para login + boot inicial):
-import { supabase, currentSession } from './supabase-client.js?v=20260510y';
-import { toast } from './toast.js?v=20260510y';
-import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260510y';
+import { supabase, currentSession } from './supabase-client.js?v=20260510z';
+import { toast } from './toast.js?v=20260510z';
+import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260510z';
 
 // Bloque 5 (LCP): lazy import de los 11 módulos de vistas.
 // Solo se descarga al navegar a esa vista. Reduce JS inicial ~50 KiB.
-const VERSION = '?v=20260510y';
+const VERSION = '?v=20260510z';
 const VIEWS = {
   courses:      { title:'Mis cursos',                loader: () => import('./courses.js'+VERSION).then(m => m.mountCourses) },
   students:     { title:'Estudiantes',               needsCourse:true, loader: () => import('./students.js'+VERSION).then(m => m.mountStudents) },
@@ -188,6 +188,34 @@ window.loginForm = () => ({
 // 3. Arrancar Alpine ahora que todo está registrado
 window.Alpine = Alpine;
 Alpine.start();
+
+// ── Protección anti-back accidental ──
+// Si el usuario presiona ← del navegador estando logueado, lo navegamos
+// dentro de la app en vez de sacarlo. Solo se sale cerrando la pestaña.
+// Se "ancla" un estado dummy en el history; al popstate hacemos push otra
+// vez para mantener el ancla, y navegamos al nivel anterior dentro de la app.
+history.pushState({ docadmin:true }, '', location.href);
+window.addEventListener('popstate', () => {
+  const store = Alpine.store('app');
+  if (!store?.user){
+    // Sin sesión: comportamiento normal del browser (deja salir)
+    return;
+  }
+  // Con sesión: re-anclamos y navegamos internamente
+  history.pushState({ docadmin:true }, '', location.href);
+  if (store.activeCourse && store.view !== 'courses'){
+    // Estás dentro de una vista del curso → vuelve a Mis cursos
+    store.go('courses');
+    toast('← Volviste a Mis cursos');
+  } else if (store.activeCourse){
+    // Estás en Mis cursos con curso activo → suelta el curso
+    store.clearActiveCourse();
+    toast('← Saliste del curso');
+  } else {
+    // Ya estás en el nivel raíz
+    toast('Cierra la pestaña para salir de la app');
+  }
+});
 
 // 4. Lanzar init asíncrono del store y montar primera vista
 Alpine.store('app').init().then(() => {
