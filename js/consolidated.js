@@ -188,7 +188,7 @@ function render(){
         <tbody>
           ${students.map((s,i) => {
             const d = detailFor(s.id);
-            const subExtrasCell = d.subExtras > 0 ? d.subExtras.toFixed(2) : '0';
+            const subExtrasCell = Math.round(d.subExtras);
             const subNotasCls = totalWeightCourse > 0 ? gradeColor(d.subNotas, totalWeightCourse) : '';
             const totalCls = totalWeightCourse > 0 ? gradeColor(d.total, totalWeightCourse) : '';
             return `
@@ -226,15 +226,15 @@ function render(){
 
               ${weightedActs.length > 0 ? `
                 <td class="num" style="background:#4DD0E1;border-left:2px solid #00838F;border-right:2px solid #00838F">
-                  <span class="chip ${subNotasCls}" style="font-weight:800">${d.subNotas.toFixed(2)} / ${totalWeightCourse}</span>
+                  <span class="chip ${subNotasCls}" style="font-weight:800">${Math.round(d.subNotas)} / ${totalWeightCourse}</span>
                 </td>
               ` : ''}
 
               <td class="num" style="background:${TOTAL_BG};border-left:2px solid var(--green)">
-                <span class="chip ${totalCls}" style="font-weight:800;font-size:13px">${d.total.toFixed(2)}</span>
+                <span class="chip ${totalCls}" style="font-weight:800;font-size:13px">${Math.round(d.total)}</span>
               </td>
               <td class="num" style="background:${FALTA_BG}">
-                <span style="color:${d.falta > 0 ? '#B71C1C' : '#1B5E20'};font-weight:800">${d.falta.toFixed(2)}</span>
+                <span style="color:${d.falta > 0 ? '#B71C1C' : '#1B5E20'};font-weight:800">${Math.round(d.falta)}</span>
               </td>
             </tr>`;
           }).join('')}
