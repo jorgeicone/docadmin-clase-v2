@@ -93,13 +93,22 @@ async function renderList(courseId){
 function openStudentModal(courseId, student, onDone){
   const isEdit = !!student;
   const host = document.getElementById('stu-modal-host');
+  // Datos extra existentes (metadata es un objeto)
+  const existingMeta = (student?.metadata && typeof student.metadata === 'object') ? student.metadata : {};
   host.innerHTML = `
     <div class="modal-bg">
-      <div class="modal">
+      <div class="modal" style="max-width:560px">
         <h2>${isEdit?'Editar':'Agregar'} estudiante</h2>
         <div class="field"><label>Cédula *</label><input id="f-ced" value="${escapeAttr(student?.cedula||'')}"></div>
         <div class="field"><label>Nombre completo *</label><input id="f-nom" value="${escapeAttr(student?.name||'')}"></div>
         <div class="field"><label>Email</label><input id="f-email" type="email" value="${escapeAttr(student?.email||'')}"></div>
+
+        <details class="acc" ${Object.keys(existingMeta).length ? 'open' : ''}>
+          <summary>📦 Datos extra (programa, plan, campus, etc.)</summary>
+          <div id="meta-rows" style="margin-top:8px;display:flex;flex-direction:column;gap:6px"></div>
+          <button type="button" class="btn btn-out btn-xs" id="meta-add" style="margin-top:8px">＋ Agregar campo</button>
+        </details>
+
         <div class="modal-actions">
           <button class="btn btn-out" id="m-cancel">Cancelar</button>
           <button class="btn" id="m-save">Guardar</button>
@@ -107,6 +116,25 @@ function openStudentModal(courseId, student, onDone){
       </div>
     </div>
   `;
+
+  // Render dinámico de filas de datos extra
+  const metaRowsDiv = document.getElementById('meta-rows');
+  function renderMetaRow(key='', value=''){
+    const row = document.createElement('div');
+    row.className = 'meta-row';
+    row.style.cssText = 'display:grid;grid-template-columns:1fr 1.6fr auto;gap:6px;align-items:center';
+    row.innerHTML = `
+      <input class="meta-k" type="text" placeholder="Campo (ej: Programa)" value="${escapeAttr(key)}">
+      <input class="meta-v" type="text" placeholder="Valor" value="${escapeAttr(value)}">
+      <button type="button" class="btn btn-xs btn-danger meta-del" title="Quitar">🗑</button>
+    `;
+    row.querySelector('.meta-del').onclick = () => row.remove();
+    metaRowsDiv.appendChild(row);
+  }
+  // Cargar campos existentes
+  Object.entries(existingMeta).forEach(([k,v]) => renderMetaRow(k, String(v ?? '')));
+  document.getElementById('meta-add').onclick = () => renderMetaRow();
+
   document.getElementById('m-cancel').onclick = () => host.innerHTML='';
   document.getElementById('m-save').onclick = async () => {
     const payload = {
@@ -115,6 +143,16 @@ function openStudentModal(courseId, student, onDone){
       email: document.getElementById('f-email').value.trim() || null,
     };
     if (!payload.cedula || !payload.name){ toast('Cédula y nombre requeridos','error'); return; }
+
+    // Reconstruir metadata desde las filas dinámicas
+    const meta = {};
+    metaRowsDiv.querySelectorAll('.meta-row').forEach(row => {
+      const k = row.querySelector('.meta-k').value.trim();
+      const v = row.querySelector('.meta-v').value.trim();
+      if (k) meta[k] = v;  // ignora filas sin nombre de campo
+    });
+    payload.metadata = meta;
+
     let r;
     if (isEdit) r = await supabase.from('v5_students').update(payload).eq('id', student.id);
     else { payload.course_id = courseId; r = await supabase.from('v5_students').insert(payload); }
