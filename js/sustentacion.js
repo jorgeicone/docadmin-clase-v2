@@ -13,6 +13,31 @@ let presence = {};            // {studentId: true/false} — true si estuvo pres
 
 const ABSENT_PREFIX = 'AUSENTE en la sustentación';
 
+// Paleta de colores personalizables para cards de sustentación (misma que cursos)
+const SUST_COLORS = {
+  cyan:    { name:'Cyan',    main:'#1AC8DB', soft:'rgba(26,200,219,.10)',  glow:'rgba(26,200,219,.35)' },
+  purple:  { name:'Púrpura', main:'#7A3CFF', soft:'rgba(122,60,255,.10)',  glow:'rgba(122,60,255,.35)' },
+  blue:    { name:'Azul',    main:'#3055A6', soft:'rgba(48,85,166,.10)',   glow:'rgba(48,85,166,.35)'  },
+  green:   { name:'Verde',   main:'#1FAA59', soft:'rgba(31,170,89,.10)',   glow:'rgba(31,170,89,.35)'  },
+  orange:  { name:'Naranja', main:'#FF8A3C', soft:'rgba(255,138,60,.10)',  glow:'rgba(255,138,60,.35)' },
+  pink:    { name:'Rosa',    main:'#E91E63', soft:'rgba(233,30,99,.10)',   glow:'rgba(233,30,99,.35)'  },
+  yellow:  { name:'Amarillo',main:'#F9C911', soft:'rgba(249,201,17,.12)',  glow:'rgba(249,201,17,.40)' },
+  red:     { name:'Rojo',    main:'#D7263D', soft:'rgba(215,38,61,.10)',   glow:'rgba(215,38,61,.35)'  },
+};
+const SUST_COLOR_KEYS = Object.keys(SUST_COLORS);
+
+function sustColorOf(sustId){
+  const saved = localStorage.getItem('sust_color_' + sustId);
+  if (saved && SUST_COLORS[saved]) return saved;
+  let h = 0;
+  for (let i = 0; i < sustId.length; i++) h = (h * 31 + sustId.charCodeAt(i)) >>> 0;
+  return SUST_COLOR_KEYS[h % SUST_COLOR_KEYS.length];
+}
+function setSustColorOf(sustId, color){
+  if (!SUST_COLORS[color]) return;
+  localStorage.setItem('sust_color_' + sustId, color);
+}
+
 const PLANTILLAS = {
   diagnostico: {
     name: 'Diagnóstico inicial (5 criterios)',
@@ -101,11 +126,9 @@ function renderList(root, store){
       const totalGrupos = groups.length;
       const calificados = byGroup.size;
       const pct = totalGrupos > 0 ? Math.round(calificados/totalGrupos*100) : 0;
-      // Color basado en progreso de calificación
-      const color = pct === 100 ? { main:'#1FAA59', soft:'rgba(31,170,89,.10)',  glow:'rgba(31,170,89,.30)'  }
-                  : pct >= 50  ? { main:'#1AC8DB', soft:'rgba(26,200,219,.10)', glow:'rgba(26,200,219,.30)' }
-                  : pct > 0    ? { main:'#F57C00', soft:'rgba(245,124,0,.10)',  glow:'rgba(245,124,0,.30)'  }
-                  :              { main:'#7A3CFF', soft:'rgba(122,60,255,.10)', glow:'rgba(122,60,255,.30)' };
+      // Color asignado por el usuario (o hash del id por defecto)
+      const colorKey = sustColorOf(s.id);
+      const color = SUST_COLORS[colorKey];
       const btnLabel = pct === 100 ? '📊 Ver / Editar notas'
                      : pct > 0     ? '📝 Continuar calificación'
                      :               '📝 Comenzar a calificar';
@@ -123,6 +146,7 @@ function renderList(root, store){
             ${s.topic ? '<div style="font-size:12px;margin-top:6px;color:var(--ean-dark)"><b>Tema:</b> '+escape(s.topic)+'</div>' : ''}
           </div>
           <div class="course-actions">
+            <button class="course-action-btn" data-color="${s.id}" title="Cambiar color">🎨</button>
             <button class="course-action-btn" data-edit="${s.id}" title="Editar rúbrica">✏️</button>
             <button class="course-action-btn course-action-danger" data-del="${s.id}" title="Eliminar">🗑</button>
           </div>
@@ -143,6 +167,17 @@ function renderList(root, store){
       </div>
       `;
     }).join('')}
+  </div>
+
+  <!-- Popover de color (oculto por defecto) -->
+  <div id="sust-color-popover" class="color-popover" style="display:none">
+    <div class="color-popover-title">Color de la sustentación</div>
+    <div class="color-popover-grid">
+      ${SUST_COLOR_KEYS.map(k => `
+        <button class="color-swatch" data-pick="${k}" title="${SUST_COLORS[k].name}"
+          style="background:${SUST_COLORS[k].main}"></button>
+      `).join('')}
+    </div>
   </div>`;
 
   list.querySelectorAll('[data-grade]').forEach(b=>b.onclick=()=>openGradeView(root, store, b.dataset.grade));
@@ -150,6 +185,24 @@ function renderList(root, store){
     const s = sustentaciones.find(x=>x.id===b.dataset.edit);
     openCreateModal(root, store, s);
   });
+  // Popover de color
+  const popover = document.getElementById('sust-color-popover');
+  let popoverSustId = null;
+  list.querySelectorAll('[data-color]').forEach(b => b.onclick = (e) => {
+    e.stopPropagation();
+    popoverSustId = b.dataset.color;
+    const rect = b.getBoundingClientRect();
+    popover.style.display = 'block';
+    popover.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+    popover.style.left = (rect.left + window.scrollX - 80) + 'px';
+  });
+  popover.querySelectorAll('[data-pick]').forEach(b => b.onclick = (e) => {
+    e.stopPropagation();
+    if (popoverSustId) setSustColorOf(popoverSustId, b.dataset.pick);
+    popover.style.display = 'none';
+    renderList(root, store);
+  });
+  document.addEventListener('click', () => { popover.style.display = 'none'; }, { once:true });
   list.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
     const s = sustentaciones.find(x=>x.id===b.dataset.del);
     if (!confirm(`¿Eliminar "${s.name}"?\nLas notas asociadas también se eliminarán.`)) return;
