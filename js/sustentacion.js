@@ -115,7 +115,7 @@ function renderList(root, store){
             <div class="course-meta">
               ${s.date ? '<span class="course-meta-pill">📅 '+s.date+'</span>' : ''}
               ${s.weight ? '<span class="course-meta-pill">'+s.weight+'% del curso</span>' : ''}
-              <span class="course-meta-pill">${rubric.length} criterios · /20</span>
+              <span class="course-meta-pill">${rubric.length} criterios · /${s.max_points}</span>
             </div>
             ${s.topic ? '<div style="font-size:12px;margin-top:6px;color:var(--ean-dark)"><b>Tema:</b> '+escape(s.topic)+'</div>' : ''}
           </div>
@@ -233,7 +233,7 @@ function openCreateModal(root, store, existing){
   function updateSummary(){
     const totalMax = criteria.reduce((a,c)=>a+(parseInt(c.max)||0), 0);
     document.getElementById('s-rubric-summary').innerHTML =
-      `<b>${criteria.length}</b> criterios · suma máxima: <b>${totalMax}</b> pts → se escala a <b>0-20</b> automáticamente.`;
+      `<b>${criteria.length}</b> criterios · suma máxima: <b>${totalMax}</b> pts → la nota final será <b>0–${totalMax}</b> (directa, sin escalar).`;
   }
 
   document.getElementById('s-add-crit').onclick = () => {
@@ -268,6 +268,7 @@ function openCreateModal(root, store, existing){
     if (!criteria.length){ toast('Agrega al menos un criterio','error'); return; }
     if (criteria.some(c => !c.name?.trim())){ toast('Todos los criterios deben tener nombre','error'); return; }
 
+    const totalMaxRubric = criteria.reduce((a,c) => a + (parseInt(c.max)||0), 0);
     const payload = {
       course_id: courseId,
       type: 'sustentacion',
@@ -275,7 +276,9 @@ function openCreateModal(root, store, existing){
       date: document.getElementById('s-date').value || null,
       topic: document.getElementById('s-topic').value.trim() || null,
       weight: parseFloat(document.getElementById('s-weight').value) || null,
-      max_points: 20,
+      // max_points = suma de criterios. Antes se hardcodeaba a 20 (escalando),
+      // ahora es directo: si dijiste max 10, la nota es /10.
+      max_points: totalMaxRubric || 1,
       rubric: { criterios: criteria.map(c => ({ name:c.name.trim(), max:parseInt(c.max)||1, desc:c.desc?.trim()||'' })) },
     };
 
@@ -310,7 +313,7 @@ function renderGradeView(root, store){
     <div class="card">
       <div class="card-row" style="justify-content:space-between">
         <button class="btn btn-out btn-xs" id="g-back">← Volver a la lista</button>
-        <span style="font-size:11px;color:var(--ean-gray)">${rubric.length} criterios · max ${totalMaxRubric} → /20</span>
+        <span style="font-size:11px;color:var(--ean-gray)">${rubric.length} criterios · nota /${activeSust.max_points}</span>
       </div>
       <h2 style="margin-top:8px">🏆 ${escape(activeSust.name)}${activeSust.date?` · ${activeSust.date}`:''}</h2>
       ${activeSust.topic?`<div style="font-size:12px;color:var(--ean-gray);margin-top:2px">${escape(activeSust.topic)}</div>`:''}
@@ -433,15 +436,17 @@ function updateTotal(){
   const rubric = activeSust.rubric?.criterios || [];
   const totalMax = rubric.reduce((a,c)=>a+(c.max||0), 0);
   const totalActual = Object.values(pendingPts).reduce((a,v)=>a+(v||0), 0);
+  // Si max_points == totalMax (caso normal después del fix), scaled = totalActual.
+  // Si vienen distintos (sustentación vieja con max_points=20 hardcoded), se respeta el escalado.
   const scaled = totalMax > 0 ? Math.round((totalActual/totalMax)*activeSust.max_points) : 0;
-  const lbl = sustLabel(scaled);
+  const lbl = sustLabel(scaled, activeSust.max_points);
 
   document.getElementById('g-total-bar').innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:linear-gradient(135deg, var(--ean-dark), var(--ean-blue));color:#fff;border-radius:8px">
       <div>
         <div style="font-size:11px;opacity:.8">TOTAL</div>
         <div style="font-size:32px;font-weight:900">${scaled}<span style="font-size:18px;opacity:.8">/${activeSust.max_points}</span></div>
-        <div style="font-size:10px;opacity:.7">(${totalActual} de ${totalMax} pts crudos)</div>
+        ${scaled !== totalActual ? `<div style="font-size:10px;opacity:.7">(${totalActual} pts brutos escalados desde rúbrica)</div>` : ''}
       </div>
       <div style="text-align:right">
         <span class="chip ${lbl.cls}" style="font-size:14px;padding:6px 14px;font-weight:700">${lbl.label}</span>
@@ -503,7 +508,7 @@ function renderHistory(){
     const recs = byGroup.get(g.id);
     if (!recs?.length) return;
     const sample = recs[0];
-    const lbl = sustLabel(sample.value || 0);
+    const lbl = sustLabel(sample.value || 0, activeSust.max_points);
     items.push({ group: g, value: sample.value, label: lbl, count: recs.length, obs: sample.observation });
   });
 

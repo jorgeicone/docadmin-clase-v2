@@ -11,10 +11,16 @@ export const ACTIVITY_TYPES = {
   sustentacion:  'Sustentación (con criterios)',
   attendance:    'Asistencia',
 };
+// Labels basadas en porcentaje (no en valor absoluto) para soportar
+// rúbricas con cualquier escala (ej: /10, /20, /50).
 export const SUST_LABELS = [
-  { min:17, label:'Excelente 🌟', cls:'chip-green'  },
-  { min:13, label:'Bueno 👍',     cls:'chip-cyan'   },
-  { min: 9, label:'Regular ⚠️',  cls:'chip-yellow' },
-  { min: 0, label:'Insuficiente ❌', cls:'chip-red' }
+  { minPct:85, label:'Excelente 🌟', cls:'chip-green'  },
+  { minPct:65, label:'Bueno 👍',     cls:'chip-cyan'   },
+  { minPct:45, label:'Regular ⚠️',  cls:'chip-yellow' },
+  { minPct: 0, label:'Insuficiente ❌', cls:'chip-red' }
 ];
-export function sustLabel(scaled){ return SUST_LABELS.find(l=>scaled>=l.min) || SUST_LABELS[SUST_LABELS.length-1]; }
+export function sustLabel(value, max){
+  const m = max || 20;  // fallback para sustentaciones viejas
+  const pct = m > 0 ? (value / m) * 100 : 0;
+  return SUST_LABELS.find(l => pct >= l.minPct) || SUST_LABELS[SUST_LABELS.length-1];
+}
