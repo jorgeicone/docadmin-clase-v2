@@ -598,15 +598,26 @@ function openImportModal(courseId, onDone){
     const { data, error } = await supabase.from('v5_students').upsert(payload, { onConflict: 'course_id,cedula', ignoreDuplicates: false }).select();
     if (error){ toast('Error: '+error.message,'error'); btn.disabled=false; btn.textContent='Importar'; return; }
 
-    // Guardar las claves usadas como definición de columnas del curso
-    // (asi aparecen en el modal de editar aunque ningun estudiante tenga valor)
-    const keysFromImport = new Set();
-    parsed.forEach(s => Object.keys(s.metadata || {}).forEach(k => keysFromImport.add(k)));
-    if (keysFromImport.size){
-      addCourseExtraKeys(courseId, [...keysFromImport]);
+    // Registrar TODAS las columnas extras del Excel como campos del curso,
+    // independientemente de si el profe las marcó o no. Asi quedan disponibles
+    // como labels al editar estudiantes aunque ningun valor se haya importado.
+    const cedKey = document.getElementById('map-ced').value;
+    const nomKey = document.getElementById('map-nom').value;
+    const emailKey = document.getElementById('map-email').value;
+    const usedKeys = [cedKey, nomKey, emailKey].filter(Boolean);
+    const allExtraKeys = (rawKeys || []).filter(k => !usedKeys.includes(k));
+    if (allExtraKeys.length){
+      addCourseExtraKeys(courseId, allExtraKeys);
     }
 
-    toast(`✅ ${data?.length||parsed.length} estudiantes importados${keysFromImport.size ? ` con ${keysFromImport.size} campos extras` : ''}`,'success');
+    // Cuántas trajeron valor (las marcadas)
+    const keysWithValues = new Set();
+    parsed.forEach(s => Object.keys(s.metadata || {}).forEach(k => keysWithValues.add(k)));
+
+    const summary = `${data?.length||parsed.length} estudiantes` +
+      (allExtraKeys.length ? ` · ${allExtraKeys.length} campo${allExtraKeys.length===1?'':'s'} del curso registrado${allExtraKeys.length===1?'':'s'}` : '') +
+      (keysWithValues.size ? ` · ${keysWithValues.size} con valores` : '');
+    toast(`✅ ${summary}`,'success');
     host.innerHTML='';
     onDone?.();
   };
