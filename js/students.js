@@ -314,7 +314,12 @@ function openCourseFieldsModal(courseId, onDone){
         </p>
 
         <div id="cfk-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
-        <button type="button" class="btn btn-out btn-xs" id="cfk-add">＋ Agregar campo</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+          <button type="button" class="btn btn-out btn-xs" id="cfk-add">＋ Agregar campo manualmente</button>
+          <button type="button" class="btn btn-cyan btn-xs" id="cfk-detect">📥 Detectar columnas desde Excel</button>
+        </div>
+        <input type="file" id="cfk-file" accept=".xlsx,.xls,.csv" style="display:none">
+        <div id="cfk-detect-status" style="margin-top:8px;font-size:11px"></div>
 
         <div style="margin-top:14px;padding:10px;background:#FFF8E1;border-radius:6px;font-size:11px;color:var(--ean-gray)">
           💡 Estos son solo los <b>nombres</b> de los campos. Después, en cada estudiante, podrás
@@ -344,6 +349,36 @@ function openCourseFieldsModal(courseId, onDone){
   existingKeys.forEach(addRow);
   if (!existingKeys.length){ addRow(); addRow(); addRow(); }
   document.getElementById('cfk-add').onclick = () => addRow();
+
+  // Detectar columnas desde Excel (sin importar estudiantes)
+  const fileInput = document.getElementById('cfk-file');
+  document.getElementById('cfk-detect').onclick = () => fileInput.click();
+  fileInput.onchange = async () => {
+    const f = fileInput.files[0];
+    if (!f) return;
+    const status = document.getElementById('cfk-detect-status');
+    status.innerHTML = '<div style="display:flex;align-items:center;gap:6px"><span class="loader"></span>Leyendo Excel…</div>';
+    try {
+      const XLSX = await loadXLSX();
+      const buf = await f.arrayBuffer();
+      const wb = XLSX.read(buf, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      if (!rows.length){ status.innerHTML = '<span style="color:var(--red)">Excel vacío</span>'; return; }
+      const allKeys = Object.keys(rows[0]);
+      // Filtrar las "típicas" de cédula/nombre/email para no agregarlas como campos extras
+      const tipicas = /^(n.?\s*matr|matricul|cedula|documento|numero\s*id|id\s*estudiante|^id$|identificaci|estudiante|alumno|nombre|email|correo|e-?mail)/i;
+      const extraKeys = allKeys.filter(k => !tipicas.test(k));
+      // Agregar al listado existente sin duplicar
+      const currentNames = [...document.querySelectorAll('.cfk-name')].map(i => i.value.trim()).filter(Boolean);
+      const newOnes = extraKeys.filter(k => !currentNames.includes(k));
+      newOnes.forEach(k => addRow(k));
+      status.innerHTML = `<span style="color:var(--green)">✅ ${newOnes.length} columnas agregadas (de ${extraKeys.length} extras detectadas en el Excel). Da click en Guardar para confirmar.</span>`;
+    } catch(e){
+      status.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
+    }
+    fileInput.value = '';
+  };
 
   document.getElementById('m-cancel').onclick = () => host.innerHTML='';
   document.getElementById('m-save').onclick = () => {
@@ -449,17 +484,17 @@ function openImportModal(courseId, onDone){
         </div>
       </div>
 
-      <details style="background:#F0F4F8;padding:10px 12px;border-radius:8px;margin-bottom:12px">
+      <details open style="background:#F0F4F8;padding:10px 12px;border-radius:8px;margin-bottom:12px">
         <summary style="cursor:pointer;font-size:13px;font-weight:600;color:var(--ean-blue)">
-          📦 Incluir más columnas como datos extra (opcional) — ${extras.length} disponibles
+          📦 Columnas extra del Excel — <span style="color:var(--ean-cyan)">${extras.length} disponibles</span> (todas marcadas por defecto)
         </summary>
         <div style="margin-top:10px;font-size:12px;color:var(--ean-gray)">
-          Estas columnas se guardan en cada estudiante. Útil para programa, plan, campus, horario, etc.
+          Estas columnas se guardan en cada estudiante <b>y quedan registradas como campos del curso</b>. Útil para programa, plan, campus, horario, etc. <b>Desmarca</b> las que NO quieras importar.
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;margin-top:10px" id="extras-grid">
           ${extras.map(k => `
             <label style="display:flex;align-items:center;gap:6px;font-size:12px;background:#fff;padding:6px 10px;border-radius:6px;border:1px solid var(--ean-border);cursor:pointer">
-              <input type="checkbox" class="extra-cb" value="${escapeAttr(k)}" style="width:14px;height:14px"> ${escape(k)}
+              <input type="checkbox" class="extra-cb" value="${escapeAttr(k)}" checked style="width:14px;height:14px"> ${escape(k)}
             </label>
           `).join('')}
         </div>
