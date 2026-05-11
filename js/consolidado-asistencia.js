@@ -199,7 +199,7 @@ function render(searchTerm, filter){
       </div>
     </details>
     <div style="font-size:11px;color:var(--ean-gray);margin-top:8px">
-      💡 <b>% asistencia</b> = (Presentes + Tardes) / sesiones marcadas. Las llegadas tarde cuentan como asistencia.
+      💡 <b>% asistencia</b> = (A tiempo + Tardes) / sesiones marcadas. Las llegadas tarde cuentan como asistencia.
       Sesiones sin marca no entran al cálculo. Pasa el mouse sobre cada fecha para ver el tema de la sesión.
     </div>
   `;

@@ -264,9 +264,11 @@ function renderTable(){
   });
   const total = students.length;
   const pct = n => total > 0 ? Math.round(n / total * 100) : 0;
+  const asistieron = p + t;
   counters.innerHTML = `
-    <span class="chip chip-green">✅ Presentes: <b>${p}</b> (${pct(p)}%)</span>
+    <span class="chip chip-green">✅ A tiempo: <b>${p}</b> (${pct(p)}%)</span>
     <span class="chip chip-yellow">⏰ Tarde: <b>${t}</b> (${pct(t)}%)</span>
+    <span class="chip chip-cyan" style="font-weight:700">🎯 Asistieron: <b>${asistieron}</b> (${pct(asistieron)}%)</span>
     <span class="chip chip-red">❌ Ausentes: <b>${a}</b> (${pct(a)}%)</span>
     <span class="chip">⏳ Sin marcar: <b>${sin}</b> (${pct(sin)}%)</span>
     <span class="chip" style="background:var(--ean-blue);color:#fff">Total: <b>${total}</b></span>
