@@ -13,6 +13,12 @@ export const PLANS = {
     'Acceso completo a toda la plataforma',
     'Para evaluar la app antes de comprometerte',
   ]},
+  superuser: { name:'Super Usuario', price:0, icon:'<img src="assets/icone-logo-32.png" alt="ICONE" style="width:24px;height:24px;border-radius:5px;vertical-align:middle">', color:'var(--ean-cyan)', calls:99999, maxCourses:999, model:'Sonnet ilimitado', tagline:'Acceso completo ICONE', features:[
+    'Cursos <b>ilimitados</b>',
+    'Consultas IA <b>ilimitadas</b>',
+    'Acceso total a todas las funciones',
+    'Plan especial superusuario ICONE ialabs',
+  ]},
   starter: { name:'Starter', price:49000, icon:'🚀', color:'var(--ean-cyan)', calls:200, maxCourses:3, model:'Haiku', tagline:'Para empezar', features:[
     '<b>3</b> cursos en paralelo',
     '<b>200</b> consultas IA / mes',

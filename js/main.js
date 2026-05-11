@@ -2,13 +2,13 @@
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
 // v=20260510e — bumpear este sufijo si se cambian los módulos para invalidar caché
 // Imports CRÍTICOS (necesarios para login + boot inicial):
-import { supabase, currentSession } from './supabase-client.js?v=20260510u';
-import { toast } from './toast.js?v=20260510u';
-import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260510u';
+import { supabase, currentSession } from './supabase-client.js?v=20260510v';
+import { toast } from './toast.js?v=20260510v';
+import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260510v';
 
 // Bloque 5 (LCP): lazy import de los 11 módulos de vistas.
 // Solo se descarga al navegar a esa vista. Reduce JS inicial ~50 KiB.
-const VERSION = '?v=20260510u';
+const VERSION = '?v=20260510v';
 const VIEWS = {
   courses:      { title:'Mis cursos',                loader: () => import('./courses.js'+VERSION).then(m => m.mountCourses) },
   students:     { title:'Estudiantes',               needsCourse:true, loader: () => import('./students.js'+VERSION).then(m => m.mountStudents) },
@@ -113,7 +113,28 @@ Alpine.store('app', {
     openPlanModal(this.user);
   },
 
+  // Emails con plan SUPER USUARIO (override del Worker).
+  // TODO: mover esta lista al backend Worker para no hardcodear en frontend.
+  isSuperUser(){
+    const SUPER_USERS = [
+      'test.docadmin.ga@gmail.com',
+      'profe1.icone@gmail.com',
+      'profe2.icone@gmail.com',
+      'profe3.icone@gmail.com',
+    ];
+    return SUPER_USERS.includes(this.user?.email);
+  },
+
   async refreshPlan(){
+    // Override para superusuarios ICONE: salta el Worker, plan ilimitado.
+    if (this.isSuperUser()){
+      this.plan = 'superuser';
+      this.planInfo = {
+        plan:'superuser', calls_used:0, calls_limit:99999, calls_remaining:99999,
+        plan_expires_at:null,
+      };
+      return;
+    }
     const info = await fetchPlanInfo();
     if (info){
       this.planInfo = info;
@@ -126,13 +147,20 @@ Alpine.store('app', {
   },
 
   planIcon(){
-    return ({ trial:'🎓', starter:'🚀', pro:'⚡', premium:'🌟' })[this.plan] || '🎓';
+    return ({ trial:'🎓', starter:'🚀', pro:'⚡', premium:'🌟', superuser:'⭐' })[this.plan] || '🎓';
+  },
+  // HTML del icono (para topbar que soporta img). Devuelve string HTML seguro.
+  planIconHtml(){
+    if (this.plan === 'superuser'){
+      return '<img src="assets/icone-logo-32.png" alt="ICONE" style="width:24px;height:24px;border-radius:5px;display:block">';
+    }
+    return this.planIcon();
   },
   planLabel(){
-    return ({ trial:'Trial', starter:'Starter', pro:'Pro', premium:'Premium' })[this.plan] || this.plan;
+    return ({ trial:'Trial', starter:'Starter', pro:'Pro', premium:'Premium', superuser:'Super Usuario' })[this.plan] || this.plan;
   },
   planColor(){
-    return ({ trial:'#9E9E9E', starter:'#00B7C6', pro:'#3055A6', premium:'#6A1B9A' })[this.plan] || '#9E9E9E';
+    return ({ trial:'#9E9E9E', starter:'#00B7C6', pro:'#3055A6', premium:'#6A1B9A', superuser:'#1AC8DB' })[this.plan] || '#9E9E9E';
   },
 });
 
