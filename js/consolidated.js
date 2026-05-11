@@ -110,6 +110,35 @@ function render(){
     return;
   }
 
+  // Separar actividades: extras (sin peso) van PRIMERO, luego notas con peso
+  const extrasActs   = activities.filter(a => !a.weight);
+  const weightedActs = activities.filter(a => !!a.weight);
+  const totalWeightCourse = weightedActs.reduce((a,b) => a + (b.weight || 0), 0);
+
+  // Calcula los 4 sub-totales por estudiante
+  function detailFor(studentId){
+    let subExtras = 0, subNotas = 0;
+    extrasActs.forEach(a => {
+      const g = gradeFor(a.id, studentId);
+      if (g?.value != null) subExtras += g.value;
+    });
+    weightedActs.forEach(a => {
+      const g = gradeFor(a.id, studentId);
+      if (g?.value != null && a.max_points > 0) subNotas += (g.value / a.max_points) * a.weight;
+    });
+    const total = subExtras + subNotas;
+    const falta = Math.max(0, totalWeightCourse - subNotas);
+    return { subExtras, subNotas, total, falta };
+  }
+
+  // Estilos de columnas (separación visual por bloque)
+  const EXTRAS_BG = '#FFF3CD';            // oro suave
+  const EXTRAS_BG_HEAD = '#FFE082';       // oro head
+  const PESO_BG   = '#E0F7FA';            // cyan suave
+  const PESO_BG_HEAD = '#80DEEA';         // cyan head
+  const TOTAL_BG  = '#E8F5E9';            // verde
+  const FALTA_BG  = '#FFEBEE';            // rojo
+
   div.innerHTML = `
     <div class="tbl-wrap" style="max-height:70vh">
       <table>
@@ -117,21 +146,51 @@ function render(){
           <tr>
             <th style="position:sticky;left:0;top:0;background:var(--ean-light);z-index:3;width:32px">#</th>
             <th style="position:sticky;left:32px;top:0;background:var(--ean-light);z-index:3;min-width:220px;max-width:220px">Estudiante</th>
-            ${activities.map(a => `
-              <th class="num" style="position:sticky;top:0;background:var(--ean-light);z-index:2;min-width:90px" title="${escapeAttr(a.topic||'')}">
-                ${escape(a.name)}
-                <div style="font-size:9px;color:var(--ean-gray);font-weight:400">
-                  /${a.max_points}${a.weight?` · ${a.weight}%`:''}
-                </div>
+
+            ${extrasActs.map(a => `
+              <th class="num" style="position:sticky;top:0;background:${EXTRAS_BG_HEAD};color:#6B4F00;z-index:2;min-width:90px" title="${escapeAttr(a.topic||'')}">
+                ⭐ ${escape(a.name)}
+                <div style="font-size:9px;color:#8B6914;font-weight:400">/${a.max_points} · EXTRA</div>
               </th>
             `).join('')}
-            <th class="num" style="position:sticky;top:0;z-index:2;min-width:110px;background:#FFF8E1">Acumulado<br><small>(pesos + extras)</small></th>
+
+            ${extrasActs.length > 0 ? `
+              <th class="num" style="position:sticky;top:0;background:#FFD54F;color:#5D4500;z-index:2;min-width:90px;font-weight:800;border-left:2px solid #D4A017;border-right:2px solid #D4A017">
+                Σ EXTRAS
+                <div style="font-size:9px;font-weight:500">subtotal</div>
+              </th>
+            ` : ''}
+
+            ${weightedActs.map(a => `
+              <th class="num" style="position:sticky;top:0;background:${PESO_BG_HEAD};color:#006064;z-index:2;min-width:90px" title="${escapeAttr(a.topic||'')}">
+                ${escape(a.name)}
+                <div style="font-size:9px;color:#00838F;font-weight:400">/${a.max_points} · ${a.weight}%</div>
+              </th>
+            `).join('')}
+
+            ${weightedActs.length > 0 ? `
+              <th class="num" style="position:sticky;top:0;background:#4DD0E1;color:#004D40;z-index:2;min-width:90px;font-weight:800;border-left:2px solid #00838F;border-right:2px solid #00838F">
+                Σ NOTAS
+                <div style="font-size:9px;font-weight:500">/${totalWeightCourse}</div>
+              </th>
+            ` : ''}
+
+            <th class="num" style="position:sticky;top:0;background:${TOTAL_BG};color:#1B5E20;z-index:2;min-width:100px;font-weight:800;border-left:2px solid var(--green)">
+              🏆 TOTAL
+              <div style="font-size:9px;font-weight:500">extras + notas</div>
+            </th>
+            <th class="num" style="position:sticky;top:0;background:${FALTA_BG};color:#B71C1C;z-index:2;min-width:90px;font-weight:800">
+              ⚠️ FALTA
+              <div style="font-size:9px;font-weight:500">para 100% notas</div>
+            </th>
           </tr>
         </thead>
         <tbody>
           ${students.map((s,i) => {
-            const { acumulado, maxPosible } = calcAccumulated(s.id);
-            const acumCls = maxPosible > 0 ? gradeColor(acumulado, maxPosible) : '';
+            const d = detailFor(s.id);
+            const subExtrasCell = d.subExtras > 0 ? d.subExtras.toFixed(2) : '0';
+            const subNotasCls = totalWeightCourse > 0 ? gradeColor(d.subNotas, totalWeightCourse) : '';
+            const totalCls = totalWeightCourse > 0 ? gradeColor(d.total, totalWeightCourse) : '';
             return `
             <tr>
               <td class="num" style="position:sticky;left:0;background:#fff;z-index:1;width:32px">${i+1}</td>
@@ -139,21 +198,43 @@ function render(){
                 <b style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block" title="${escapeAttr(s.name)}">${escape(s.name)}</b>
                 <div style="font-size:10px;color:var(--ean-gray)"><code>${escape(s.cedula)}</code></div>
               </td>
-              ${activities.map(a => {
+
+              ${extrasActs.map(a => {
                 const g = gradeFor(a.id, s.id);
                 if (!g || g.value === null || g.value === undefined){
-                  return `<td class="num" style="color:var(--ean-gray)">—</td>`;
+                  return `<td class="num" style="color:var(--ean-gray);background:${EXTRAS_BG}">—</td>`;
                 }
-                // Actividades sin peso = puntos extras → siempre color oro
-                // (cualquier punto extra es positivo, no debe verse como mala nota)
-                const cls = !a.weight ? 'chip-gold' : gradeColor(g.value, a.max_points);
                 const tip = g.desglose ? `title="${escapeAttr(g.desglose)}"` : '';
-                return `<td class="num"><span class="chip ${cls}" ${tip} style="font-size:11px;font-weight:700">${g.value}</span></td>`;
+                return `<td class="num" style="background:${EXTRAS_BG}"><span class="chip chip-gold" ${tip} style="font-size:11px;font-weight:700">${g.value}</span></td>`;
               }).join('')}
-              <td class="num" style="background:#FFFDE7">
-                ${maxPosible > 0
-                  ? `<span class="chip ${acumCls}" style="font-weight:800">${acumulado.toFixed(2)} / ${maxPosible}</span>`
-                  : '—'}
+
+              ${extrasActs.length > 0 ? `
+                <td class="num" style="background:#FFD54F;border-left:2px solid #D4A017;border-right:2px solid #D4A017">
+                  <span style="font-weight:800;color:#5D4500">${subExtrasCell}</span>
+                </td>
+              ` : ''}
+
+              ${weightedActs.map(a => {
+                const g = gradeFor(a.id, s.id);
+                if (!g || g.value === null || g.value === undefined){
+                  return `<td class="num" style="color:var(--ean-gray);background:${PESO_BG}">—</td>`;
+                }
+                const cls = gradeColor(g.value, a.max_points);
+                const tip = g.desglose ? `title="${escapeAttr(g.desglose)}"` : '';
+                return `<td class="num" style="background:${PESO_BG}"><span class="chip ${cls}" ${tip} style="font-size:11px;font-weight:700">${g.value}</span></td>`;
+              }).join('')}
+
+              ${weightedActs.length > 0 ? `
+                <td class="num" style="background:#4DD0E1;border-left:2px solid #00838F;border-right:2px solid #00838F">
+                  <span class="chip ${subNotasCls}" style="font-weight:800">${d.subNotas.toFixed(2)} / ${totalWeightCourse}</span>
+                </td>
+              ` : ''}
+
+              <td class="num" style="background:${TOTAL_BG};border-left:2px solid var(--green)">
+                <span class="chip ${totalCls}" style="font-weight:800;font-size:13px">${d.total.toFixed(2)}</span>
+              </td>
+              <td class="num" style="background:${FALTA_BG}">
+                <span style="color:${d.falta > 0 ? '#B71C1C' : '#1B5E20'};font-weight:800">${d.falta.toFixed(2)}</span>
               </td>
             </tr>`;
           }).join('')}
@@ -161,9 +242,11 @@ function render(){
       </table>
     </div>
     <div style="font-size:11px;color:var(--ean-gray);margin-top:8px">
-      💡 <b>Acumulado X / Y</b>: <b>Y</b> = suma de los pesos calificados (solo obligatorias) ·
-      <b>X</b> = aportes ponderados <i>+ puntos extras</i> (los extras pueden empujar X por encima de Y).
-      Ejemplo: nota 19/20 con peso 20% (=19) + 2 puntos extras = <b>21 / 20</b>.
+      💡 <b>Bloques</b>:
+      <span style="background:${EXTRAS_BG};padding:1px 6px;border-radius:4px">⭐ EXTRAS</span> (puntos adicionales, suman tal cual) ·
+      <span style="background:${PESO_BG};padding:1px 6px;border-radius:4px">NOTAS</span> (ponderadas al ${totalWeightCourse}% total) ·
+      <span style="background:${TOTAL_BG};padding:1px 6px;border-radius:4px">🏆 TOTAL</span> = extras + notas ·
+      <span style="background:${FALTA_BG};padding:1px 6px;border-radius:4px">⚠️ FALTA</span> = ${totalWeightCourse}% − Σ notas (cuánto le falta al estudiante para llegar al techo del curso).
     </div>
   `;
 }
