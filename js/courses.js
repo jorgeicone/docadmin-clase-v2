@@ -1,5 +1,5 @@
 // CRUD de cursos: lista, crear, editar, eliminar, activar
-import { supabase, currentUser } from './supabase-client.js';
+import { supabase, currentSession } from './supabase-client.js';
 import { toast } from './toast.js';
 
 export async function mountCourses(root, store){
@@ -119,7 +119,9 @@ function openCourseModal(course, onDone){
   document.getElementById('m-cancel').onclick = close;
 
   document.getElementById('m-save').onclick = async () => {
-    const u = await currentUser();
+    const btn = document.getElementById('m-save');
+    btn.disabled = true; btn.textContent = 'Guardando…';
+
     const payload = {
       name: document.getElementById('f-name').value.trim(),
       code: document.getElementById('f-code').value.trim() || null,
@@ -129,19 +131,41 @@ function openCourseModal(course, onDone){
       start_date: document.getElementById('f-start').value || null,
       end_date: document.getElementById('f-end').value || null,
     };
-    if (!payload.name){ toast('El nombre es requerido','error'); return; }
-
-    let result;
-    if (isEdit){
-      result = await supabase.from('v5_courses').update(payload).eq('id', course.id);
-    } else {
-      payload.user_id = u.id;
-      result = await supabase.from('v5_courses').insert(payload);
+    if (!payload.name){
+      toast('El nombre es requerido','error');
+      btn.disabled = false; btn.textContent = isEdit ? 'Guardar cambios' : 'Crear curso';
+      return;
     }
-    if (result.error){ toast('Error: '+result.error.message,'error'); return; }
-    toast(isEdit?'Curso actualizado':'Curso creado','success');
-    close();
-    onDone?.();
+
+    try {
+      let result;
+      if (isEdit){
+        result = await supabase.from('v5_courses').update(payload).eq('id', course.id);
+      } else {
+        // Bug fix: currentUser() (network) podía colgarse con token expirado.
+        // Usamos getSession() (localStorage) que es instantáneo y robusto.
+        const session = await currentSession();
+        const u = session?.user;
+        if (!u){
+          toast('Sesión expirada — recarga la página','error');
+          btn.disabled = false; btn.textContent = 'Crear curso';
+          return;
+        }
+        payload.user_id = u.id;
+        result = await supabase.from('v5_courses').insert(payload);
+      }
+      if (result.error){
+        toast('Error: '+result.error.message,'error');
+        btn.disabled = false; btn.textContent = isEdit ? 'Guardar cambios' : 'Crear curso';
+        return;
+      }
+      toast(isEdit?'Curso actualizado':'Curso creado','success');
+      close();
+      onDone?.();
+    } catch(e){
+      toast('Error inesperado: '+(e?.message||e),'error');
+      btn.disabled = false; btn.textContent = isEdit ? 'Guardar cambios' : 'Crear curso';
+    }
   };
 }
 
