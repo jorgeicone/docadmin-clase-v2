@@ -2,6 +2,33 @@
 import { supabase, currentSession } from './supabase-client.js';
 import { toast } from './toast.js';
 
+// Paleta de 8 colores para cards de cursos
+const COURSE_COLORS = {
+  cyan:    { name:'Cyan',    main:'#1AC8DB', soft:'rgba(26,200,219,.10)',  glow:'rgba(26,200,219,.35)' },
+  purple:  { name:'Púrpura', main:'#7A3CFF', soft:'rgba(122,60,255,.10)',  glow:'rgba(122,60,255,.35)' },
+  blue:    { name:'Azul',    main:'#3055A6', soft:'rgba(48,85,166,.10)',   glow:'rgba(48,85,166,.35)'  },
+  green:   { name:'Verde',   main:'#1FAA59', soft:'rgba(31,170,89,.10)',   glow:'rgba(31,170,89,.35)'  },
+  orange:  { name:'Naranja', main:'#FF8A3C', soft:'rgba(255,138,60,.10)',  glow:'rgba(255,138,60,.35)' },
+  pink:    { name:'Rosa',    main:'#E91E63', soft:'rgba(233,30,99,.10)',   glow:'rgba(233,30,99,.35)'  },
+  yellow:  { name:'Amarillo',main:'#F9C911', soft:'rgba(249,201,17,.12)',  glow:'rgba(249,201,17,.40)' },
+  red:     { name:'Rojo',    main:'#D7263D', soft:'rgba(215,38,61,.10)',   glow:'rgba(215,38,61,.35)'  },
+};
+const COLOR_KEYS = Object.keys(COURSE_COLORS);
+
+// Color asignado a un curso (con fallback hash determinístico)
+function colorOf(courseId){
+  const saved = localStorage.getItem('course_color_' + courseId);
+  if (saved && COURSE_COLORS[saved]) return saved;
+  // Hash simple del UUID para asignar color inicial
+  let h = 0;
+  for (let i = 0; i < courseId.length; i++) h = (h * 31 + courseId.charCodeAt(i)) >>> 0;
+  return COLOR_KEYS[h % COLOR_KEYS.length];
+}
+function setColorOf(courseId, color){
+  if (!COURSE_COLORS[color]) return;
+  localStorage.setItem('course_color_' + courseId, color);
+}
+
 export async function mountCourses(root, store){
   root.innerHTML = `
     <div class="card">
@@ -49,25 +76,44 @@ async function renderList(store){
 
   list.innerHTML = `
     <div class="grid-3">
-      ${data.map(c => `
-        <div class="card" style="margin:0;cursor:pointer;border-left:4px solid var(--ean-cyan)" data-id="${c.id}">
-          <div style="display:flex;justify-content:space-between;align-items:start;gap:8px">
-            <div style="flex:1">
-              <h3 style="margin-bottom:4px">${escape(c.name)}</h3>
-              <div style="font-size:11px;color:var(--ean-gray)">
-                ${c.code ? '<b>'+escape(c.code)+'</b> · ' : ''}
-                ${c.credits ? c.credits+' créd · ':''}
-                ${c.start_date ? c.start_date+' → '+(c.end_date||'?'):''}
+      ${data.map(c => {
+        const colorKey = colorOf(c.id);
+        const col = COURSE_COLORS[colorKey];
+        return `
+        <div class="course-card" data-id="${c.id}" style="
+          --c-main:${col.main}; --c-soft:${col.soft}; --c-glow:${col.glow};">
+          <div class="course-card-top">
+            <div style="flex:1;min-width:0">
+              <h3 class="course-name">${escape(c.name)}</h3>
+              <div class="course-meta">
+                ${c.code ? '<span class="course-meta-code">'+escape(c.code)+'</span>' : ''}
+                ${c.credits ? '<span class="course-meta-pill">'+c.credits+' créd</span>':''}
+                ${c.start_date ? '<span class="course-meta-pill">'+c.start_date+' → '+(c.end_date||'?')+'</span>':''}
               </div>
             </div>
-            <div style="display:flex;gap:4px;flex-direction:column">
-              <button class="btn btn-xs btn-out" data-edit="${c.id}">✏️</button>
-              <button class="btn btn-xs btn-danger" data-del="${c.id}">🗑</button>
+            <div class="course-actions">
+              <button class="course-action-btn" data-color="${c.id}" title="Cambiar color">🎨</button>
+              <button class="course-action-btn" data-edit="${c.id}" title="Editar">✏️</button>
+              <button class="course-action-btn course-action-danger" data-del="${c.id}" title="Eliminar">🗑</button>
             </div>
           </div>
-          <button class="btn btn-cyan" style="width:100%;margin-top:10px" data-open="${c.id}">Abrir →</button>
+          <button class="btn course-open-btn" data-open="${c.id}">
+            <span>Abrir curso</span>
+            <span style="font-size:18px;line-height:1">→</span>
+          </button>
         </div>
-      `).join('')}
+      `}).join('')}
+    </div>
+
+    <!-- Popover de color (oculto por defecto) -->
+    <div id="color-popover" class="color-popover" style="display:none">
+      <div class="color-popover-title">Color del curso</div>
+      <div class="color-popover-grid">
+        ${COLOR_KEYS.map(k => `
+          <button class="color-swatch" data-pick="${k}" title="${COURSE_COLORS[k].name}"
+            style="background:${COURSE_COLORS[k].main}"></button>
+        `).join('')}
+      </div>
     </div>
   `;
 
@@ -89,6 +135,26 @@ async function renderList(store){
     if (error) toast('Error: '+error.message,'error');
     else { toast('Curso eliminado'); renderList(store); }
   });
+
+  // Popover de color: abrir al click en 🎨
+  const popover = document.getElementById('color-popover');
+  let popoverCourseId = null;
+  list.querySelectorAll('[data-color]').forEach(b => b.onclick = (e) => {
+    e.stopPropagation();
+    popoverCourseId = b.dataset.color;
+    const rect = b.getBoundingClientRect();
+    popover.style.display = 'block';
+    popover.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+    popover.style.left = (rect.left + window.scrollX - 80) + 'px';
+  });
+  popover.querySelectorAll('[data-pick]').forEach(b => b.onclick = (e) => {
+    e.stopPropagation();
+    if (popoverCourseId) setColorOf(popoverCourseId, b.dataset.pick);
+    popover.style.display = 'none';
+    renderList(store);
+  });
+  // Cerrar popover al click fuera
+  document.addEventListener('click', () => { popover.style.display = 'none'; }, { once:true });
 }
 
 function openCourseModal(course, onDone){

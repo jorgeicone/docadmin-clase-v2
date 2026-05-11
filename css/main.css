@@ -151,6 +151,128 @@ body{
   .menu-toggle{display:none !important}
 }
 
+/* ═══════ Course Card (visual rica con color personalizable) ═══════ */
+.course-card{
+  background:linear-gradient(135deg, #fff 0%, var(--c-soft, rgba(26,200,219,.08)) 100%);
+  border-radius:16px;
+  padding:20px;
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+  transition:transform .25s ease, box-shadow .25s ease;
+  border:1px solid var(--ean-border);
+  border-left:6px solid var(--c-main, var(--ean-cyan));
+  box-shadow:
+    0 4px 12px rgba(7,30,43,.06),
+    0 1px 3px rgba(7,30,43,.04);
+}
+.course-card::before{
+  content:'';
+  position:absolute;
+  top:-50%;
+  right:-30%;
+  width:200px;
+  height:200px;
+  background:radial-gradient(circle, var(--c-glow, transparent) 0%, transparent 70%);
+  pointer-events:none;
+  opacity:.6;
+  transition:opacity .3s;
+}
+.course-card:hover{
+  transform:translateY(-4px);
+  box-shadow:
+    0 12px 32px rgba(7,30,43,.12),
+    0 0 0 1px var(--c-main, var(--ean-cyan)),
+    0 0 24px var(--c-glow, rgba(26,200,219,.25));
+}
+.course-card:hover::before{ opacity:1 }
+
+.course-card-top{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+  position:relative;z-index:1;
+}
+.course-name{
+  font-size:17px;font-weight:700;color:var(--ean-dark);
+  margin:0 0 8px;line-height:1.25;
+  word-break:break-word;
+}
+.course-meta{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.course-meta-code{
+  font-size:10px;font-weight:700;color:#fff;background:var(--c-main);
+  padding:2px 8px;border-radius:6px;letter-spacing:.3px;
+}
+.course-meta-pill{
+  font-size:10px;color:var(--ean-gray);background:rgba(7,30,43,.04);
+  padding:2px 7px;border-radius:6px;font-weight:500;
+}
+
+.course-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+.course-action-btn{
+  background:#fff;border:1px solid var(--ean-border);
+  width:30px;height:30px;border-radius:8px;cursor:pointer;
+  font-size:13px;display:flex;align-items:center;justify-content:center;
+  transition:.15s;padding:0;
+}
+.course-action-btn:hover{
+  background:var(--c-soft);
+  border-color:var(--c-main);
+  transform:scale(1.08);
+}
+.course-action-btn.course-action-danger:hover{
+  background:rgba(215,38,61,.1);
+  border-color:var(--red);
+}
+
+.course-open-btn{
+  width:100%;
+  margin-top:16px;
+  background:linear-gradient(135deg, var(--c-main), color-mix(in srgb, var(--c-main) 70%, black));
+  color:#fff;
+  font-size:14px;font-weight:700;
+  padding:11px 16px;
+  border:none;border-radius:10px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:.2s;
+  position:relative;z-index:1;
+  box-shadow:0 4px 12px rgba(7,30,43,.12);
+}
+.course-open-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 20px var(--c-glow);
+  filter:brightness(1.05);
+}
+
+/* Popover de selector de color */
+.color-popover{
+  position:absolute;
+  background:#fff;
+  border:1px solid var(--ean-border);
+  border-radius:12px;
+  padding:12px;
+  box-shadow:0 10px 40px rgba(7,30,43,.25);
+  z-index:500;
+  min-width:200px;
+}
+.color-popover-title{
+  font-size:11px;font-weight:700;color:var(--ean-gray);
+  text-transform:uppercase;letter-spacing:.5px;
+  margin-bottom:8px;
+}
+.color-popover-grid{
+  display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;
+}
+.color-swatch{
+  width:36px;height:36px;border-radius:50%;
+  border:2px solid transparent;cursor:pointer;
+  transition:.15s;padding:0;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.4);
+}
+.color-swatch:hover{
+  transform:scale(1.15);
+  border-color:var(--ean-dark);
+}
+
 /* ═══════ Acordeón <details class="acc"> ═══════ */
 details.acc{margin-top:6px}
 details.acc > summary{
