@@ -176,20 +176,62 @@ function openStudentModal(courseId, student, onDone, rosterMeta = []){
     };
     if (!payload.cedula || !payload.name){ toast('Cédula y nombre requeridos','error'); return; }
 
-    // Reconstruir metadata desde las filas FIJAS (keys del curso)
+    // Reconstruir metadata desde las filas FIJAS (keys del curso) y detectar cambios
     const meta = {};
+    const changesExtra = {};  // { key: { from, to } } solo de los campos que cambiaron
     document.querySelectorAll('.meta-field').forEach(row => {
       const k = row.dataset.key;
-      const v = row.querySelector('.meta-v').value.trim();
-      if (v) meta[k] = v;  // si está vacío no se incluye
+      const newVal = row.querySelector('.meta-v').value.trim();
+      const oldVal = String(existingMeta[k] || '');
+      if (newVal) meta[k] = newVal;
+      if (newVal !== oldVal){
+        changesExtra[k] = { from: oldVal || '(vacío)', to: newVal || '(vacío)' };
+      }
     });
     payload.metadata = meta;
 
+    // Decidir si aplicar a TODOS (solo si hay cambios en datos extra y es edición)
+    let applyToAll = false;
+    if (isEdit && Object.keys(changesExtra).length > 0){
+      const detail = Object.entries(changesExtra)
+        .map(([k,v]) => `  • ${k}: "${v.from}" → "${v.to}"`).join('\n');
+      applyToAll = confirm(
+        `Cambios en datos extra:\n\n${detail}\n\n` +
+        `¿Aplicar estos cambios a TODOS los estudiantes del curso?\n\n` +
+        `OK = Aplicar a TODOS (los valores cambiados sobreescriben a los demás)\n` +
+        `Cancelar = Solo a ${payload.name}`
+      );
+    }
+
     let r;
-    if (isEdit) r = await supabase.from('v5_students').update(payload).eq('id', student.id);
-    else { payload.course_id = courseId; r = await supabase.from('v5_students').insert(payload); }
+    if (isEdit){
+      r = await supabase.from('v5_students').update(payload).eq('id', student.id);
+    } else {
+      payload.course_id = courseId;
+      r = await supabase.from('v5_students').insert(payload);
+    }
     if (r.error){ toast('Error: '+r.error.message,'error'); return; }
-    toast(isEdit?'Actualizado':'Agregado','success');
+
+    // Si el profe pidió aplicar a todos, hacer merge de los campos cambiados sobre cada estudiante
+    if (applyToAll){
+      const { data: allStudents } = await supabase
+        .from('v5_students').select('id, metadata').eq('course_id', courseId).neq('id', student.id);
+      const changedKv = {};
+      Object.entries(changesExtra).forEach(([k,v]) => { changedKv[k] = v.to === '(vacío)' ? null : v.to; });
+      const updates = (allStudents || []).map(s => {
+        const cur = (s.metadata && typeof s.metadata === 'object') ? s.metadata : {};
+        const merged = { ...cur };
+        Object.entries(changedKv).forEach(([k,v]) => {
+          if (v === null || v === '') delete merged[k];
+          else merged[k] = v;
+        });
+        return supabase.from('v5_students').update({ metadata: merged }).eq('id', s.id);
+      });
+      await Promise.all(updates);
+      toast(`✅ Actualizado + ${allStudents.length} estudiantes con los cambios aplicados a todos`,'success');
+    } else {
+      toast(isEdit?'Actualizado':'Agregado','success');
+    }
     host.innerHTML='';
     onDone?.();
   };
