@@ -127,7 +127,9 @@ function render(){
       if (g?.value != null && a.max_points > 0) subNotas += (g.value / a.max_points) * a.weight;
     });
     const total = subExtras + subNotas;
-    const falta = Math.max(0, totalWeightCourse - subNotas);
+    // FALTA: la materia entera se mide sobre 100 puntos. Falta = 100 - total.
+    // Si total ya pasó 100 (raro con muchos extras), falta queda en 0.
+    const falta = Math.max(0, 100 - total);
     return { subExtras, subNotas, total, falta };
   }
 
@@ -181,7 +183,7 @@ function render(){
             </th>
             <th class="num" style="position:sticky;top:0;background:${FALTA_BG};color:#B71C1C;z-index:2;min-width:90px;font-weight:800">
               ⚠️ FALTA
-              <div style="font-size:9px;font-weight:500">para 100% notas</div>
+              <div style="font-size:9px;font-weight:500">para llegar a 100</div>
             </th>
           </tr>
         </thead>
@@ -246,7 +248,7 @@ function render(){
       <span style="background:${EXTRAS_BG};padding:1px 6px;border-radius:4px">⭐ EXTRAS</span> (puntos adicionales, suman tal cual) ·
       <span style="background:${PESO_BG};padding:1px 6px;border-radius:4px">NOTAS</span> (ponderadas al ${totalWeightCourse}% total) ·
       <span style="background:${TOTAL_BG};padding:1px 6px;border-radius:4px">🏆 TOTAL</span> = extras + notas ·
-      <span style="background:${FALTA_BG};padding:1px 6px;border-radius:4px">⚠️ FALTA</span> = ${totalWeightCourse}% − Σ notas (cuánto le falta al estudiante para llegar al techo del curso).
+      <span style="background:${FALTA_BG};padding:1px 6px;border-radius:4px">⚠️ FALTA</span> = 100 − TOTAL (la materia se mide sobre 100; este número es lo que le queda al estudiante para llegar al techo).
     </div>
   `;
 }
