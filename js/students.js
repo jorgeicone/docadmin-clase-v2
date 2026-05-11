@@ -120,25 +120,22 @@ function openStudentModal(courseId, student, onDone, rosterMeta = []){
 
   host.innerHTML = `
     <div class="modal-bg">
-      <div class="modal" style="max-width:580px">
+      <div class="modal" style="max-width:600px">
         <h2>${isEdit?'Editar':'Agregar'} estudiante</h2>
         <div class="field"><label>Cédula *</label><input id="f-ced" value="${escapeAttr(student?.cedula||'')}"></div>
         <div class="field"><label>Nombre completo *</label><input id="f-nom" value="${escapeAttr(student?.name||'')}"></div>
         <div class="field"><label>Email</label><input id="f-email" type="email" value="${escapeAttr(student?.email||'')}"></div>
 
-        ${sortedKeys.length > 0 ? `
         <details class="acc" open>
-          <summary>📦 Datos extra (${sortedKeys.length} campos del Excel del curso)</summary>
+          <summary>📦 Datos extra ${sortedKeys.length > 0 ? `(${sortedKeys.length} campos del curso)` : '(programa, plan, campus, etc.)'}</summary>
           <div id="meta-fields" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
+          <button type="button" class="btn btn-out btn-xs" id="meta-add" style="margin-top:8px">＋ Agregar campo nuevo</button>
           <div style="margin-top:6px;font-size:11px;color:var(--ean-gray);font-style:italic">
-            💡 Los campos vienen del Excel importado. Deja en blanco para no asignar.
+            ${sortedKeys.length > 0
+              ? '💡 Los campos del curso vienen del Excel importado. Deja en blanco para no asignar.'
+              : '💡 Aún no hay campos del Excel. Agrega cualquier campo manualmente con el botón de arriba.'}
           </div>
         </details>
-        ` : `
-        <p style="font-size:12px;color:var(--ean-gray);background:#FFF8E1;padding:10px;border-radius:6px;margin-top:8px">
-          ℹ️ Aún no hay campos extra en este curso. Si importas un Excel con columnas como Programa/Plan/Campus, aparecerán aquí.
-        </p>
-        `}
 
         <div class="modal-actions">
           <button class="btn btn-out" id="m-cancel">Cancelar</button>
@@ -148,24 +145,52 @@ function openStudentModal(courseId, student, onDone, rosterMeta = []){
     </div>
   `;
 
-  // Render: una fila fija por cada clave conocida del curso
   const fieldsDiv = document.getElementById('meta-fields');
-  if (fieldsDiv){
-    sortedKeys.forEach(key => {
-      const value = existingMeta[key] != null ? String(existingMeta[key]) : '';
-      const datalistId = 'dl-' + key.replace(/[^a-z0-9]/gi,'_');
-      const suggestions = valuesByKey[key].slice(0, 50);
-      const row = document.createElement('div');
-      row.className = 'meta-field';
-      row.dataset.key = key;
-      row.innerHTML = `
-        <label style="font-size:11px;color:var(--ean-gray);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:4px;display:block">${escape(key)}</label>
-        <input class="meta-v" type="text" placeholder="(vacío)" value="${escapeAttr(value)}" list="${datalistId}">
-        ${suggestions.length ? `<datalist id="${datalistId}">${suggestions.map(s => `<option value="${escapeAttr(s)}">`).join('')}</datalist>` : ''}
-      `;
-      fieldsDiv.appendChild(row);
-    });
+
+  // Render: filas con label fija (campos del roster) o filas libres (agregados manualmente)
+  function renderFixedField(key){
+    const value = existingMeta[key] != null ? String(existingMeta[key]) : '';
+    const datalistId = 'dl-' + key.replace(/[^a-z0-9]/gi,'_');
+    const suggestions = (valuesByKey[key] || []).slice(0, 50);
+    const row = document.createElement('div');
+    row.className = 'meta-field meta-field-fixed';
+    row.dataset.key = key;
+    row.innerHTML = `
+      <label style="font-size:11px;color:var(--ean-gray);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:4px;display:block">${escape(key)}</label>
+      <input class="meta-v" type="text" placeholder="(vacío)" value="${escapeAttr(value)}" list="${datalistId}">
+      ${suggestions.length ? `<datalist id="${datalistId}">${suggestions.map(s => `<option value="${escapeAttr(s)}">`).join('')}</datalist>` : ''}
+    `;
+    fieldsDiv.appendChild(row);
   }
+
+  function renderFreeField(key='', value=''){
+    const row = document.createElement('div');
+    row.className = 'meta-field meta-field-free';
+    row.style.cssText = 'display:grid;grid-template-columns:1fr 1.4fr auto;gap:6px;align-items:end';
+    row.innerHTML = `
+      <div>
+        <label style="font-size:10px;color:var(--ean-gray);text-transform:uppercase;letter-spacing:.5px;font-weight:600;display:block;margin-bottom:3px">Nombre del campo</label>
+        <input class="meta-k" type="text" placeholder="Ej: Programa" value="${escapeAttr(key)}">
+      </div>
+      <div>
+        <label style="font-size:10px;color:var(--ean-gray);text-transform:uppercase;letter-spacing:.5px;font-weight:600;display:block;margin-bottom:3px">Valor</label>
+        <input class="meta-v" type="text" placeholder="Ej: Comunicación Digital" value="${escapeAttr(value)}">
+      </div>
+      <button type="button" class="btn btn-xs btn-danger meta-del" title="Quitar este campo">🗑</button>
+    `;
+    row.querySelector('.meta-del').onclick = () => row.remove();
+    fieldsDiv.appendChild(row);
+  }
+
+  // Pintar campos fijos del roster
+  sortedKeys.forEach(renderFixedField);
+
+  // Pintar campos del estudiante que NO están en sortedKeys (legacy, raros)
+  Object.entries(existingMeta).forEach(([k,v]) => {
+    if (!sortedKeys.includes(k)) renderFreeField(k, String(v ?? ''));
+  });
+
+  document.getElementById('meta-add').onclick = () => renderFreeField();
 
   document.getElementById('m-cancel').onclick = () => host.innerHTML='';
   document.getElementById('m-save').onclick = async () => {
@@ -176,16 +201,26 @@ function openStudentModal(courseId, student, onDone, rosterMeta = []){
     };
     if (!payload.cedula || !payload.name){ toast('Cédula y nombre requeridos','error'); return; }
 
-    // Reconstruir metadata desde las filas FIJAS (keys del curso) y detectar cambios
+    // Reconstruir metadata: combinar campos fijos (dataset.key) + campos libres (input meta-k + meta-v)
     const meta = {};
-    const changesExtra = {};  // { key: { from, to } } solo de los campos que cambiaron
-    document.querySelectorAll('.meta-field').forEach(row => {
+    const changesExtra = {};
+    document.querySelectorAll('.meta-field-fixed').forEach(row => {
       const k = row.dataset.key;
       const newVal = row.querySelector('.meta-v').value.trim();
       const oldVal = String(existingMeta[k] || '');
       if (newVal) meta[k] = newVal;
       if (newVal !== oldVal){
         changesExtra[k] = { from: oldVal || '(vacío)', to: newVal || '(vacío)' };
+      }
+    });
+    document.querySelectorAll('.meta-field-free').forEach(row => {
+      const k = row.querySelector('.meta-k').value.trim();
+      const v = row.querySelector('.meta-v').value.trim();
+      if (!k) return;
+      if (v) meta[k] = v;
+      const oldVal = String(existingMeta[k] || '');
+      if (v !== oldVal){
+        changesExtra[k] = { from: oldVal || '(vacío)', to: v || '(vacío)' };
       }
     });
     payload.metadata = meta;
