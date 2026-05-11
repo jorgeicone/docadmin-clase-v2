@@ -90,35 +90,57 @@ function renderList(root, store){
     return;
   }
 
-  list.innerHTML = sustentaciones.map(s => {
-    const rubric = s.rubric?.criterios || [];
-    const totalMax = rubric.reduce((a,c)=>a+(c.max||0), 0);
-    const byGroup = gradedGroupsOf(s.id);
-    const totalGrupos = groups.length;
-    const calificados = byGroup.size;
-    const pct = totalGrupos > 0 ? Math.round(calificados/totalGrupos*100) : 0;
-    const pctCls = pct === 100 ? 'chip-green' : pct >= 50 ? 'chip-cyan' : pct > 0 ? 'chip-yellow' : 'chip-red';
-
-    return `
-    <div class="card" style="border-left:4px solid var(--ean-blue)">
-      <div style="display:flex;justify-content:space-between;align-items:start;gap:12px">
-        <div style="flex:1">
-          <h3 style="margin-bottom:2px">${escape(s.name)}</h3>
-          <div style="font-size:11px;color:var(--ean-gray);margin-top:2px">
-            ${s.date?'📅 '+s.date+' · ':''}${rubric.length} criterios · max <b>${totalMax}</b> → escala 0-${s.max_points}${s.weight?` · ${s.weight}%`:''}
+  list.innerHTML = `<div class="grid-3" style="margin-top:14px">
+    ${sustentaciones.map(s => {
+      const rubric = s.rubric?.criterios || [];
+      const totalMax = rubric.reduce((a,c)=>a+(c.max||0), 0);
+      const byGroup = gradedGroupsOf(s.id);
+      const totalGrupos = groups.length;
+      const calificados = byGroup.size;
+      const pct = totalGrupos > 0 ? Math.round(calificados/totalGrupos*100) : 0;
+      // Color basado en progreso de calificación
+      const color = pct === 100 ? { main:'#1FAA59', soft:'rgba(31,170,89,.10)',  glow:'rgba(31,170,89,.30)'  }
+                  : pct >= 50  ? { main:'#1AC8DB', soft:'rgba(26,200,219,.10)', glow:'rgba(26,200,219,.30)' }
+                  : pct > 0    ? { main:'#F57C00', soft:'rgba(245,124,0,.10)',  glow:'rgba(245,124,0,.30)'  }
+                  :              { main:'#7A3CFF', soft:'rgba(122,60,255,.10)', glow:'rgba(122,60,255,.30)' };
+      const btnLabel = pct === 100 ? '📊 Ver / Editar notas'
+                     : pct > 0     ? '📝 Continuar calificación'
+                     :               '📝 Comenzar a calificar';
+      return `
+      <div class="course-card sust-card" data-id="${s.id}"
+        style="--c-main:${color.main};--c-soft:${color.soft};--c-glow:${color.glow}">
+        <div class="course-card-top">
+          <div style="flex:1;min-width:0">
+            <h3 class="course-name">🏆 ${escape(s.name)}</h3>
+            <div class="course-meta">
+              ${s.date ? '<span class="course-meta-pill">📅 '+s.date+'</span>' : ''}
+              ${s.weight ? '<span class="course-meta-pill">'+s.weight+'% del curso</span>' : ''}
+              <span class="course-meta-pill">${rubric.length} criterios · /20</span>
+            </div>
+            ${s.topic ? '<div style="font-size:12px;margin-top:6px;color:var(--ean-dark)"><b>Tema:</b> '+escape(s.topic)+'</div>' : ''}
           </div>
-          ${s.topic?`<div style="font-size:12px;margin-top:4px"><b>Tema:</b> ${escape(s.topic)}</div>`:''}
-          <div style="margin-top:8px"><span class="chip ${pctCls}" style="font-size:11px">${calificados}/${totalGrupos} grupos calificados (${pct}%)</span></div>
+          <div class="course-actions">
+            <button class="course-action-btn" data-edit="${s.id}" title="Editar rúbrica">✏️</button>
+            <button class="course-action-btn course-action-danger" data-del="${s.id}" title="Eliminar">🗑</button>
+          </div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <button class="btn btn-cyan" data-grade="${s.id}">📝 Calificar</button>
-          <button class="btn btn-xs btn-out" data-edit="${s.id}">✏️ Editar rúbrica</button>
-          <button class="btn btn-xs btn-danger" data-del="${s.id}">🗑 Eliminar</button>
+        <div style="margin-top:14px;position:relative;z-index:1">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px">
+            <span style="color:var(--ean-gray)"><b>${calificados}</b>/${totalGrupos} grupos</span>
+            <span style="color:var(--c-main);font-weight:700">${pct}%</span>
+          </div>
+          <div style="height:6px;background:rgba(7,30,43,.08);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:var(--c-main);transition:width .4s"></div>
+          </div>
         </div>
+        <button class="btn course-open-btn" data-grade="${s.id}">
+          <span>${btnLabel}</span>
+          <span style="font-size:18px;line-height:1">→</span>
+        </button>
       </div>
-    </div>
-    `;
-  }).join('');
+      `;
+    }).join('')}
+  </div>`;
 
   list.querySelectorAll('[data-grade]').forEach(b=>b.onclick=()=>openGradeView(root, store, b.dataset.grade));
   list.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
@@ -472,7 +494,7 @@ function renderHistory(){
   const byGroup = gradedGroupsOf(activeSust.id);
 
   if (byGroup.size === 0){
-    div.innerHTML = `<p class="empty-state" style="padding:10px;font-size:12px">Aún ningún grupo calificado.</p>`;
+    div.innerHTML = `<p class="empty-state" style="padding:10px;font-size:12px">Aún ningún grupo calificado.<br>Selecciona uno arriba para empezar.</p>`;
     return;
   }
 
@@ -485,19 +507,39 @@ function renderHistory(){
     items.push({ group: g, value: sample.value, label: lbl, count: recs.length, obs: sample.observation });
   });
 
-  div.innerHTML = items.map(it => `
-    <div class="card-row" style="padding:8px;border:1px solid var(--ean-border);border-radius:6px;margin-bottom:6px;justify-content:space-between;background:#fafafa">
-      <div style="flex:1">
+  div.innerHTML = `
+    <div style="font-size:10px;color:var(--ean-gray);margin-bottom:6px;font-style:italic">
+      💡 Click en un grupo para editar su nota
+    </div>
+    ${items.map(it => `
+    <div class="hist-row" data-load="${it.group.id}" style="
+      padding:8px;border:1px solid var(--ean-border);border-radius:6px;margin-bottom:6px;
+      background:#fafafa;cursor:pointer;transition:.15s;display:flex;justify-content:space-between;gap:6px">
+      <div style="flex:1;min-width:0">
         <b style="font-size:12px">${escape(it.group.name)}</b>
         <div style="font-size:10px;color:var(--ean-gray)">${it.count} integrantes</div>
         ${it.obs?`<div style="font-size:10px;color:var(--ean-gray);font-style:italic;margin-top:2px">${escape(it.obs.substring(0,80))}${it.obs.length>80?'…':''}</div>`:''}
       </div>
-      <div style="text-align:right">
+      <div style="text-align:right;flex-shrink:0">
         <div style="font-size:18px;font-weight:900">${it.value}</div>
         <span class="chip ${it.label.cls}" style="font-size:9px;padding:1px 6px">${it.label.label}</span>
       </div>
     </div>
-  `).join('');
+  `).join('')}`;
+
+  // Hacer cada fila del historial clickable para cargar ese grupo en edición
+  div.querySelectorAll('.hist-row').forEach(row => {
+    row.onclick = () => {
+      const gid = row.dataset.load;
+      const sel = document.getElementById('g-group');
+      if (sel) sel.value = gid;
+      loadGroupForGrading(gid);
+      // Scroll al área de calificación
+      document.getElementById('g-criteria')?.scrollIntoView({ behavior:'smooth', block:'start' });
+    };
+    row.onmouseover = () => { row.style.background = 'var(--ean-cyan-soft)'; row.style.borderColor = 'var(--ean-cyan)'; };
+    row.onmouseout = () => { row.style.background = '#fafafa'; row.style.borderColor = 'var(--ean-border)'; };
+  });
 }
 
 const escape = s => String(s||'').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
