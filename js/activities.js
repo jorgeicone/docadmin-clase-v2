@@ -199,7 +199,9 @@ function renderGradesEditor(activityId, courseId){
 }
 
 // Editor de notas para actividades de tipo 'group' (nota grupal):
-// muestra UNA fila por grupo; al guardar, propaga la nota a todos los miembros.
+// muestra UNA fila por grupo + permite marcar quién del grupo asistió.
+const ABSENT_GROUP_PREFIX = 'AUSENTE en';
+
 function renderGradesEditorByGroup(activityId, courseId){
   const a = activities.find(x=>x.id===activityId);
   const div = document.getElementById('grades-'+activityId);
@@ -211,16 +213,38 @@ function renderGradesEditorByGroup(activityId, courseId){
     .map(m => students.find(s => s.id === m.student_id))
     .filter(Boolean);
 
-  // Nota actual del grupo: tomar el primer grade con ese group_id (todos tienen el mismo valor)
+  // Nota actual del grupo (no-ausente)
   const gradeByGroup = {};
   groups.forEach(g => {
-    const sample = gs.find(x => x.group_id === g.id);
+    const sample = gs.find(x => x.group_id === g.id && !(x.observation||'').startsWith(ABSENT_GROUP_PREFIX));
     if (sample) gradeByGroup[g.id] = sample;
+    else {
+      // Fallback: el primer grade del grupo aunque sea ausente
+      const fallback = gs.find(x => x.group_id === g.id);
+      if (fallback) gradeByGroup[g.id] = fallback;
+    }
+  });
+
+  // Presencia por grupo: { gid: { studentId: true/false } }
+  const presenceByGroup = {};
+  groups.forEach(g => {
+    const mems = memsOf(g.id);
+    presenceByGroup[g.id] = {};
+    mems.forEach(m => {
+      const myGrade = gs.find(x => x.activity_id === activityId && x.student_id === m.id && x.group_id === g.id);
+      // Si tiene grade con marca AUSENTE → ausente; si no, presente por default
+      if (myGrade && (myGrade.observation||'').startsWith(ABSENT_GROUP_PREFIX)){
+        presenceByGroup[g.id][m.id] = false;
+      } else {
+        presenceByGroup[g.id][m.id] = true;
+      }
+    });
   });
 
   div.innerHTML = `
     <div style="background:#E0F7FA;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:10px;border-left:3px solid var(--ean-cyan)">
-      🧑‍🤝‍🧑 <b>Nota grupal</b>: cada grupo recibe UNA nota que se aplica a todos sus integrantes.
+      🧑‍🤝‍🧑 <b>Nota grupal</b>: cada grupo recibe UNA nota que se aplica a sus integrantes presentes.
+      Los marcados como ausentes reciben 0.
     </div>
     <div class="tbl-wrap">
       <table>
@@ -228,19 +252,26 @@ function renderGradesEditorByGroup(activityId, courseId){
           <th>#</th>
           <th>Grupo</th>
           <th class="num" style="width:110px">Nota (0-${a.max_points})</th>
-          <th>Integrantes / Observación</th>
+          <th>Integrantes / Presencia / Observación</th>
         </tr></thead>
         <tbody>
           ${groups.map((g,i) => {
             const grade = gradeByGroup[g.id];
             const mems = memsOf(g.id);
             const leader = students.find(s => s.id === g.leader_student_id);
+            const presence = presenceByGroup[g.id] || {};
+            const presentCount = mems.filter(m => presence[m.id]).length;
+            const absentCount = mems.length - presentCount;
             return `
             <tr>
               <td class="num">${i+1}</td>
               <td>
                 <b>${escape(g.name)}</b>
-                <div style="font-size:10px;color:var(--ean-gray);margin-top:2px">${mems.length} integrante${mems.length===1?'':'s'}${leader?' · 👑 '+escape(leader.name):''}</div>
+                <div style="font-size:10px;color:var(--ean-gray);margin-top:2px">${mems.length} int.${leader?' · 👑 '+escape(leader.name):''}</div>
+                <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">
+                  <span class="chip chip-green" style="font-size:9px;padding:1px 6px">✅ ${presentCount}</span>
+                  ${absentCount > 0 ? `<span class="chip chip-red" style="font-size:9px;padding:1px 6px">❌ ${absentCount}</span>` : ''}
+                </div>
               </td>
               <td class="num">
                 <input type="number" class="input-grade" min="0" max="${a.max_points}" step="0.1"
@@ -248,9 +279,16 @@ function renderGradesEditorByGroup(activityId, courseId){
               </td>
               <td>
                 <input type="text" class="obs-input" data-obs-gid="${g.id}" value="${escapeAttr(grade?.desglose || grade?.observation || '')}" placeholder="Observación grupal…" style="width:100%;font-size:12px">
-                <details style="margin-top:4px">
-                  <summary style="cursor:pointer;font-size:10px;color:var(--ean-cyan)">Ver ${mems.length} integrante${mems.length===1?'':'s'}</summary>
-                  <div style="margin-top:4px;font-size:10px;color:var(--ean-gray)">${mems.map(m => escape(m.name)).join(' · ') || 'Sin integrantes'}</div>
+                <details class="acc" style="margin-top:6px" data-presence-gid="${g.id}">
+                  <summary>✏️ Editar presencia de integrantes (${mems.length})</summary>
+                  <div style="margin-top:6px;display:flex;flex-direction:column;gap:4px">
+                    ${mems.map(m => `
+                      <label style="display:flex;align-items:center;gap:6px;padding:4px 8px;background:#fff;border-radius:6px;border:1px solid var(--ean-border);font-size:11px;cursor:pointer">
+                        <input type="checkbox" class="presence-cb" data-gid="${g.id}" data-sid="${m.id}" ${presence[m.id]?'checked':''} style="width:14px;height:14px">
+                        <span style="flex:1">${escape(m.name)}${m.id===leader?.id?' 👑':''}</span>
+                      </label>
+                    `).join('')}
+                  </div>
                 </details>
               </td>
             </tr>`;
@@ -263,6 +301,25 @@ function renderGradesEditorByGroup(activityId, courseId){
     </div>
   `;
 
+  // Wire-up: checkboxes de presencia actualizan presenceByGroup en vivo + chips visuales
+  div.querySelectorAll('.presence-cb').forEach(cb => {
+    cb.onchange = () => {
+      const gid = cb.dataset.gid;
+      const sid = cb.dataset.sid;
+      presenceByGroup[gid][sid] = cb.checked;
+      // Actualizar chips del grupo
+      const mems = memsOf(gid);
+      const present = mems.filter(m => presenceByGroup[gid][m.id]).length;
+      const absent = mems.length - present;
+      const row = cb.closest('tr');
+      const chips = row.querySelector('td:nth-child(2) > div:last-child');
+      chips.innerHTML = `
+        <span class="chip chip-green" style="font-size:9px;padding:1px 6px">✅ ${present}</span>
+        ${absent > 0 ? `<span class="chip chip-red" style="font-size:9px;padding:1px 6px">❌ ${absent}</span>` : ''}
+      `;
+    };
+  });
+
   document.getElementById('save-grades-'+activityId).onclick = async () => {
     const rowsToUpsert = [];
     const groupsToClear = [];
@@ -274,30 +331,29 @@ function renderGradesEditorByGroup(activityId, courseId){
       const obs = div.querySelector(`input[data-obs-gid="${gid}"]`).value.trim() || null;
       const mems = memsOf(gid);
       if (val === null && !obs){
-        // Si había nota previa de este grupo, borrar
         if (gradeByGroup[gid]) groupsToClear.push(gid);
         return;
       }
-      // Una grade por cada miembro con el mismo valor
+      // Una grade por cada miembro: presentes reciben la nota, ausentes 0
       mems.forEach(m => {
+        const isAbsent = presenceByGroup[gid][m.id] === false;
         rowsToUpsert.push({
           activity_id: activityId,
           student_id: m.id,
           group_id: gid,
-          value: val,
-          desglose: obs,
+          value: isAbsent ? 0 : val,
+          desglose: isAbsent ? 'AUSENTE' : obs,
+          observation: isAbsent ? `${ABSENT_GROUP_PREFIX} ${a.name}` : null,
           source: 'manual',
         });
       });
     });
 
-    // Borrar notas de grupos que quedaron vacíos
     for (const gid of groupsToClear){
       await supabase.from('v5_grades').delete().eq('activity_id', activityId).eq('group_id', gid);
     }
 
     if (rowsToUpsert.length){
-      // Primero borrar grades previas de los grupos que vamos a actualizar (por si el grupo cambió de integrantes)
       const affectedGids = [...new Set(rowsToUpsert.map(r => r.group_id))];
       for (const gid of affectedGids){
         await supabase.from('v5_grades').delete().eq('activity_id', activityId).eq('group_id', gid);
@@ -307,7 +363,9 @@ function renderGradesEditorByGroup(activityId, courseId){
     }
 
     const gruposCount = new Set(rowsToUpsert.map(r => r.group_id)).size;
-    toast(`✅ ${gruposCount} grupo${gruposCount===1?'':'s'} calificado${gruposCount===1?'':'s'} (${rowsToUpsert.length} notas registradas en total)`,'success');
+    const absentCount = rowsToUpsert.filter(r => r.desglose === 'AUSENTE').length;
+    const absentMsg = absentCount ? ` (${absentCount} ausentes con 0)` : '';
+    toast(`✅ ${gruposCount} grupo${gruposCount===1?'':'s'} calificado${gruposCount===1?'':'s'}${absentMsg}`,'success');
     await loadAll(courseId);
     renderList(courseId);
   };
