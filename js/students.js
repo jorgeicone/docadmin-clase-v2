@@ -21,7 +21,12 @@ export async function mountStudents(root, store){
     <div id="stu-modal-host"></div>
   `;
 
-  document.getElementById('btn-add').onclick = () => openStudentModal(courseId, null, ()=>renderList(courseId));
+  document.getElementById('btn-add').onclick = async () => {
+    // Para "+ Agregar manual" pasamos el roster actual para que conozca las keys
+    const { data } = await supabase.from('v5_students').select('metadata').eq('course_id', courseId);
+    const rosterMeta = (data || []).map(d => d.metadata).filter(m => m && typeof m === 'object');
+    openStudentModal(courseId, null, ()=>renderList(courseId), rosterMeta);
+  };
   document.getElementById('btn-import').onclick = () => openImportModal(courseId, ()=>renderList(courseId));
 
   await renderList(courseId);
@@ -77,9 +82,11 @@ async function renderList(courseId){
     </details>
   `;
 
+  // Lista de metadata de TODO el curso, para que el modal sepa qué campos existen
+  const rosterMeta = data.map(d => d.metadata).filter(m => m && typeof m === 'object');
   list.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{
     const s = data.find(x=>x.id===b.dataset.edit);
-    openStudentModal(courseId, s, ()=>renderList(courseId));
+    openStudentModal(courseId, s, ()=>renderList(courseId), rosterMeta);
   });
   list.querySelectorAll('[data-del]').forEach(b=>b.onclick=async ()=>{
     const s = data.find(x=>x.id===b.dataset.del);
@@ -90,24 +97,48 @@ async function renderList(courseId){
   });
 }
 
-function openStudentModal(courseId, student, onDone){
+function openStudentModal(courseId, student, onDone, rosterMeta = []){
   const isEdit = !!student;
   const host = document.getElementById('stu-modal-host');
   // Datos extra existentes (metadata es un objeto)
   const existingMeta = (student?.metadata && typeof student.metadata === 'object') ? student.metadata : {};
+
+  // Claves de datos extra que existen en CUALQUIER estudiante del curso (vienen del Excel).
+  // El profe NO debe inventar keys; debe ver y editar las que ya existen.
+  const knownKeys = new Set();
+  rosterMeta.forEach(m => Object.keys(m || {}).forEach(k => knownKeys.add(k)));
+  Object.keys(existingMeta).forEach(k => knownKeys.add(k));
+  const sortedKeys = [...knownKeys].sort();
+
+  // Sugerencias de valores únicos por clave (para que el profe sepa qué valores hay)
+  const valuesByKey = {};
+  sortedKeys.forEach(k => {
+    const set = new Set();
+    rosterMeta.forEach(m => { const v = m?.[k]; if (v !== undefined && v !== null && v !== '') set.add(String(v)); });
+    valuesByKey[k] = [...set].sort();
+  });
+
   host.innerHTML = `
     <div class="modal-bg">
-      <div class="modal" style="max-width:560px">
+      <div class="modal" style="max-width:580px">
         <h2>${isEdit?'Editar':'Agregar'} estudiante</h2>
         <div class="field"><label>Cédula *</label><input id="f-ced" value="${escapeAttr(student?.cedula||'')}"></div>
         <div class="field"><label>Nombre completo *</label><input id="f-nom" value="${escapeAttr(student?.name||'')}"></div>
         <div class="field"><label>Email</label><input id="f-email" type="email" value="${escapeAttr(student?.email||'')}"></div>
 
-        <details class="acc" ${Object.keys(existingMeta).length ? 'open' : ''}>
-          <summary>📦 Datos extra (programa, plan, campus, etc.)</summary>
-          <div id="meta-rows" style="margin-top:8px;display:flex;flex-direction:column;gap:6px"></div>
-          <button type="button" class="btn btn-out btn-xs" id="meta-add" style="margin-top:8px">＋ Agregar campo</button>
+        ${sortedKeys.length > 0 ? `
+        <details class="acc" open>
+          <summary>📦 Datos extra (${sortedKeys.length} campos del Excel del curso)</summary>
+          <div id="meta-fields" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
+          <div style="margin-top:6px;font-size:11px;color:var(--ean-gray);font-style:italic">
+            💡 Los campos vienen del Excel importado. Deja en blanco para no asignar.
+          </div>
         </details>
+        ` : `
+        <p style="font-size:12px;color:var(--ean-gray);background:#FFF8E1;padding:10px;border-radius:6px;margin-top:8px">
+          ℹ️ Aún no hay campos extra en este curso. Si importas un Excel con columnas como Programa/Plan/Campus, aparecerán aquí.
+        </p>
+        `}
 
         <div class="modal-actions">
           <button class="btn btn-out" id="m-cancel">Cancelar</button>
@@ -117,23 +148,24 @@ function openStudentModal(courseId, student, onDone){
     </div>
   `;
 
-  // Render dinámico de filas de datos extra
-  const metaRowsDiv = document.getElementById('meta-rows');
-  function renderMetaRow(key='', value=''){
-    const row = document.createElement('div');
-    row.className = 'meta-row';
-    row.style.cssText = 'display:grid;grid-template-columns:1fr 1.6fr auto;gap:6px;align-items:center';
-    row.innerHTML = `
-      <input class="meta-k" type="text" placeholder="Campo (ej: Programa)" value="${escapeAttr(key)}">
-      <input class="meta-v" type="text" placeholder="Valor" value="${escapeAttr(value)}">
-      <button type="button" class="btn btn-xs btn-danger meta-del" title="Quitar">🗑</button>
-    `;
-    row.querySelector('.meta-del').onclick = () => row.remove();
-    metaRowsDiv.appendChild(row);
+  // Render: una fila fija por cada clave conocida del curso
+  const fieldsDiv = document.getElementById('meta-fields');
+  if (fieldsDiv){
+    sortedKeys.forEach(key => {
+      const value = existingMeta[key] != null ? String(existingMeta[key]) : '';
+      const datalistId = 'dl-' + key.replace(/[^a-z0-9]/gi,'_');
+      const suggestions = valuesByKey[key].slice(0, 50);
+      const row = document.createElement('div');
+      row.className = 'meta-field';
+      row.dataset.key = key;
+      row.innerHTML = `
+        <label style="font-size:11px;color:var(--ean-gray);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:4px;display:block">${escape(key)}</label>
+        <input class="meta-v" type="text" placeholder="(vacío)" value="${escapeAttr(value)}" list="${datalistId}">
+        ${suggestions.length ? `<datalist id="${datalistId}">${suggestions.map(s => `<option value="${escapeAttr(s)}">`).join('')}</datalist>` : ''}
+      `;
+      fieldsDiv.appendChild(row);
+    });
   }
-  // Cargar campos existentes
-  Object.entries(existingMeta).forEach(([k,v]) => renderMetaRow(k, String(v ?? '')));
-  document.getElementById('meta-add').onclick = () => renderMetaRow();
 
   document.getElementById('m-cancel').onclick = () => host.innerHTML='';
   document.getElementById('m-save').onclick = async () => {
@@ -144,12 +176,12 @@ function openStudentModal(courseId, student, onDone){
     };
     if (!payload.cedula || !payload.name){ toast('Cédula y nombre requeridos','error'); return; }
 
-    // Reconstruir metadata desde las filas dinámicas
+    // Reconstruir metadata desde las filas FIJAS (keys del curso)
     const meta = {};
-    metaRowsDiv.querySelectorAll('.meta-row').forEach(row => {
-      const k = row.querySelector('.meta-k').value.trim();
+    document.querySelectorAll('.meta-field').forEach(row => {
+      const k = row.dataset.key;
       const v = row.querySelector('.meta-v').value.trim();
-      if (k) meta[k] = v;  // ignora filas sin nombre de campo
+      if (v) meta[k] = v;  // si está vacío no se incluye
     });
     payload.metadata = meta;
 
