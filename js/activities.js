@@ -358,7 +358,20 @@ function renderGradesEditorByGroup(activityId, courseId){
       for (const gid of affectedGids){
         await supabase.from('v5_grades').delete().eq('activity_id', activityId).eq('group_id', gid);
       }
-      const { error } = await supabase.from('v5_grades').upsert(rowsToUpsert, { onConflict: 'activity_id,student_id' });
+      // Deduplicar por student_id: si un alumno está en dos grupos, Postgres rechaza
+      // el upsert ("ON CONFLICT DO UPDATE command cannot affect row a second time").
+      // Estrategia: el último grupo procesado gana. Avisamos en consola para diagnostico.
+      const bySid = new Map();
+      const dupes = [];
+      for (const r of rowsToUpsert){
+        if (bySid.has(r.student_id)) dupes.push(r.student_id);
+        bySid.set(r.student_id, r);
+      }
+      if (dupes.length){
+        console.warn('[grupal] estudiantes en >1 grupo (se conservó el último):', [...new Set(dupes)]);
+      }
+      const dedupRows = [...bySid.values()];
+      const { error } = await supabase.from('v5_grades').upsert(dedupRows, { onConflict: 'activity_id,student_id' });
       if (error){ toast('Error: '+error.message,'error'); return; }
     }
 
