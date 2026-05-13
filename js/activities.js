@@ -49,8 +49,30 @@ async function loadAll(courseId){
     grades = [];
   }
 
+  // B1: reparar grades huérfanas (group_id NULL en actividades grupales) reasignándolas
+  //     al grupo actual del estudiante. Esto cubre el caso "actividad creada individual,
+  //     cambiada después a grupal" donde las grades quedaron sin grupo.
+  await repairOrphanGroupGrades();
+
   document.getElementById('act-info').textContent =
     `${activities.length} actividad${activities.length===1?'':'es'} · ${grades.length} nota${grades.length===1?'':'s'} registrada${grades.length===1?'':'s'}`;
+}
+
+async function repairOrphanGroupGrades(){
+  if (!grades.length || !memberships.length) return;
+  const stuToGroup = {};
+  memberships.forEach(m => { stuToGroup[m.student_id] = m.group_id; });
+  const groupActIds = new Set(activities.filter(a => a.type === 'group').map(a => a.id));
+  const orphans = grades.filter(g => !g.group_id && groupActIds.has(g.activity_id) && stuToGroup[g.student_id]);
+  if (!orphans.length) return;
+  const ops = orphans.map(o =>
+    supabase.from('v5_grades').update({ group_id: stuToGroup[o.student_id] }).eq('id', o.id)
+  );
+  const results = await Promise.all(ops);
+  const failed = results.filter(r => r.error).length;
+  if (failed) console.warn(`[reparación] ${failed}/${orphans.length} grades no pudieron reasignarse`);
+  orphans.forEach(o => { if (stuToGroup[o.student_id]) o.group_id = stuToGroup[o.student_id]; });
+  console.info(`[reparación] ${orphans.length - failed} grade(s) huérfana(s) reasignada(s) a su grupo.`);
 }
 
 function gradesOf(activityId){ return grades.filter(g => g.activity_id === activityId); }
@@ -142,7 +164,7 @@ function renderGradesEditor(activityId, courseId){
               <td class="num">${i+1}</td>
               <td><b>${escape(s.name)}</b><div style="font-size:10px;color:var(--ean-gray)"><code>${escape(s.cedula)}</code></div></td>
               <td class="num">
-                <input type="number" class="input-grade" min="0" max="${a.max_points}" step="0.1"
+                <input type="number" class="input-grade" min="0" max="${a.max_points}" step="${a.max_points <= 1 ? '1' : '0.1'}"
                   value="${g?.value??''}" data-sid="${s.id}" placeholder="—">
               </td>
               <td>
@@ -185,14 +207,30 @@ function renderGradesEditor(activityId, courseId){
     const dels = updates.filter(u => u.delete).map(u => u.delete);
     const upserts = updates.filter(u => !u.delete);
 
+    // B10: si vas a borrar notas, confirmar
     if (dels.length){
+      const delNames = dels.map(id => {
+        const g = grades.find(x => x.id === id);
+        const s = students.find(x => x.id === g?.student_id);
+        return s?.name || '?';
+      });
+      const ok = confirm(`⚠ Vas a BORRAR la nota de ${dels.length} estudiante${dels.length===1?'':'s'}:\n\n${delNames.slice(0,10).join('\n')}${delNames.length>10?`\n…y ${delNames.length-10} más`:''}\n\n¿Continuar?`);
+      if (!ok){ toast('Borrado cancelado','info'); return; }
       await supabase.from('v5_grades').delete().in('id', dels);
     }
     if (upserts.length){
       const { error } = await supabase.from('v5_grades').upsert(upserts, { onConflict: 'activity_id,student_id' });
       if (error){ toast('Error: '+error.message,'error'); return; }
     }
-    toast(`✅ ${upserts.length} nota${upserts.length===1?'':'s'} guardada${upserts.length===1?'':'s'}`,'success');
+    // B3: toast honesto
+    if (!upserts.length && !dels.length){
+      toast('Sin cambios','info');
+    } else {
+      const parts = [];
+      if (upserts.length) parts.push(`${upserts.length} nota${upserts.length===1?'':'s'} guardada${upserts.length===1?'':'s'}`);
+      if (dels.length)    parts.push(`${dels.length} borrada${dels.length===1?'':'s'}`);
+      toast(`✅ ${parts.join(' · ')}`,'success');
+    }
     await loadAll(courseId);
     renderList(courseId);
   };
@@ -274,8 +312,9 @@ function renderGradesEditorByGroup(activityId, courseId){
                 </div>
               </td>
               <td class="num">
-                <input type="number" class="input-grade" min="0" max="${a.max_points}" step="0.1"
+                <input type="number" class="input-grade" min="0" max="${a.max_points}" step="${a.max_points <= 1 ? '1' : '0.1'}"
                   value="${grade?.value??''}" data-gid="${g.id}" placeholder="—" style="font-weight:700">
+                <button class="btn btn-xs btn-cyan save-one" data-save-gid="${g.id}" style="margin-top:6px;width:100%;font-size:10px" title="Guardar solo este grupo">💾 Guardar este grupo</button>
               </td>
               <td>
                 <input type="text" class="obs-input" data-obs-gid="${g.id}" value="${escapeAttr(grade?.desglose || grade?.observation || '')}" placeholder="Observación grupal…" style="width:100%;font-size:12px">
@@ -297,7 +336,7 @@ function renderGradesEditorByGroup(activityId, courseId){
       </table>
     </div>
     <div style="margin-top:10px;text-align:right">
-      <button class="btn btn-cyan" id="save-grades-${activityId}">💾 Guardar notas grupales</button>
+      <button class="btn btn-cyan" id="save-grades-${activityId}">💾 Guardar TODOS los grupos</button>
     </div>
   `;
 
@@ -320,68 +359,105 @@ function renderGradesEditorByGroup(activityId, courseId){
     };
   });
 
-  document.getElementById('save-grades-'+activityId).onclick = async () => {
+  // Construye filas para UN grupo. Devuelve { rows, clear } donde:
+  //   rows  = filas a upsert (presentes con nota + ausentes con 0); [] si no hay nada que guardar
+  //   clear = true si el grupo tenía nota previa y ahora se dejó vacío → marcar para borrado
+  function buildForGroup(gid){
+    const inp = div.querySelector(`input.input-grade[data-gid="${gid}"]`);
+    const obsInp = div.querySelector(`input[data-obs-gid="${gid}"]`);
+    if (!inp || !obsInp) return { rows: [], clear: false };
+    const valStr = inp.value.trim();
+    const val = valStr === '' ? null : parseFloat(valStr);
+    const obs = obsInp.value.trim() || null;
+    const mems = memsOf(gid);
+    if (val === null && !obs){
+      return { rows: [], clear: !!gradeByGroup[gid] };
+    }
+    const rows = mems.map(m => {
+      const isAbsent = presenceByGroup[gid][m.id] === false;
+      const existing = gs.find(x => x.student_id === m.id && x.group_id === gid);
+      return {
+        activity_id: activityId,
+        student_id: m.id,
+        group_id: gid,
+        value: isAbsent ? 0 : val,
+        desglose: isAbsent ? 'AUSENTE' : obs,
+        observation: isAbsent ? `${ABSENT_GROUP_PREFIX} ${a.name}` : null,
+        source: existing?.source || 'manual', // B7: preservar source (ej. ingesta IA)
+      };
+    });
+    return { rows, clear: false };
+  }
+
+  // Guarda uno o varios grupos. gids=null → todos los inputs de la tabla.
+  async function saveGroups(gids){
+    const targetGids = gids ?? [...new Set([...div.querySelectorAll('input.input-grade[data-gid]')].map(i=>i.dataset.gid))];
     const rowsToUpsert = [];
     const groupsToClear = [];
-
-    div.querySelectorAll('input[data-gid]').forEach(inp => {
-      const gid = inp.dataset.gid;
-      const valStr = inp.value.trim();
-      const val = valStr === '' ? null : parseFloat(valStr);
-      const obs = div.querySelector(`input[data-obs-gid="${gid}"]`).value.trim() || null;
-      const mems = memsOf(gid);
-      if (val === null && !obs){
-        if (gradeByGroup[gid]) groupsToClear.push(gid);
-        return;
-      }
-      // Una grade por cada miembro: presentes reciben la nota, ausentes 0
-      mems.forEach(m => {
-        const isAbsent = presenceByGroup[gid][m.id] === false;
-        rowsToUpsert.push({
-          activity_id: activityId,
-          student_id: m.id,
-          group_id: gid,
-          value: isAbsent ? 0 : val,
-          desglose: isAbsent ? 'AUSENTE' : obs,
-          observation: isAbsent ? `${ABSENT_GROUP_PREFIX} ${a.name}` : null,
-          source: 'manual',
-        });
-      });
+    targetGids.forEach(gid => {
+      const { rows, clear } = buildForGroup(gid);
+      if (rows.length) rowsToUpsert.push(...rows);
+      if (clear) groupsToClear.push(gid);
     });
 
-    for (const gid of groupsToClear){
-      await supabase.from('v5_grades').delete().eq('activity_id', activityId).eq('group_id', gid);
+    // B3: si no hay nada que hacer, decirlo en azul, no en verde
+    if (!rowsToUpsert.length && !groupsToClear.length){
+      toast('Sin cambios','info');
+      return;
     }
 
-    if (rowsToUpsert.length){
-      const affectedGids = [...new Set(rowsToUpsert.map(r => r.group_id))];
-      for (const gid of affectedGids){
-        await supabase.from('v5_grades').delete().eq('activity_id', activityId).eq('group_id', gid);
-      }
-      // Deduplicar por student_id: si un alumno está en dos grupos, Postgres rechaza
-      // el upsert ("ON CONFLICT DO UPDATE command cannot affect row a second time").
-      // Estrategia: el último grupo procesado gana. Avisamos en consola para diagnostico.
-      const bySid = new Map();
-      const dupes = [];
-      for (const r of rowsToUpsert){
-        if (bySid.has(r.student_id)) dupes.push(r.student_id);
-        bySid.set(r.student_id, r);
-      }
-      if (dupes.length){
-        console.warn('[grupal] estudiantes en >1 grupo (se conservó el último):', [...new Set(dupes)]);
-      }
-      const dedupRows = [...bySid.values()];
+    // Deduplicar por student_id (alumno en >1 grupo): el último gana
+    const bySid = new Map();
+    const dupes = [];
+    for (const r of rowsToUpsert){
+      if (bySid.has(r.student_id)) dupes.push(r.student_id);
+      bySid.set(r.student_id, r);
+    }
+    if (dupes.length){
+      console.warn('[grupal] estudiantes en >1 grupo (se conservó el último):', [...new Set(dupes)]);
+    }
+    const dedupRows = [...bySid.values()];
+
+    // B2: ATOMICIDAD. Antes hacíamos DELETE+UPSERT y si la red fallaba entre los dos, perdíamos notas.
+    // Ahora: UPSERT primero (en caliente). Después, limpiar ex-miembros del grupo (estudiantes
+    // que ya no están en él). Si el segundo paso falla, quedan filas viejas pero ninguna pérdida.
+    if (dedupRows.length){
       const { error } = await supabase.from('v5_grades').upsert(dedupRows, { onConflict: 'activity_id,student_id' });
       if (error){ toast('Error: '+error.message,'error'); return; }
     }
 
-    const gruposCount = new Set(rowsToUpsert.map(r => r.group_id)).size;
-    const absentCount = rowsToUpsert.filter(r => r.desglose === 'AUSENTE').length;
+    // Borrar grades de ex-miembros: por cada gid afectado, eliminar grades cuyo student_id ya no esté en la membresía actual
+    const affectedGids = [...new Set([...dedupRows.map(r=>r.group_id), ...groupsToClear])];
+    for (const gid of affectedGids){
+      const currentSids = memsOf(gid).map(m => m.id);
+      const toDelete = gs
+        .filter(x => x.group_id === gid && !currentSids.includes(x.student_id))
+        .map(x => x.id);
+      if (toDelete.length){
+        await supabase.from('v5_grades').delete().in('id', toDelete);
+      }
+    }
+
+    // Limpiar grupos marcados para borrado total (se dejó vacío y tenía nota)
+    for (const gid of groupsToClear){
+      await supabase.from('v5_grades').delete().eq('activity_id', activityId).eq('group_id', gid);
+    }
+
+    const gruposCount = new Set(dedupRows.map(r => r.group_id)).size;
+    const absentCount = dedupRows.filter(r => r.desglose === 'AUSENTE').length;
+    const clearedMsg = groupsToClear.length ? ` · ${groupsToClear.length} limpiado${groupsToClear.length===1?'':'s'}` : '';
     const absentMsg = absentCount ? ` (${absentCount} ausentes con 0)` : '';
-    toast(`✅ ${gruposCount} grupo${gruposCount===1?'':'s'} calificado${gruposCount===1?'':'s'}${absentMsg}`,'success');
+    toast(`✅ ${gruposCount} grupo${gruposCount===1?'':'s'} calificado${gruposCount===1?'':'s'}${absentMsg}${clearedMsg}`,'success');
     await loadAll(courseId);
     renderList(courseId);
-  };
+  }
+
+  // B4: botón "Guardar este grupo" en cada fila
+  div.querySelectorAll('.save-one').forEach(btn => {
+    btn.onclick = () => saveGroups([btn.dataset.saveGid]);
+  });
+  // Botón global "Guardar TODOS los grupos"
+  document.getElementById('save-grades-'+activityId).onclick = () => saveGroups(null);
 }
 
 function openActivityModal(courseId, activity){
@@ -438,6 +514,27 @@ function openActivityModal(courseId, activity){
       topic: document.getElementById('a-topic').value.trim() || null,
     };
     if (!payload.name){ toast('Nombre requerido','error'); return; }
+    // B9: validar max_points > 0
+    if (!(payload.max_points > 0)){ toast('La escala máxima debe ser mayor a 0','error'); return; }
+
+    // B5: si cambia el tipo de actividad y ya hay notas, avisar
+    if (isEdit && activity.type !== payload.type){
+      const existing = gradesOf(activity.id);
+      if (existing.length){
+        const msg = `⚠ Esta actividad ya tiene ${existing.length} nota${existing.length===1?'':'s'} guardada${existing.length===1?'':'s'}.\n\n` +
+          `Vas a cambiar el tipo de "${ACTIVITY_TYPES[activity.type]||activity.type}" a "${ACTIVITY_TYPES[payload.type]||payload.type}".\n\n` +
+          `Si cambias a GRUPAL, las notas existentes se reasignarán automáticamente al grupo actual de cada estudiante (los que estén en algún grupo).\n` +
+          `Si cambias a INDIVIDUAL, las notas mantienen su valor pero pierden la asociación con grupos.\n\n` +
+          `¿Continuar?`;
+        if (!confirm(msg)){ return; }
+      }
+    }
+
+    // B6: si crea/edita actividad grupal y no hay grupos, advertir
+    if (payload.type === 'group' && groups.length === 0){
+      const ok = confirm(`⚠ Esta actividad es GRUPAL pero el curso aún no tiene grupos creados.\n\nSe creará igual, pero al editar las notas verás el editor individual hasta que crees grupos.\n\n¿Continuar?`);
+      if (!ok) return;
+    }
 
     let r;
     if (isEdit) r = await supabase.from('v5_activities').update(payload).eq('id', activity.id);
@@ -445,7 +542,7 @@ function openActivityModal(courseId, activity){
     if (r.error){ toast('Error: '+r.error.message,'error'); return; }
     toast(isEdit?'Actualizada':'Creada','success');
     host.innerHTML='';
-    await loadAll(courseId);
+    await loadAll(courseId); // dispara repairOrphanGroupGrades si pasó a grupal
     renderList(courseId);
   };
 }
