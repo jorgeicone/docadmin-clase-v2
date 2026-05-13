@@ -10,6 +10,7 @@ let courseId = null;
 let viewMode = 'list';        // 'list' | 'grade'
 let activeSust = null;        // actividad sustentación activa para calificar
 let pendingPts = {};          // {criterionIndex: pts}
+let pendingObs = {};          // {criterionIndex: textoObservacion}
 let activeGroupId = null;
 let presence = {};            // {studentId: true/false} — true si estuvo presente en la sustentación
 
@@ -463,6 +464,7 @@ function renderGradeView(root, store){
 function loadGroupForGrading(groupId){
   activeGroupId = groupId;
   pendingPts = {};
+  pendingObs = {};
   presence = {};
   document.getElementById('g-obs').value = '';
 
@@ -487,6 +489,12 @@ function loadGroupForGrading(groupId){
     Object.entries(sample.raw_pts).forEach(([k,v]) => {
       if (!isNaN(parseInt(k))) pendingPts[parseInt(k)] = v;
     });
+    // Observaciones por criterio (nuevo): raw_pts._obs = { "0": "...", "3": "..." }
+    if (sample.raw_pts._obs && typeof sample.raw_pts._obs === 'object'){
+      Object.entries(sample.raw_pts._obs).forEach(([k,v]) => {
+        if (!isNaN(parseInt(k)) && typeof v === 'string') pendingObs[parseInt(k)] = v;
+      });
+    }
     const obs = sample.observation || '';
     document.getElementById('g-obs').value = obs.startsWith(ABSENT_PREFIX) ? '' : obs;
   }
@@ -570,6 +578,7 @@ function renderCriteriaGrading(){
   const div = document.getElementById('g-criteria');
   div.innerHTML = rubric.map((c,i) => {
     const sel = pendingPts[i] ?? null;
+    const obsVal = pendingObs[i] || '';
     const buttons = Array.from({length: c.max+1}, (_,v) => {
       const isSel = sel === v;
       return `<button class="pts-btn" data-i="${i}" data-v="${v}" style="
@@ -586,6 +595,11 @@ function renderCriteriaGrading(){
         </div>
         <div style="display:flex;gap:2px;flex-wrap:wrap;justify-content:flex-end;max-width:50%">${buttons}</div>
       </div>
+      <div style="margin-top:8px">
+        <input type="text" class="crit-obs" data-i="${i}" value="${escapeAttr(obsVal)}"
+          placeholder="📝 Observación de este criterio (opcional)…"
+          style="width:100%;font-size:12px;padding:6px 8px;border:1px solid var(--ean-border);border-radius:4px;background:#fff">
+      </div>
     </div>
     `;
   }).join('');
@@ -595,6 +609,15 @@ function renderCriteriaGrading(){
     pendingPts[i] = v;
     renderCriteriaGrading();
     updateTotal();
+  });
+  // Observaciones por criterio (no re-renderiza al teclear para no perder foco)
+  div.querySelectorAll('.crit-obs').forEach(inp => {
+    inp.oninput = () => {
+      const i = +inp.dataset.i;
+      const v = inp.value;
+      if (v.trim()) pendingObs[i] = v;
+      else delete pendingObs[i];
+    };
   });
 }
 
@@ -641,6 +664,21 @@ async function saveGroupGrade(root, store){
   const presentes = mems.filter(m => presence[m.id] !== false);
   const ausentes  = mems.filter(m => presence[m.id] === false);
 
+  // Compactar obs (descartar vacías)
+  const obsCompact = {};
+  Object.entries(pendingObs).forEach(([k,v]) => { if (v && v.trim()) obsCompact[k] = v.trim(); });
+
+  // raw_pts ahora incluye también _obs con observaciones por criterio
+  const rawPtsConObs = { ...pendingPts };
+  if (Object.keys(obsCompact).length) rawPtsConObs._obs = obsCompact;
+
+  // Enriquecer el desglose textual con las observaciones por criterio (legible en consolidado)
+  const desgloseConObs = rubric.map((c,i) => {
+    const pts = pendingPts[i] ?? 0;
+    const o = obsCompact[i];
+    return o ? `${c.name}:${pts} [${o}]` : `${c.name}:${pts}`;
+  }).join(' + ');
+
   const rows = mems.map(m => {
     const isAbsent = presence[m.id] === false;
     return {
@@ -648,8 +686,8 @@ async function saveGroupGrade(root, store){
       student_id: m.id,
       group_id: activeGroupId,
       value: isAbsent ? 0 : scaled,
-      raw_pts: isAbsent ? {} : pendingPts,
-      desglose: isAbsent ? 'AUSENTE' : desglose,
+      raw_pts: isAbsent ? {} : rawPtsConObs,
+      desglose: isAbsent ? 'AUSENTE' : desgloseConObs,
       observation: isAbsent
         ? `${ABSENT_PREFIX} de ${activeSust.name}`
         : obsRaw,
