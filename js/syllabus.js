@@ -74,6 +74,7 @@ const SESSION_TYPES = {
   taller: 'Taller / Workshop',
   abp: 'Aprendizaje basado en proyectos',
   caso: 'Estudio de caso',
+  trabajo_campo: 'Trabajo de campo',
   sustentacion: 'Sustentación',
   parcial: 'Parcial / Examen',
   asesoria: 'Asesoría',
