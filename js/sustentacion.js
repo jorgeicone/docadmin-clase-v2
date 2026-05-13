@@ -4,6 +4,8 @@ import { toast } from './toast.js';
 import { sustLabel } from './config.js';
 
 let sustentaciones = [], groups = [], students = [], memberships = [], grades = [];
+let otrasSust = []; // sustentaciones de OTROS cursos del usuario (para usar como plantilla)
+let cursosById = {}; // {id: name} para mostrar en el dropdown
 let courseId = null;
 let viewMode = 'list';        // 'list' | 'grade'
 let activeSust = null;        // actividad sustentación activa para calificar
@@ -75,6 +77,15 @@ async function loadAll(){
     const { data } = await supabase.from('v5_grades').select('*').in('activity_id', ids);
     grades = data || [];
   } else { grades = []; }
+
+  // Cargar sustentaciones de OTROS cursos del usuario (para reutilizar como plantilla)
+  // RLS asegura que solo vea las de cursos que le pertenecen.
+  const [otrasR, cursosR] = await Promise.all([
+    supabase.from('v5_activities').select('id, name, rubric, course_id').eq('type','sustentacion').neq('course_id', courseId).order('created_at',{ascending:false}),
+    supabase.from('v5_courses').select('id, name'),
+  ]);
+  otrasSust = otrasR.data || [];
+  cursosById = Object.fromEntries((cursosR.data||[]).map(c => [c.id, c.name]));
 }
 
 function membersOf(groupId){
@@ -230,16 +241,38 @@ function openCreateModal(root, store, existing){
           <div class="field"><label>Peso del curso (%)</label><input id="s-weight" type="number" step="1" min="0" max="100" value="${existing?.weight??''}" placeholder="Opcional"></div>
         </div>
 
-        ${!isEdit ? `
+        ${!isEdit ? (() => {
+          // Agrupar las sustentaciones de otros cursos por nombre de curso
+          const otrasPorCurso = {};
+          otrasSust.forEach(s => {
+            const cname = cursosById[s.course_id] || '(curso sin nombre)';
+            (otrasPorCurso[cname] ||= []).push(s);
+          });
+          const otrasOptgroups = Object.entries(otrasPorCurso)
+            .sort(([a],[b]) => a.localeCompare(b))
+            .map(([cname, list]) => `
+              <optgroup label="🎓 ${escape(cname)}">
+                ${list.map(s => `<option value="other:${s.id}">${escape(s.name)} (${(s.rubric?.criterios||[]).length} criterios)</option>`).join('')}
+              </optgroup>
+            `).join('');
+          return `
         <div class="field">
           <label>📋 Cargar plantilla (opcional)</label>
           <select id="s-template">
             <option value="">— Empezar en blanco —</option>
-            <option value="diagnostico">Diagnóstico inicial (5 criterios estándar)</option>
-            ${sustentaciones.length ? '<option value="" disabled>──── De otras sustentaciones ────</option>' : ''}
-            ${sustentaciones.map(s => `<option value="prev:${s.id}">📋 Copiar de "${escape(s.name)}" (${(s.rubric?.criterios||[]).length} criterios)</option>`).join('')}
+            <option value="diagnostico">📐 Diagnóstico inicial (5 criterios estándar)</option>
+            ${sustentaciones.length ? `
+              <optgroup label="📋 De este curso">
+                ${sustentaciones.map(s => `<option value="prev:${s.id}">${escape(s.name)} (${(s.rubric?.criterios||[]).length} criterios)</option>`).join('')}
+              </optgroup>
+            ` : ''}
+            ${otrasOptgroups}
           </select>
-        </div>` : ''}
+          ${otrasSust.length === 0 && sustentaciones.length === 0
+            ? '<div style="font-size:11px;color:var(--ean-gray);margin-top:4px;font-style:italic">💡 Cuando tengas más sustentaciones en otros cursos, aparecerán aquí para reutilizar la rúbrica.</div>'
+            : `<div style="font-size:11px;color:var(--ean-gray);margin-top:4px">💡 Al elegir una plantilla se copian los criterios. Después puedes ajustarlos.</div>`}
+        </div>`;
+        })() : ''}
 
         <h3 style="margin-top:14px">Criterios de esta sustentación</h3>
         <p style="font-size:11px;color:var(--ean-gray);margin-bottom:8px">
@@ -306,6 +339,14 @@ function openCreateModal(root, store, existing){
         const sid = v.split(':')[1];
         const s = sustentaciones.find(x=>x.id===sid);
         criteria = JSON.parse(JSON.stringify(s?.rubric?.criterios || []));
+      } else if (v.startsWith('other:')){
+        const sid = v.split(':')[1];
+        const s = otrasSust.find(x=>x.id===sid);
+        criteria = JSON.parse(JSON.stringify(s?.rubric?.criterios || []));
+        if (s){
+          const cname = cursosById[s.course_id] || 'otro curso';
+          toast(`📋 Plantilla cargada desde "${s.name}" (${cname}). ${criteria.length} criterios copiados.`,'success');
+        }
       } else if (PLANTILLAS[v]){
         criteria = JSON.parse(JSON.stringify(PLANTILLAS[v].criteria));
       }
