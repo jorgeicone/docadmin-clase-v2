@@ -1,14 +1,22 @@
+/*!
+ * ICONE.DocAdmin v5
+ * © 2026 Ing. Jorge Hugo Pérez Gaona / ICONE ialabs · Todos los derechos reservados.
+ * https://jorgeicone.github.io/docadmin-clase-v2/
+ * Licenciamiento: jorgehugoperez@iconeialabs.com
+ * Cualquier uso, copia o redistribución no autorizada queda prohibida y será
+ * perseguida bajo Ley 23/1982 (Colombia) y normas internacionales aplicables.
+ */
 // Bootstrap principal — importa Alpine, registra store, arranca controladamente
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/module.esm.js';
 // v=20260510e — bumpear este sufijo si se cambian los módulos para invalidar caché
 // Imports CRÍTICOS (necesarios para login + boot inicial):
-import { supabase, currentSession } from './supabase-client.js?v=20260511v';
-import { toast } from './toast.js?v=20260511v';
-import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260511v';
+import { supabase, currentSession } from './supabase-client.js?v=20260511w';
+import { toast } from './toast.js?v=20260511w';
+import { openPlanModal, checkPaymentSuccess, fetchPlanInfo, PLANS } from './plan.js?v=20260511w';
 
 // Bloque 5 (LCP): lazy import de los 11 módulos de vistas.
 // Solo se descarga al navegar a esa vista. Reduce JS inicial ~50 KiB.
-const VERSION = '?v=20260511v';
+const VERSION = '?v=20260511w';
 const VIEWS = {
   courses:      { title:'Mis cursos',                loader: () => import('./courses.js'+VERSION).then(m => m.mountCourses) },
   students:     { title:'Estudiantes',               needsCourse:true, loader: () => import('./students.js'+VERSION).then(m => m.mountStudents) },

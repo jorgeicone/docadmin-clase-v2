@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>ICONE.DocAdmin v5 — Gestión docente con IA</title>
 <meta name="description" content="ICONE.DocAdmin: gestión docente con IA. Asistencia, notas, sustentación, plan del semestre y consolidados — listo para tu curso universitario.">
+<meta name="author"    content="Ing. Jorge Hugo Pérez Gaona · ICONE ialabs">
+<meta name="copyright" content="© 2026 Ing. Jorge Hugo Pérez Gaona / ICONE ialabs · Todos los derechos reservados.">
+<meta name="rights"    content="https://github.com/jorgeicone/docadmin-clase-v2/blob/main/LICENSE">
 
 <!-- Favicons + iOS/Android -->
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icone-logo-32.png">
@@ -24,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/main.css?v=20260511v">
+<link rel="stylesheet" href="css/main.css?v=20260511w">
 <style>
   #boot-fallback{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
     background:linear-gradient(135deg,#1B2745,#3055A6);color:#fff;flex-direction:column;gap:12px;
@@ -53,6 +56,9 @@
     <img src="assets/icone-logo-128.png" alt="ICONE ialabs" width="72" height="72" class="login-logo">
     <h1>ICONE.DocAdmin</h1>
     <div class="sub">Gestión docente con IA · v5</div>
+    <div style="font-size:10px;color:var(--ean-gray);margin-bottom:14px;letter-spacing:.2px">
+      por <b>Ing. Jorge Hugo Pérez Gaona</b> · ICONE ialabs
+    </div>
     <template x-if="error"><div class="login-error" x-text="error"></div></template>
     <form @submit.prevent="submit">
       <div class="field">
@@ -110,6 +116,11 @@
     <div style="padding:14px 18px;font-size:11px;color:rgba(255,255,255,.5);border-top:1px solid rgba(255,255,255,.08);margin-top:auto">
       <div x-text="$store.app.user?.email" style="margin-bottom:6px;word-break:break-all"></div>
       <a href="#" @click.prevent="$store.app.signOut()" style="color:rgba(255,255,255,.7)">Cerrar sesión →</a>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);font-size:9px;line-height:1.5;color:rgba(255,255,255,.35)">
+        © 2026 <b style="color:rgba(255,255,255,.6)">Ing. Jorge Hugo Pérez Gaona</b><br>
+        ICONE ialabs · Todos los derechos reservados<br>
+        <span style="color:rgba(255,255,255,.3)">Uso autorizado únicamente</span>
+      </div>
     </div>
   </aside>
   <main class="main">
@@ -153,6 +164,45 @@
   <button class="rotate-close" @click="dismiss()" aria-label="Cerrar sugerencia">✕</button>
 </div>
 
+<!-- ───────────── MODAL DE TÉRMINOS DE USO (primer login) ───────────── -->
+<div x-data="{
+       accepted: !!localStorage.getItem('docadmin_tos_accepted_v1'),
+       accept(){
+         localStorage.setItem('docadmin_tos_accepted_v1', new Date().toISOString());
+         localStorage.setItem('docadmin_tos_accepted_by', $store.app.user?.email || 'unknown');
+         this.accepted = true;
+       }
+     }"
+     x-show="$store.app.user && !accepted"
+     x-cloak
+     style="position:fixed;inset:0;background:rgba(7,30,43,.85);backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px">
+  <div style="background:#fff;border-radius:16px;padding:28px;max-width:560px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 25px 80px rgba(7,30,43,.6)">
+    <div style="text-align:center;margin-bottom:16px">
+      <img src="assets/icone-logo-128.png" alt="ICONE" width="48" height="48" style="border-radius:10px;margin-bottom:8px">
+      <h2 style="font-size:18px;color:var(--ean-dark);margin:0">🔐 Términos de uso · ICONE.DocAdmin v5</h2>
+    </div>
+    <div style="font-size:12.5px;line-height:1.55;color:var(--ean-text)">
+      <p style="margin-bottom:10px">Al continuar, aceptas que:</p>
+      <ol style="margin-left:18px;display:flex;flex-direction:column;gap:7px">
+        <li>Esta aplicación es propiedad exclusiva del <b>Ing. Jorge Hugo Pérez Gaona</b> (ICONE ialabs).</li>
+        <li>Tu uso es <b>personal e intransferible</b>. No puedes copiar, modificar, redistribuir, hacer ingeniería inversa, ni usar la app con fines comerciales sin autorización escrita del autor.</li>
+        <li>Los datos que cargues (cédulas, notas, asistencia) son tuyos como docente; la app sólo los procesa para que funcione. No los compartimos con terceros.</li>
+        <li>La app se ofrece <b>tal cual</b>, sin garantías. El autor no responde por decisiones académicas tomadas con esta herramienta.</li>
+        <li>Tu sesión queda registrada por seguridad. Si compartes credenciales o el acceso, será bajo tu responsabilidad.</li>
+        <li>Protección legal: Ley 23/1982 (Colombia), Decisión Andina 351, Convenio de Berna y demás normas aplicables.</li>
+      </ol>
+      <p style="margin-top:14px;font-size:11px;color:var(--ean-gray);background:#F0F4F8;padding:10px;border-radius:8px">
+        📜 Versión completa de la licencia: <a href="https://github.com/jorgeicone/docadmin-clase-v2/blob/main/LICENSE" target="_blank" style="color:var(--ean-cyan)">ver LICENSE</a><br>
+        📧 Licenciamiento o consultas: <b>jorgehugoperez@iconeialabs.com</b>
+      </p>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px">
+      <button class="btn btn-out" @click="$store.app.signOut()">No acepto · Cerrar sesión</button>
+      <button class="btn btn-cyan" @click="accept()">Acepto y entiendo</button>
+    </div>
+  </div>
+</div>
+
 <!-- Captura errores y los muestra -->
 <script>
   function showBootErr(msg){
@@ -177,10 +227,10 @@
      Ver js/xlsx-loader.js — ahorra 270 KiB de transferencia inicial. -->
 
 <!-- Red neuronal sutil de fondo — defer (incluye guard mobile + reduced-motion internos) -->
-<script defer src="js/neural-bg.js?v=20260511v"></script>
+<script defer src="js/neural-bg.js?v=20260511w"></script>
 
 <!-- Mi módulo principal — type=module ya es defer-by-default -->
-<script type="module" src="js/main.js?v=20260511v"></script>
+<script type="module" src="js/main.js?v=20260511w"></script>
 
 </body>
 </html>
