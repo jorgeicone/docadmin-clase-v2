@@ -118,7 +118,20 @@ function openGroupModal(courseId, group){
         </div>
 
         <label>Integrantes</label>
-        <input id="g-search" placeholder="🔍 Buscar por nombre o cédula…" style="margin-bottom:8px">
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          <input id="g-search" placeholder="🔍 Buscar por nombre o cédula…" style="flex:1">
+          <button type="button" class="btn btn-out btn-xs" id="g-add-stu" title="Crear estudiante nuevo si no aparece en el listado">＋ Crear estudiante</button>
+        </div>
+        <div id="g-new-stu-form" style="display:none;background:#FFF8E1;padding:10px;border-radius:8px;margin-bottom:8px;border:1px solid #F9C911">
+          <div style="font-size:11px;color:#8B6914;margin-bottom:6px"><b>Crear estudiante nuevo en este curso</b> (se agregará al grupo automáticamente)</div>
+          <div style="display:grid;grid-template-columns:1fr 2fr 1fr auto;gap:6px;align-items:center">
+            <input id="g-ns-cedula" placeholder="Cédula *" style="font-size:12px">
+            <input id="g-ns-name"   placeholder="Nombre completo *" style="font-size:12px">
+            <input id="g-ns-email"  placeholder="Email (opcional)" type="email" style="font-size:12px">
+            <button type="button" class="btn btn-cyan btn-xs" id="g-ns-save">Crear</button>
+          </div>
+          <div id="g-ns-status" style="margin-top:6px;font-size:11px"></div>
+        </div>
         <div style="max-height:280px;overflow-y:auto;border:1px solid var(--ean-border);border-radius:8px" id="g-stu-list"></div>
 
         <div class="field" style="margin-top:12px">
@@ -166,6 +179,62 @@ function openGroupModal(courseId, group){
   };
   renderStu(); renderLeader();
   document.getElementById('g-search').oninput = e => renderStu(e.target.value);
+
+  // ── Crear estudiante manualmente desde el modal de grupos ──
+  const newForm = document.getElementById('g-new-stu-form');
+  document.getElementById('g-add-stu').onclick = () => {
+    const isOpen = newForm.style.display === 'block';
+    newForm.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen){
+      document.getElementById('g-ns-cedula').value = '';
+      document.getElementById('g-ns-name').value = '';
+      document.getElementById('g-ns-email').value = '';
+      document.getElementById('g-ns-status').innerHTML = '';
+      document.getElementById('g-ns-cedula').focus();
+    }
+  };
+
+  document.getElementById('g-ns-save').onclick = async () => {
+    const cedula = document.getElementById('g-ns-cedula').value.trim();
+    const name   = document.getElementById('g-ns-name').value.trim();
+    const email  = document.getElementById('g-ns-email').value.trim() || null;
+    const status = document.getElementById('g-ns-status');
+    if (!cedula || !name){
+      status.innerHTML = '<span style="color:var(--red)">Cédula y nombre son obligatorios</span>';
+      return;
+    }
+    // Si ya existe la cédula en este curso, no duplicar
+    const existing = students.find(s => s.cedula === cedula);
+    if (existing){
+      selected.add(existing.id);
+      renderStu(document.getElementById('g-search').value);
+      renderLeader();
+      status.innerHTML = `<span style="color:#E65100">⚠️ Ya existía en el curso (${escape(existing.name)}). Lo agregué al grupo.</span>`;
+      return;
+    }
+    const btn = document.getElementById('g-ns-save');
+    btn.disabled = true; btn.textContent = 'Creando…';
+    const { data, error } = await supabase.from('v5_students')
+      .insert({ course_id: courseId, cedula, name, email })
+      .select().single();
+    btn.disabled = false; btn.textContent = 'Crear';
+    if (error){
+      status.innerHTML = `<span style="color:var(--red)">Error: ${escape(error.message)}</span>`;
+      return;
+    }
+    // Agregar a la lista local + marcar como seleccionado
+    students.push(data);
+    students.sort((a,b) => a.name.localeCompare(b.name));
+    selected.add(data.id);
+    renderStu(document.getElementById('g-search').value);
+    renderLeader();
+    status.innerHTML = `<span style="color:var(--green)">✅ ${escape(name)} creado y agregado al grupo</span>`;
+    // Limpiar inputs para crear otro rápidamente
+    document.getElementById('g-ns-cedula').value = '';
+    document.getElementById('g-ns-name').value = '';
+    document.getElementById('g-ns-email').value = '';
+    document.getElementById('g-ns-cedula').focus();
+  };
 
   document.getElementById('m-cancel').onclick = () => host.innerHTML = '';
 
