@@ -239,6 +239,7 @@ function renderGradesEditor(activityId, courseId){
 // Editor de notas para actividades de tipo 'group' (nota grupal):
 // muestra UNA fila por grupo + permite marcar quién del grupo asistió.
 const ABSENT_GROUP_PREFIX = 'AUSENTE en';
+const INDIV_GROUP_PREFIX = 'Nota grupal:'; // prefijo en observation para overrides individuales
 
 function renderGradesEditorByGroup(activityId, courseId){
   const a = activities.find(x=>x.id===activityId);
@@ -251,23 +252,36 @@ function renderGradesEditorByGroup(activityId, courseId){
     .map(m => students.find(s => s.id === m.student_id))
     .filter(Boolean);
 
-  // Nota actual del grupo (no-ausente)
+  // Nota actual del grupo (preferir sample no-ausente Y sin marca individual)
   const gradeByGroup = {};
+  // baseValByGroup: la nota grupal "real" (lo que pintamos en el input grupal).
+  // Si hay alguno con marca [Nota grupal: X], X es la base. Si no, sample.value.
+  const baseValByGroup = {};
   groups.forEach(g => {
-    const sample = gs.find(x => x.group_id === g.id && !(x.observation||'').startsWith(ABSENT_GROUP_PREFIX));
+    const groupGs = gs.filter(x => x.group_id === g.id);
+    const notAbsent = x => !(x.observation||'').startsWith(ABSENT_GROUP_PREFIX);
+    const notIndiv  = x => !/\[?Nota grupal:/.test(x.observation||'');
+    const clean = groupGs.find(x => notAbsent(x) && notIndiv(x));
+    const sample = clean || groupGs.find(notAbsent) || groupGs[0];
     if (sample) gradeByGroup[g.id] = sample;
-    else {
-      // Fallback: el primer grade del grupo aunque sea ausente
-      const fallback = gs.find(x => x.group_id === g.id);
-      if (fallback) gradeByGroup[g.id] = fallback;
+    // Base por marca
+    const marker = groupGs.find(x => /Nota grupal:/.test(x.observation||''));
+    if (marker){
+      const m = marker.observation.match(/Nota grupal:\s*(\d+(?:\.\d+)?)/);
+      if (m) baseValByGroup[g.id] = parseFloat(m[1]);
     }
+    if (baseValByGroup[g.id] == null && clean) baseValByGroup[g.id] = clean.value;
+    if (baseValByGroup[g.id] == null && sample && notAbsent(sample)) baseValByGroup[g.id] = sample.value;
   });
 
   // Presencia por grupo: { gid: { studentId: true/false } }
   const presenceByGroup = {};
+  // Overrides individuales por grupo: { gid: { studentId: number } }
+  const indivByGroup = {};
   groups.forEach(g => {
     const mems = memsOf(g.id);
     presenceByGroup[g.id] = {};
+    indivByGroup[g.id] = {};
     mems.forEach(m => {
       const myGrade = gs.find(x => x.activity_id === activityId && x.student_id === m.id && x.group_id === g.id);
       // Si tiene grade con marca AUSENTE → ausente; si no, presente por default
@@ -277,6 +291,17 @@ function renderGradesEditorByGroup(activityId, courseId){
         presenceByGroup[g.id][m.id] = true;
       }
     });
+    // Detectar overrides: presentes cuyo value difiere de la base real del grupo
+    const baseVal = baseValByGroup[g.id];
+    if (baseVal != null){
+      mems.forEach(m => {
+        if (presenceByGroup[g.id][m.id] === false) return;
+        const myGrade = gs.find(x => x.student_id === m.id && x.group_id === g.id);
+        if (myGrade && myGrade.value != null && myGrade.value !== baseVal){
+          indivByGroup[g.id][m.id] = myGrade.value;
+        }
+      });
+    }
   });
 
   div.innerHTML = `
@@ -313,11 +338,11 @@ function renderGradesEditorByGroup(activityId, courseId){
               </td>
               <td class="num">
                 <input type="number" class="input-grade" min="0" max="${a.max_points}" step="${a.max_points <= 1 ? '1' : '0.1'}"
-                  value="${grade?.value??''}" data-gid="${g.id}" placeholder="—" style="font-weight:700">
+                  value="${baseValByGroup[g.id] ?? grade?.value ?? ''}" data-gid="${g.id}" placeholder="—" style="font-weight:700">
                 <button class="btn btn-xs btn-cyan save-one" data-save-gid="${g.id}" style="margin-top:6px;width:100%;font-size:10px" title="Guardar solo este grupo">💾 Guardar este grupo</button>
               </td>
               <td>
-                <input type="text" class="obs-input" data-obs-gid="${g.id}" value="${escapeAttr(grade?.desglose || grade?.observation || '')}" placeholder="Observación grupal…" style="width:100%;font-size:12px">
+                <input type="text" class="obs-input" data-obs-gid="${g.id}" value="${escapeAttr(grade?.desglose || (grade?.observation||'').replace(/^Nota grupal:[^·]*·[^·]*$/,''))}" placeholder="Observación grupal…" style="width:100%;font-size:12px">
                 <details class="acc" style="margin-top:6px" data-presence-gid="${g.id}">
                   <summary>✏️ Editar presencia de integrantes (${mems.length})</summary>
                   <div style="margin-top:6px;display:flex;flex-direction:column;gap:4px">
@@ -329,6 +354,33 @@ function renderGradesEditorByGroup(activityId, courseId){
                     `).join('')}
                   </div>
                 </details>
+                ${presentCount > 0 ? (() => {
+                  const overrides = indivByGroup[g.id] || {};
+                  const indivCount = Object.keys(overrides).filter(sid => presenceByGroup[g.id][sid]).length;
+                  const baseVal = baseValByGroup[g.id] ?? grade?.value;
+                  const phStr = baseVal != null ? String(baseVal) : 'grupal';
+                  return `
+                <details class="acc" style="margin-top:6px" data-indiv-gid="${g.id}" ${indivCount>0?'open':''}>
+                  <summary data-indiv-summary="${g.id}">🎯 Ajustar nota por integrante${indivCount>0?` (${indivCount} ajuste${indivCount===1?'':'s'})`:''}</summary>
+                  <div style="margin-top:6px">
+                    <div style="font-size:10px;color:var(--ean-gray);font-style:italic;margin-bottom:6px">
+                      💡 Califica según contribución. Vacío = nota grupal.
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:4px">
+                      ${mems.filter(m => presenceByGroup[g.id][m.id]).map(m => `
+                        <label style="display:flex;align-items:center;gap:6px;padding:4px 8px;background:#fff;border-radius:6px;border:1px solid var(--ean-border);font-size:11px">
+                          <span style="flex:1">${escape(m.name)}${m.id===leader?.id?' 👑':''}</span>
+                          <input type="number" class="indiv-input" data-gid="${g.id}" data-sid="${m.id}"
+                            min="0" max="${a.max_points}" step="${a.max_points <= 1 ? '1' : '0.1'}"
+                            value="${overrides[m.id] ?? ''}" placeholder="${phStr}"
+                            style="width:60px;text-align:center;font-weight:700;padding:2px 4px;border:1px solid var(--ean-border);border-radius:4px;font-size:11px">
+                          <span style="font-size:10px;color:var(--ean-gray)">/${a.max_points}</span>
+                        </label>
+                      `).join('')}
+                    </div>
+                  </div>
+                </details>`;
+                })() : ''}
               </td>
             </tr>`;
           }).join('')}
@@ -346,6 +398,8 @@ function renderGradesEditorByGroup(activityId, courseId){
       const gid = cb.dataset.gid;
       const sid = cb.dataset.sid;
       presenceByGroup[gid][sid] = cb.checked;
+      // Si pasó a ausente, descartamos su override individual (lógicamente irrelevante)
+      if (!cb.checked && indivByGroup[gid]) delete indivByGroup[gid][sid];
       // Actualizar chips del grupo
       const mems = memsOf(gid);
       const present = mems.filter(m => presenceByGroup[gid][m.id]).length;
@@ -356,6 +410,72 @@ function renderGradesEditorByGroup(activityId, courseId){
         <span class="chip chip-green" style="font-size:9px;padding:1px 6px">✅ ${present}</span>
         ${absent > 0 ? `<span class="chip chip-red" style="font-size:9px;padding:1px 6px">❌ ${absent}</span>` : ''}
       `;
+      // Re-render la lista de ajustes individuales de ese grupo
+      renderIndivList(gid);
+    };
+  });
+
+  // Helper: re-renderiza la lista de inputs individuales de un grupo (presencia cambió)
+  function renderIndivList(gid){
+    const det = div.querySelector(`details[data-indiv-gid="${gid}"]`);
+    if (!det) return;
+    const groupObj = groups.find(x => x.id === gid);
+    const mems = memsOf(gid);
+    const leader = students.find(s => s.id === groupObj?.leader_student_id);
+    const presentMems = mems.filter(m => presenceByGroup[gid][m.id]);
+    const grpInp = div.querySelector(`input.input-grade[data-gid="${gid}"]`);
+    const phStr = grpInp?.value.trim() || 'grupal';
+    const overrides = indivByGroup[gid] || {};
+    const listWrap = det.querySelector(':scope > div > div:last-child');
+    if (!listWrap) return;
+    listWrap.innerHTML = presentMems.map(m => `
+      <label style="display:flex;align-items:center;gap:6px;padding:4px 8px;background:#fff;border-radius:6px;border:1px solid var(--ean-border);font-size:11px">
+        <span style="flex:1">${escape(m.name)}${m.id===leader?.id?' 👑':''}</span>
+        <input type="number" class="indiv-input" data-gid="${gid}" data-sid="${m.id}"
+          min="0" max="${a.max_points}" step="${a.max_points <= 1 ? '1' : '0.1'}"
+          value="${overrides[m.id] ?? ''}" placeholder="${phStr}"
+          style="width:60px;text-align:center;font-weight:700;padding:2px 4px;border:1px solid var(--ean-border);border-radius:4px;font-size:11px">
+        <span style="font-size:10px;color:var(--ean-gray)">/${a.max_points}</span>
+      </label>
+    `).join('');
+    wireIndivInputs(gid);
+    updateIndivSummary(gid);
+  }
+
+  function wireIndivInputs(gid){
+    div.querySelectorAll(`input.indiv-input[data-gid="${gid}"]`).forEach(inp => {
+      inp.oninput = () => {
+        const sid = inp.dataset.sid;
+        const v = inp.value.trim();
+        if (!indivByGroup[gid]) indivByGroup[gid] = {};
+        if (v === ''){ delete indivByGroup[gid][sid]; }
+        else {
+          const n = parseFloat(v);
+          if (!isNaN(n)) indivByGroup[gid][sid] = n;
+        }
+        updateIndivSummary(gid);
+      };
+    });
+  }
+
+  function updateIndivSummary(gid){
+    const summary = div.querySelector(`summary[data-indiv-summary="${gid}"]`);
+    if (!summary) return;
+    const overrides = indivByGroup[gid] || {};
+    const count = Object.keys(overrides).filter(sid => presenceByGroup[gid][sid]).length;
+    summary.textContent = `🎯 Ajustar nota por integrante${count>0?` (${count} ajuste${count===1?'':'s'})`:''}`;
+  }
+
+  // Cablear inputs individuales iniciales
+  [...new Set([...div.querySelectorAll('input.indiv-input[data-gid]')].map(i => i.dataset.gid))]
+    .forEach(gid => wireIndivInputs(gid));
+
+  // Cuando el profe cambia la nota grupal, refrescar placeholders de los inputs individuales del mismo grupo
+  div.querySelectorAll('input.input-grade[data-gid]').forEach(inp => {
+    inp.oninput = () => {
+      const gid = inp.dataset.gid;
+      const phStr = inp.value.trim() || 'grupal';
+      div.querySelectorAll(`input.indiv-input[data-gid="${gid}"]`).forEach(ind => { ind.placeholder = phStr; });
     };
   });
 
@@ -376,13 +496,26 @@ function renderGradesEditorByGroup(activityId, courseId){
     const rows = mems.map(m => {
       const isAbsent = presenceByGroup[gid][m.id] === false;
       const existing = gs.find(x => x.student_id === m.id && x.group_id === gid);
+      if (isAbsent){
+        return {
+          activity_id: activityId,
+          student_id: m.id,
+          group_id: gid,
+          value: 0,
+          desglose: 'AUSENTE',
+          observation: `${ABSENT_GROUP_PREFIX} ${a.name}`,
+          source: existing?.source || 'manual',
+        };
+      }
+      const override = indivByGroup[gid]?.[m.id];
+      const hasOverride = override != null && !isNaN(override) && override !== val;
       return {
         activity_id: activityId,
         student_id: m.id,
         group_id: gid,
-        value: isAbsent ? 0 : val,
-        desglose: isAbsent ? 'AUSENTE' : obs,
-        observation: isAbsent ? `${ABSENT_GROUP_PREFIX} ${a.name}` : null,
+        value: hasOverride ? override : val,
+        desglose: obs,
+        observation: hasOverride ? `${INDIV_GROUP_PREFIX} ${val} · ajuste individual a ${override}` : null,
         source: existing?.source || 'manual', // B7: preservar source (ej. ingesta IA)
       };
     });
@@ -445,9 +578,11 @@ function renderGradesEditorByGroup(activityId, courseId){
 
     const gruposCount = new Set(dedupRows.map(r => r.group_id)).size;
     const absentCount = dedupRows.filter(r => r.desglose === 'AUSENTE').length;
+    const indivCount = dedupRows.filter(r => (r.observation||'').startsWith(INDIV_GROUP_PREFIX)).length;
     const clearedMsg = groupsToClear.length ? ` · ${groupsToClear.length} limpiado${groupsToClear.length===1?'':'s'}` : '';
-    const absentMsg = absentCount ? ` (${absentCount} ausentes con 0)` : '';
-    toast(`✅ ${gruposCount} grupo${gruposCount===1?'':'s'} calificado${gruposCount===1?'':'s'}${absentMsg}${clearedMsg}`,'success');
+    const absentMsg = absentCount ? ` · ${absentCount} ausente${absentCount===1?'':'s'} con 0` : '';
+    const ajusteMsg = indivCount ? ` · 🎯 ${indivCount} ajuste${indivCount===1?'':'s'} individual${indivCount===1?'':'es'}` : '';
+    toast(`✅ ${gruposCount} grupo${gruposCount===1?'':'s'} calificado${gruposCount===1?'':'s'}${absentMsg}${ajusteMsg}${clearedMsg}`,'success');
     await loadAll(courseId);
     renderList(courseId);
   }

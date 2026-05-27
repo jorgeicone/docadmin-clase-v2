@@ -13,8 +13,10 @@ let pendingPts = {};          // {criterionIndex: pts}
 let pendingObs = {};          // {criterionIndex: textoObservacion}
 let activeGroupId = null;
 let presence = {};            // {studentId: true/false} — true si estuvo presente en la sustentación
+let pendingIndiv = {};        // {studentId: number} — override individual sobre la nota grupal (presentes)
 
 const ABSENT_PREFIX = 'AUSENTE en la sustentación';
+const INDIV_PREFIX = 'Nota grupal:'; // prefijo en observation para overrides individuales
 
 // Paleta de colores personalizables para cards de sustentación (misma que cursos)
 const SUST_COLORS = {
@@ -466,6 +468,7 @@ function loadGroupForGrading(groupId){
   pendingPts = {};
   pendingObs = {};
   presence = {};
+  pendingIndiv = {};
   document.getElementById('g-obs').value = '';
 
   if (!groupId){
@@ -482,8 +485,12 @@ function loadGroupForGrading(groupId){
 
   // Cargar pts y obs si ya existen (cualquier grade del grupo en esta sustentación)
   const groupGrades = grades.filter(g => g.activity_id === activeSust.id && g.group_id === groupId);
-  // raw_pts y observation grupal vienen del primer grade NO marcado como ausente
-  const sample = groupGrades.find(g => !(g.observation||'').startsWith(ABSENT_PREFIX)) || groupGrades[0];
+  // Preferir un sample SIN marca de ajuste individual (representa la nota grupal genuina)
+  const notAbsent = g => !(g.observation||'').startsWith(ABSENT_PREFIX);
+  const notIndiv  = g => !/\[Nota grupal:/.test(g.observation||'');
+  const sample = groupGrades.find(g => notAbsent(g) && notIndiv(g))
+              || groupGrades.find(notAbsent)
+              || groupGrades[0];
   if (sample?.raw_pts){
     // Filtrar campos no numéricos (pueden ser strings o objetos viejos)
     Object.entries(sample.raw_pts).forEach(([k,v]) => {
@@ -495,8 +502,11 @@ function loadGroupForGrading(groupId){
         if (!isNaN(parseInt(k)) && typeof v === 'string') pendingObs[parseInt(k)] = v;
       });
     }
-    const obs = sample.observation || '';
-    document.getElementById('g-obs').value = obs.startsWith(ABSENT_PREFIX) ? '' : obs;
+    // Limpiar marca individual si quedó solo en samples con override
+    let obs = sample.observation || '';
+    if (obs.startsWith(ABSENT_PREFIX)) obs = '';
+    obs = obs.replace(/^\[Nota grupal:[^\]]*\]\s*/, '').trim();
+    document.getElementById('g-obs').value = obs;
   }
 
   // Calcular presence: por defecto todos presentes; el que tiene grade con obs "AUSENTE..." → ausente
@@ -509,6 +519,26 @@ function loadGroupForGrading(groupId){
     }
   });
 
+  // Detectar overrides individuales:
+  //   1. Si algún grade tiene marca "[Nota grupal: X · ajuste individual a Y]" → X es la base.
+  //   2. Si no, la base es sample.value (todos los presentes deberían tener el mismo).
+  let baseVal = null;
+  const markerGrade = groupGrades.find(g => /\[Nota grupal:/.test(g.observation||''));
+  if (markerGrade){
+    const m = markerGrade.observation.match(/\[Nota grupal:\s*(\d+(?:\.\d+)?)/);
+    if (m) baseVal = parseFloat(m[1]);
+  }
+  if (baseVal == null) baseVal = sample?.value;
+  if (baseVal != null){
+    mems.forEach(m => {
+      if (presence[m.id] === false) return;
+      const myGrade = groupGrades.find(g => g.student_id === m.id);
+      if (myGrade && myGrade.value != null && myGrade.value !== baseVal){
+        pendingIndiv[m.id] = myGrade.value;
+      }
+    });
+  }
+
   renderMembers(group, mems, leader);
   renderCriteriaGrading();
   updateTotal();
@@ -518,6 +548,12 @@ function loadGroupForGrading(groupId){
 function renderMembers(group, mems, leader){
   const presentCount = mems.filter(m => presence[m.id]).length;
   const absentCount = mems.length - presentCount;
+  const presentMems = mems.filter(m => presence[m.id]);
+  // Limpiar overrides de ausentes (si alguien pasó a ausente conservamos limpio el estado)
+  Object.keys(pendingIndiv).forEach(sid => {
+    if (presence[sid] === false) delete pendingIndiv[sid];
+  });
+  const indivCount = Object.keys(pendingIndiv).filter(sid => presence[sid]).length;
   const div = document.getElementById('g-members-info');
   div.innerHTML = `
     <div style="background:#F0F4F8;padding:12px;border-radius:8px;font-size:12px">
@@ -525,9 +561,10 @@ function renderMembers(group, mems, leader){
         <div>
           <b>${escape(group.name)}</b> · <b>${mems.length}</b> integrantes${leader?` · 👑 Líder: <b>${escape(leader.name)}</b>`:''}
         </div>
-        <div style="display:flex;gap:6px">
+        <div id="g-chips" style="display:flex;gap:6px;flex-wrap:wrap">
           <span class="chip chip-green" style="font-size:10px;padding:2px 8px">✅ ${presentCount} presentes</span>
           ${absentCount > 0 ? `<span class="chip chip-red" style="font-size:10px;padding:2px 8px">❌ ${absentCount} ausentes</span>` : ''}
+          ${indivCount > 0 ? `<span class="chip chip-cyan" style="font-size:10px;padding:2px 8px">🎯 ${indivCount} ajuste${indivCount===1?'':'s'}</span>` : ''}
         </div>
       </div>
       <div style="margin-top:10px;font-size:11px;color:var(--ean-gray);font-style:italic">
@@ -537,6 +574,18 @@ function renderMembers(group, mems, leader){
         ✏️ Editar presencia de integrantes
       </button>
       <div id="g-presence-list" style="display:none;margin-top:10px;display:none"></div>
+
+      ${presentMems.length > 0 ? `
+        <details class="acc acc-block" style="margin-top:10px" id="g-indiv-acc" ${indivCount>0?'open':''}>
+          <summary id="g-indiv-summary">🎯 Ajustar nota por integrante${indivCount>0?` (${indivCount} ajuste${indivCount===1?'':'s'})`:''}</summary>
+          <div style="margin-top:8px">
+            <div style="font-size:11px;color:var(--ean-gray);font-style:italic;margin-bottom:8px">
+              💡 Califica según la contribución de cada integrante. Deja vacío para usar la nota grupal.
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px" id="g-indiv-list"></div>
+          </div>
+        </details>
+      ` : ''}
     </div>
   `;
 
@@ -571,6 +620,75 @@ function renderMembers(group, mems, leader){
       });
     }
   };
+
+  // Pintar lista de ajustes individuales (solo presentes)
+  const indivList = document.getElementById('g-indiv-list');
+  if (indivList){
+    const baseVal = currentGroupBase();
+    indivList.innerHTML = presentMems.map(m => {
+      const isLeader = m.id === leader?.id;
+      const val = pendingIndiv[m.id];
+      const placeholder = baseVal != null ? baseVal : 'grupal';
+      return `
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#fff;border-radius:6px;border:1px solid var(--ean-border)">
+          <span style="flex:1;font-size:12px">${escape(m.name)}${isLeader?' 👑':''}</span>
+          <input type="number" min="0" max="${activeSust.max_points}" step="0.1"
+            class="indiv-input" data-sid="${m.id}"
+            value="${val ?? ''}" placeholder="${placeholder}"
+            style="width:72px;text-align:center;font-size:13px;font-weight:700;padding:4px 6px;border:1px solid var(--ean-border);border-radius:4px">
+          <span style="font-size:11px;color:var(--ean-gray)">/${activeSust.max_points}</span>
+        </div>
+      `;
+    }).join('');
+
+    indivList.querySelectorAll('input.indiv-input').forEach(inp => {
+      inp.oninput = () => {
+        const sid = inp.dataset.sid;
+        const v = inp.value.trim();
+        if (v === ''){ delete pendingIndiv[sid]; }
+        else {
+          const n = parseFloat(v);
+          if (!isNaN(n)) pendingIndiv[sid] = n;
+        }
+        updateIndivSummary();
+      };
+    });
+  }
+}
+
+// Devuelve la nota grupal actual (escalada desde criterios) o null si aún no hay
+function currentGroupBase(){
+  const rubric = activeSust?.rubric?.criterios || [];
+  const totalMax = rubric.reduce((a,c)=>a+(c.max||0), 0);
+  const totalActual = Object.values(pendingPts).reduce((a,v)=>a+(v||0), 0);
+  if (totalMax === 0 || totalActual === 0) return null;
+  return Math.round((totalActual/totalMax) * activeSust.max_points);
+}
+
+function updateIndivSummary(){
+  const sum = document.getElementById('g-indiv-summary');
+  const chipHost = document.querySelector('#g-members-info .chip-cyan');
+  const indivCount = Object.keys(pendingIndiv).filter(sid => presence[sid]).length;
+  if (sum){
+    sum.textContent = `🎯 Ajustar nota por integrante${indivCount>0?` (${indivCount} ajuste${indivCount===1?'':'s'})`:''}`;
+  }
+  const chips = document.getElementById('g-chips');
+  if (chips){
+    const existing = chips.querySelector('.chip-cyan');
+    if (indivCount > 0){
+      const txt = `🎯 ${indivCount} ajuste${indivCount===1?'':'s'}`;
+      if (existing) existing.textContent = txt;
+      else {
+        const s = document.createElement('span');
+        s.className = 'chip chip-cyan';
+        s.style.cssText = 'font-size:10px;padding:2px 8px';
+        s.textContent = txt;
+        chips.appendChild(s);
+      }
+    } else if (existing){
+      existing.remove();
+    }
+  }
 }
 
 function renderCriteriaGrading(){
@@ -642,6 +760,10 @@ function updateTotal(){
       </div>
     </div>
   `;
+
+  // Refrescar placeholders de inputs individuales con la nota grupal vigente
+  const baseStr = scaled > 0 ? String(scaled) : 'grupal';
+  document.querySelectorAll('input.indiv-input').forEach(inp => { inp.placeholder = baseStr; });
 }
 
 async function saveGroupGrade(root, store){
@@ -679,18 +801,34 @@ async function saveGroupGrade(root, store){
     return o ? `${c.name}:${pts} [${o}]` : `${c.name}:${pts}`;
   }).join(' + ');
 
+  let ajustesAplicados = 0;
   const rows = mems.map(m => {
     const isAbsent = presence[m.id] === false;
+    if (isAbsent){
+      return {
+        activity_id: activeSust.id,
+        student_id: m.id,
+        group_id: activeGroupId,
+        value: 0,
+        raw_pts: {},
+        desglose: 'AUSENTE',
+        observation: `${ABSENT_PREFIX} de ${activeSust.name}`,
+        source: 'manual',
+      };
+    }
+    const override = pendingIndiv[m.id];
+    const hasOverride = override != null && !isNaN(override) && override !== scaled;
+    if (hasOverride) ajustesAplicados++;
+    const indivNote = hasOverride ? `[${INDIV_PREFIX} ${scaled} · ajuste individual a ${override}]` : null;
+    const obsCombined = [indivNote, obsRaw].filter(Boolean).join(' ') || null;
     return {
       activity_id: activeSust.id,
       student_id: m.id,
       group_id: activeGroupId,
-      value: isAbsent ? 0 : scaled,
-      raw_pts: isAbsent ? {} : rawPtsConObs,
-      desglose: isAbsent ? 'AUSENTE' : desgloseConObs,
-      observation: isAbsent
-        ? `${ABSENT_PREFIX} de ${activeSust.name}`
-        : obsRaw,
+      value: hasOverride ? override : scaled,
+      raw_pts: rawPtsConObs,
+      desglose: desgloseConObs,
+      observation: obsCombined,
       source: 'manual',
     };
   });
@@ -698,8 +836,9 @@ async function saveGroupGrade(root, store){
   const { error } = await supabase.from('v5_grades').upsert(rows, { onConflict: 'activity_id,student_id' });
   if (error){ toast('Error: '+error.message,'error'); return; }
 
-  const ausenteMsg = ausentes.length ? ` (${ausentes.length} ausente${ausentes.length===1?'':'s'} con 0)` : '';
-  toast(`✅ ${presentes.length} calificado${presentes.length===1?'':'s'} con ${scaled}/${activeSust.max_points}${ausenteMsg}`,'success');
+  const ausenteMsg = ausentes.length ? ` · ${ausentes.length} ausente${ausentes.length===1?'':'s'} con 0` : '';
+  const ajusteMsg = ajustesAplicados ? ` · 🎯 ${ajustesAplicados} ajuste${ajustesAplicados===1?'':'s'} individual${ajustesAplicados===1?'':'es'}` : '';
+  toast(`✅ ${presentes.length} calificado${presentes.length===1?'':'s'} con ${scaled}/${activeSust.max_points}${ausenteMsg}${ajusteMsg}`,'success');
   await loadAll();
   loadGroupForGrading(activeGroupId);  // recargar para que aparezca el ✅
   renderHistory();
