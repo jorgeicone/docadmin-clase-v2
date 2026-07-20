@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sesión 2 · Metas, ahorro e inversión · Evaluación de contenido</title>
+<title>Sesión 2 · Metas, ahorro e inversión · Evaluación</title>
 <meta name="author" content="Ing. Jorge Hugo Pérez · Mentor experto en IA aplicada a los negocios y las finanzas · ICONE ialabs">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -37,29 +37,31 @@
   .pill b{color:var(--primary)}
   .form-field{margin-bottom:18px;text-align:left}
   .form-field label{display:block;font-size:12px;letter-spacing:.14em;font-weight:600;color:var(--text-3);text-transform:uppercase;margin-bottom:8px}
-  .form-field input,.form-field select{width:100%;padding:14px 18px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:15px;font-family:inherit}
-  .form-field select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:44px;background-color:var(--bg-2);
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2300d4ff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;background-size:14px}
-  .form-field select option{background:#0a1430;color:#fff}
-  .form-field input:focus,.form-field select:focus{outline:none;border-color:var(--primary)}
+  .form-field input{width:100%;padding:14px 18px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:15px;font-family:inherit}
+  .form-field input:focus{outline:none;border-color:var(--primary)}
   .btn-primary{display:inline-block;padding:15px 42px;border-radius:99px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;font-weight:700;font-size:15px;border:none;cursor:pointer;box-shadow:0 8px 32px rgba(0,212,255,.28);transition:transform .15s;font-family:inherit}
   .btn-primary:hover{transform:translateY(-2px)}
   .btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
-  .disclaimer{font-size:12.5px;color:var(--text-3);margin-top:16px;max-width:520px;margin:16px auto 0}
+  .disclaimer{font-size:12.5px;color:var(--text-3);margin-top:16px;max-width:540px;margin:16px auto 0}
   .q-screen{padding:44px 24px;display:none;max-width:760px;margin:0 auto;position:relative}
   .q-screen.active{display:block;animation:fade .3s ease}
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
   .q-wm{position:absolute;top:38px;right:2px;font-size:74px;line-height:1;opacity:.06;pointer-events:none;user-select:none}
   .q-meta{font-size:11px;letter-spacing:.18em;font-weight:700;color:var(--primary);text-transform:uppercase;margin-bottom:12px}
   .q-grupo{display:inline-block;font-size:10px;letter-spacing:.14em;font-weight:700;padding:4px 11px;border-radius:99px;margin-bottom:16px;text-transform:uppercase;color:var(--secondary);background:rgba(123,47,255,.12);border:1px solid rgba(123,47,255,.35)}
-  .q-text{font-size:clamp(21px,3vw,27px);font-weight:700;line-height:1.28;letter-spacing:-.01em;margin-bottom:24px}
+  .q-grupo.doc{color:var(--accent);background:rgba(255,140,0,.12);border-color:rgba(255,140,0,.4)}
+  .q-text{font-size:clamp(21px,3vw,27px);font-weight:700;line-height:1.28;letter-spacing:-.01em;margin-bottom:8px}
+  .q-hint{font-size:13.5px;color:var(--text-3);margin-bottom:24px}
+  .q-text+.q-body{margin-top:24px}
   .options{display:grid;gap:10px;margin-bottom:26px}
-  .option{padding:16px 20px;border:1px solid var(--border);border-radius:14px;background:var(--card);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px;font-size:15px;line-height:1.4}
+  .option{padding:15px 20px;border:1px solid var(--border);border-radius:14px;background:var(--card);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px;font-size:15px;line-height:1.4}
   .option:hover{background:rgba(255,255,255,.06);border-color:var(--border-strong)}
   .option .check-box{width:22px;height:22px;border-radius:50%;border:2px solid var(--border-strong);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
   .option.selected{background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(123,47,255,.12));border-color:var(--primary)}
   .option.selected .check-box{background:linear-gradient(135deg,var(--primary),var(--secondary));border-color:transparent}
   .option.selected .check-box::after{content:"";width:8px;height:8px;border-radius:50%;background:#fff}
+  .option.doc.selected{background:linear-gradient(135deg,rgba(255,140,0,.14),rgba(255,84,112,.10));border-color:var(--accent)}
+  .option.doc.selected .check-box{background:linear-gradient(135deg,var(--accent),var(--red));border-color:transparent}
   .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:26px}
   .btn-secondary{background:transparent;color:var(--text-2);border:1px solid var(--border);padding:12px 24px;border-radius:99px;font-weight:500;font-size:14px;cursor:pointer;font-family:inherit}
   .btn-secondary:hover{color:var(--text);border-color:var(--border-strong)}
@@ -67,27 +69,23 @@
   .result-screen.active{display:block;animation:fade .4s ease}
   .result-hero{text-align:center;margin-bottom:30px}
   .result-hero .tag{display:inline-block;font-size:11px;letter-spacing:.2em;color:var(--accent);font-weight:700;padding:6px 14px;border:1px solid var(--border);border-radius:99px;margin-bottom:16px}
-  .result-hero h1{font-size:clamp(26px,4vw,36px);font-weight:800;margin-bottom:8px}
+  .result-hero h1{font-size:clamp(24px,4vw,34px);font-weight:800;margin-bottom:8px}
   .big-level{font-size:44px;font-weight:900;line-height:1;margin:6px 0}
   .big-score{font-size:14px;color:var(--text-3);font-weight:600;margin-bottom:8px}
   .lvl-steps{display:flex;gap:6px;max-width:240px;margin:14px auto 0}
   .step-dot{flex:1;height:6px;border-radius:99px;background:rgba(255,255,255,.08)}
   .step-dot.on{background:currentColor}
   .result-feedback{font-size:15px;color:var(--text-2);max-width:560px;margin:16px auto 0;line-height:1.55}
-  .grupos-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px;margin:28px 0}
-  .grupos-card h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text-3);margin-bottom:16px}
-  .g-row{margin-bottom:14px}
-  .g-row:last-child{margin-bottom:0}
+  .card-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px;margin-bottom:20px}
+  .card-box h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text-3);margin-bottom:16px}
+  .g-row{margin-bottom:14px}.g-row:last-child{margin-bottom:0}
   .g-top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:6px}
   .g-top .nm{font-weight:600}
   .g-bar{height:9px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
   .g-bar>div{height:100%;border-radius:99px;transition:width .7s ease}
-  .reaction-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px;margin-bottom:20px}
-  .reaction-box h3{font-size:15px;font-weight:700;margin-bottom:6px}
-  .reaction-box p{color:var(--text-3);font-size:13px;margin-bottom:14px}
-  .stars{display:flex;gap:8px;margin-bottom:14px}
-  .star{font-size:30px;cursor:pointer;color:rgba(255,255,255,.2);transition:color .15s;line-height:1}
-  .star.on{color:var(--accent)}
+  .doc-summary{display:flex;align-items:center;gap:14px;background:rgba(255,140,0,.06);border:1px solid rgba(255,140,0,.25);border-radius:14px;padding:16px 20px;margin-bottom:20px}
+  .doc-summary .num{font-size:30px;font-weight:800;color:var(--accent);line-height:1}
+  .doc-summary .tx{font-size:13.5px;color:var(--text-2)}
   .reaction-box textarea{width:100%;min-height:70px;padding:12px 14px;border-radius:12px;background:var(--bg-2);border:1px solid var(--border);color:var(--text);font-size:14px;font-family:inherit;resize:vertical}
   .reaction-box textarea:focus{outline:none;border-color:var(--primary)}
   .submit-box{text-align:center;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:26px}
@@ -97,6 +95,7 @@
   .auth-screen.active{display:block}
   .auth-screen h2{font-size:22px;font-weight:700;margin-bottom:12px}
   .auth-screen p{color:var(--text-3);font-size:14px;margin-bottom:22px}
+  .auth-screen input{width:100%;padding:14px 18px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:15px;font-family:inherit;margin-bottom:16px}
   .admin-screen{display:none;padding:32px 24px;max-width:1160px;margin:0 auto}
   .admin-screen.active{display:block}
   .admin-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:26px;flex-wrap:wrap;gap:14px}
@@ -123,14 +122,13 @@
   .item-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px}
   .item-row:last-child{border-bottom:none}
   .item-row .qn{flex:1;color:var(--text-2);line-height:1.35}
-  .item-pct{font-weight:700;min-width:44px;text-align:right}
-  .item-mini{width:80px;height:7px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden;flex-shrink:0}
+  .item-pct{font-weight:700;min-width:52px;text-align:right}
+  .item-mini{width:78px;height:7px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden;flex-shrink:0}
   .item-mini>div{height:100%}
-  .comments-list{max-height:220px;overflow-y:auto}
+  .comments-list{max-height:200px;overflow-y:auto;margin-top:12px}
   .comment{font-size:13px;color:var(--text-2);padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-  .comment b{color:var(--text)}
   .responses-list{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;overflow-x:auto}
-  .response-row{display:grid;grid-template-columns:90px 1.7fr 1.2fr 70px 1fr 60px auto;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:center;font-size:13px;min-width:740px}
+  .response-row{display:grid;grid-template-columns:90px 1.7fr 1.1fr 66px 70px 56px auto;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:center;font-size:13px;min-width:760px}
   .response-row:last-child{border-bottom:none}
   .response-row.header{font-weight:700;color:var(--text-3)}
   .response-row .col-label{font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:700}
@@ -142,11 +140,12 @@
   .modal-bg.active{display:flex}
   .modal-content{background:var(--bg-2);border:1px solid var(--border-strong);border-radius:20px;max-width:720px;width:100%;padding:30px}
   .modal-close{float:right;background:transparent;border:none;color:var(--text-3);font-size:26px;cursor:pointer;line-height:1}
+  .detail-sec{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--text-3);margin:18px 0 10px}
   .detail-question{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.05)}
   .detail-question:last-child{border-bottom:none}
   .detail-q-text{font-size:13px;color:var(--text-3);margin-bottom:6px}
   .detail-a-text{font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px}
-  .badge-ok{color:var(--green)}.badge-no{color:var(--red)}
+  .badge-ok{color:var(--green)}.badge-no{color:var(--red)}.badge-val{color:var(--accent)}
   .correct-hint{font-size:12.5px;color:var(--green);margin-top:4px}
   .footer{text-align:center;padding:40px 24px;color:var(--text-3);font-size:12.5px}
   .footer b{color:var(--text-2)}
@@ -172,13 +171,13 @@
 <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
 
 <div class="cover" id="screenCover">
-  <div class="cover-tag" id="coverTag">EVALUACIÓN DE CONTENIDO</div>
+  <div class="cover-tag" id="coverTag">EVALUACIÓN</div>
   <h1 id="coverTitle">Evaluación</h1>
   <p class="lead" id="coverLead"></p>
   <div class="pills" id="coverPills"></div>
   <div class="form-field"><label>Tu nombre</label><input type="text" id="userName" placeholder="Nombre y apellido"></div>
   <button class="btn-primary" id="btnStart">Empezar →</button>
-  <div class="disclaimer">Responde con lo que aprendiste. Si no estás seguro, elige “No lo sé aún”.</div>
+  <div class="disclaimer">Primero, preguntas de contenido (responde con lo que aprendiste; si no sabes, marca “No lo sé aún”). Al final, tu valoración del docente y la sesión.</div>
 </div>
 
 <div id="questionsContainer"></div>
@@ -192,13 +191,9 @@
     <div class="lvl-steps" id="lvlSteps"></div>
     <div class="result-feedback" id="resultFeedback"></div>
   </div>
-  <div class="grupos-card" id="gruposCard"><h3>Tu desempeño por tema</h3><div id="gruposBody"></div></div>
-  <div class="reaction-box">
-    <h3>¿Cómo te pareció esta sesión?</h3>
-    <p>Opcional — nos ayuda a mejorar (no afecta tu resultado).</p>
-    <div class="stars" id="stars"></div>
-    <textarea id="comentario" placeholder="¿Qué te gustó o qué mejorarías? (opcional)"></textarea>
-  </div>
+  <div class="card-box" id="gruposCard"><h3>Tu desempeño por tema</h3><div id="gruposBody"></div></div>
+  <div class="doc-summary" id="docSummary" style="display:none"><div class="num" id="docNum">—</div><div class="tx">Tu valoración del docente y la sesión (promedio sobre 5). ¡Gracias por tu retroalimentación!</div></div>
+  <div class="card-box reaction-box"><h3>¿Algo más que quieras decirnos?</h3><textarea id="comentario" placeholder="Comentario libre (opcional): qué te gustó o qué mejorarías."></textarea></div>
   <div class="submit-box">
     <p>Envía tu evaluación al facilitador. Tus respuestas son confidenciales.</p>
     <button class="btn-primary" id="btnSubmit">Enviar mi evaluación →</button>
@@ -208,7 +203,7 @@
 
 <div class="auth-screen" id="screenAuth">
   <h2>Panel del facilitador</h2><p>Ingresa la clave para ver los resultados.</p>
-  <div class="form-field"><input type="password" id="authKey" placeholder="Clave"></div>
+  <input type="password" id="authKey" placeholder="Clave">
   <button class="btn-primary" id="btnAuth">Entrar</button>
 </div>
 
@@ -223,12 +218,12 @@
   </div>
   <div class="admin-stats" id="adminStats"></div>
   <div class="panel-grid">
-    <div class="panel-card"><h3><span class="dot" style="background:var(--primary)"></span>Distribución de niveles</h3><div id="distLevels"></div></div>
-    <div class="panel-card"><h3><span class="dot" style="background:var(--accent)"></span>Preguntas / temas más flojos</h3><div id="itemAnalysis"></div></div>
+    <div class="panel-card"><h3><span class="dot" style="background:var(--primary)"></span>Distribución de niveles (contenido)</h3><div id="distLevels"></div></div>
+    <div class="panel-card"><h3><span class="dot" style="background:var(--red)"></span>Preguntas / temas más flojos</h3><div id="itemAnalysis"></div></div>
   </div>
   <div class="panel-grid">
-    <div class="panel-card"><h3><span class="dot" style="background:var(--secondary)"></span>Promedio por tema</h3><div id="grupoAvg"></div></div>
-    <div class="panel-card"><h3><span class="dot" style="background:var(--green)"></span>Comentarios y satisfacción</h3><div id="reacBox"></div><div class="comments-list" id="commentsList"></div></div>
+    <div class="panel-card"><h3><span class="dot" style="background:var(--secondary)"></span>Promedio por tema (contenido)</h3><div id="grupoAvg"></div></div>
+    <div class="panel-card"><h3><span class="dot" style="background:var(--accent)"></span>Valoración del docente y la sesión</h3><div id="docAvg"></div><div class="comments-list" id="commentsList"></div></div>
   </div>
   <div class="responses-list" id="responsesList"><div style="text-align:center;color:var(--text-3);padding:30px">Cargando…</div></div>
 </div>
@@ -241,13 +236,13 @@
   <div class="admin-stats" id="dashStats"></div>
   <div class="panel-grid">
     <div class="panel-card"><h3><span class="dot" style="background:var(--primary)"></span>Niveles del grupo</h3><div id="dashDist"></div></div>
-    <div class="panel-card"><h3><span class="dot" style="background:var(--secondary)"></span>Promedio por tema</h3><div id="dashGrupo"></div></div>
+    <div class="panel-card"><h3><span class="dot" style="background:var(--accent)"></span>Valoración del docente</h3><div id="dashDoc"></div></div>
   </div>
 </div>
 
 <div class="modal-bg" id="modalBg"><div class="modal-content">
   <button class="modal-close" onclick="closeModal()">×</button>
-  <h2 id="modalTitle" style="font-size:21px;font-weight:700;margin-bottom:18px">Detalle</h2>
+  <h2 id="modalTitle" style="font-size:21px;font-weight:700;margin-bottom:8px">Detalle</h2>
   <div id="modalBody"></div>
 </div></div>
 
@@ -257,36 +252,38 @@
 </div>
 
 <script>
-const CONFIG = {"slug": "domina-finanzas-ia-coomeva-s2", "titulo": "Sesión 2 · Metas, ahorro e inversión", "corto": "la sesión 2", "coverTitle": "¿Qué aprendiste en la <span class='grad'>Sesión 2</span>?", "lead": "Evaluación corta del contenido de la sesión 'Metas, ahorro e inversión'. Mide lo que te llevas — no te califica.", "tag": "EVALUACIÓN · SESIÓN 2", "minutos": "5–7", "tipo": "eval-sesion-contenido"};
-const QUESTIONS = [{"id": "q1", "grupo": "Metas e inversión", "tema": "Meta SMART", "wm": "🎯", "text": "¿Qué hace que una meta sea SMART?", "options": [{"t": "Que sea específica, medible y con una fecha", "ok": true}, {"t": "Que sea un deseo general", "ok": false}, {"t": "Que dependa de la suerte", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q2", "grupo": "Metas e inversión", "tema": "Interés compuesto", "wm": "🎯", "text": "El interés compuesto significa que…", "options": [{"t": "Los intereses generan a su vez más intereses con el tiempo", "ok": true}, {"t": "Pagas siempre lo mismo", "ok": false}, {"t": "El banco te cobra por ahorrar", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q3", "grupo": "Metas e inversión", "tema": "Inflación", "wm": "🎯", "text": "Con la inflación, tu dinero guardado sin rendir…", "options": [{"t": "Pierde poder de compra con el tiempo", "ok": true}, {"t": "Gana valor solo", "ok": false}, {"t": "No cambia nunca", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q4", "grupo": "Metas e inversión", "tema": "Riesgo y recompensa", "wm": "🎯", "text": "En general, a mayor rentabilidad esperada…", "options": [{"t": "Mayor es también el riesgo", "ok": true}, {"t": "Menor es el riesgo", "ok": false}, {"t": "El riesgo desaparece", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q5", "grupo": "Metas e inversión", "tema": "Diversificar", "wm": "🎯", "text": "Diversificar tus ahorros significa…", "options": [{"t": "Repartirlos para no depender de una sola opción y reducir el riesgo", "ok": true}, {"t": "Ponerlo todo en un solo lugar", "ok": false}, {"t": "Gastarlo lo más rápido posible", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q6", "grupo": "Metas e inversión", "tema": "Ahorro programado", "wm": "🎯", "text": "El ahorro programado es…", "options": [{"t": "Apartar una cantidad fija de forma automática y periódica", "ok": true}, {"t": "Ahorrar solo lo que sobra", "ok": false}, {"t": "Un tipo de préstamo", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q7", "grupo": "Metas e inversión", "tema": "Fondo líquido", "wm": "🎯", "text": "El dinero del fondo de emergencia debe estar…", "options": [{"t": "Disponible y de bajo riesgo (líquido)", "ok": true}, {"t": "Invertido a 10 años", "ok": false}, {"t": "Prestado a un amigo", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q8", "grupo": "Metas e inversión", "tema": "Seguros", "wm": "🎯", "text": "Un seguro sirve principalmente para…", "options": [{"t": "Protegerte frente a imprevistos y pérdidas", "ok": true}, {"t": "Ganar dinero rápido", "ok": false}, {"t": "Ahorrar impuestos siempre", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q9", "grupo": "IA aplicada", "tema": "Simulador con IA", "wm": "🤖", "text": "¿Para qué sirve un simulador de interés compuesto hecho con IA?", "options": [{"t": "Ver cómo crece tu ahorro en el tiempo con distintos escenarios", "ok": true}, {"t": "Adivinar la lotería", "ok": false}, {"t": "Pagar tus cuentas solo", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q10", "grupo": "IA aplicada", "tema": "Perplexity", "wm": "🤖", "text": "¿Para qué te sirve Perplexity al comparar opciones de ahorro?", "options": [{"t": "Investigar con fuentes citadas y datos actuales", "ok": true}, {"t": "Guardar tus contraseñas", "ok": false}, {"t": "Reemplazar por completo al banco", "ok": false}, {"t": "No lo sé aún", "ok": false}]}];
+const CONFIG = {"slug": "domina-finanzas-ia-coomeva-s2", "titulo": "Sesión 2 · Metas, ahorro e inversión", "corto": "la sesión 2", "coverTitle": "¿Qué aprendiste en la <span class='grad'>Sesión 2</span>?", "lead": "Contenido de 'Metas, ahorro e inversión' + tu valoración del docente.", "tag": "EVALUACIÓN · SESIÓN 2", "minutos": "7–10", "tipo": "eval-sesion"};
+const QUESTIONS = [{"id": "q1", "tipo": "contenido", "grupo": "Metas e inversión", "tema": "Meta SMART", "wm": "🎯", "text": "¿Qué hace que una meta sea SMART?", "options": [{"t": "Que sea específica, medible y con una fecha", "ok": true}, {"t": "Que sea un deseo general", "ok": false}, {"t": "Que dependa de la suerte", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q2", "tipo": "contenido", "grupo": "Metas e inversión", "tema": "Interés compuesto", "wm": "🎯", "text": "El interés compuesto significa que…", "options": [{"t": "Los intereses generan a su vez más intereses con el tiempo", "ok": true}, {"t": "Pagas siempre lo mismo", "ok": false}, {"t": "El banco te cobra por ahorrar", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q3", "tipo": "contenido", "grupo": "Metas e inversión", "tema": "Inflación", "wm": "🎯", "text": "Con la inflación, tu dinero guardado sin rendir…", "options": [{"t": "Pierde poder de compra con el tiempo", "ok": true}, {"t": "Gana valor solo", "ok": false}, {"t": "No cambia nunca", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q4", "tipo": "contenido", "grupo": "Metas e inversión", "tema": "Riesgo y recompensa", "wm": "🎯", "text": "En general, a mayor rentabilidad esperada…", "options": [{"t": "Mayor es también el riesgo", "ok": true}, {"t": "Menor es el riesgo", "ok": false}, {"t": "El riesgo desaparece", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q5", "tipo": "contenido", "grupo": "Metas e inversión", "tema": "Diversificar", "wm": "🎯", "text": "Diversificar tus ahorros significa…", "options": [{"t": "Repartirlos para no depender de una sola opción y reducir el riesgo", "ok": true}, {"t": "Ponerlo todo en un solo lugar", "ok": false}, {"t": "Gastarlo lo más rápido posible", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q6", "tipo": "contenido", "grupo": "Metas e inversión", "tema": "Ahorro programado", "wm": "🎯", "text": "El ahorro programado es…", "options": [{"t": "Apartar una cantidad fija de forma automática y periódica", "ok": true}, {"t": "Ahorrar solo lo que sobra", "ok": false}, {"t": "Un tipo de préstamo", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q7", "tipo": "contenido", "grupo": "Metas e inversión", "tema": "Fondo líquido", "wm": "🎯", "text": "El dinero del fondo de emergencia debe estar…", "options": [{"t": "Disponible y de bajo riesgo (líquido)", "ok": true}, {"t": "Invertido a 10 años", "ok": false}, {"t": "Prestado a un amigo", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q8", "tipo": "contenido", "grupo": "Metas e inversión", "tema": "Seguros", "wm": "🎯", "text": "Un seguro sirve principalmente para…", "options": [{"t": "Protegerte frente a imprevistos y pérdidas", "ok": true}, {"t": "Ganar dinero rápido", "ok": false}, {"t": "Ahorrar impuestos siempre", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q9", "tipo": "contenido", "grupo": "IA aplicada", "tema": "Simulador con IA", "wm": "🤖", "text": "¿Para qué sirve un simulador de interés compuesto hecho con IA?", "options": [{"t": "Ver cómo crece tu ahorro en el tiempo con distintos escenarios", "ok": true}, {"t": "Adivinar la lotería", "ok": false}, {"t": "Pagar tus cuentas solo", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q10", "tipo": "contenido", "grupo": "IA aplicada", "tema": "Perplexity", "wm": "🤖", "text": "¿Para qué te sirve Perplexity al comparar opciones de ahorro?", "options": [{"t": "Investigar con fuentes citadas y datos actuales", "ok": true}, {"t": "Guardar tus contraseñas", "ok": false}, {"t": "Reemplazar por completo al banco", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "d1", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Claridad del docente", "wm": "🧑‍🏫", "text": "El docente explicó los temas con claridad.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}, {"id": "d2", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Resolvió dudas", "wm": "🧑‍🏫", "text": "El docente resolvió mis dudas y preguntas.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}, {"id": "d3", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Prácticas útiles", "wm": "🧑‍🏫", "text": "Los ejemplos y ejercicios prácticos fueron útiles.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}, {"id": "d4", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Ritmo y organización", "wm": "🧑‍🏫", "text": "El ritmo y la organización de la sesión fueron adecuados.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}, {"id": "d5", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Recomendaría", "wm": "🧑‍🏫", "text": "Recomendaría esta sesión a otro asociado.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}];
 const SB_URL="https://nvgkhdrrxqdgxktfkioa.supabase.co";
 const SB_KEY="sb_publishable_d1RrtE7S-9a8e8mGKRRjxQ_4HU_nkDl";
 const SB_TABLE="icone_evaluaciones";
 const SB_PASS="Diagnosticos2026";
 const TOTAL=QUESTIONS.length;
+const CONTENT=QUESTIONS.filter(q=>q.tipo!=="valoracion");
+const DOCQS=QUESTIONS.filter(q=>q.tipo==="valoracion");
+const N_CONT=CONTENT.length;
 const LEVELS={
-  explorador:{key:"explorador",nombre:"Explorador",n:1,color:"#ff8c00",grad:"linear-gradient(135deg,#ff8c00,#ff5470)"},
-  constructor:{key:"constructor",nombre:"Constructor",n:2,color:"#00d4ff",grad:"linear-gradient(135deg,#00d4ff,#7b2fff)"},
-  estratega:{key:"estratega",nombre:"Estratega",n:3,color:"#7b2fff",grad:"linear-gradient(135deg,#7b2fff,#00d4ff)"}
+  explorador:{key:"explorador",nombre:"Explorador",n:1,color:"#ff8c00"},
+  constructor:{key:"constructor",nombre:"Constructor",n:2,color:"#00d4ff"},
+  estratega:{key:"estratega",nombre:"Estratega",n:3,color:"#7b2fff"}
 };
 function levelFor(p){return p>=80?LEVELS.estratega:p>=50?LEVELS.constructor:LEVELS.explorador;}
 const FEEDBACK={
   explorador:"Aún estás afianzando los conceptos de "+CONFIG.corto+". Repasa los temas marcados y verás cómo mejora tu resultado.",
-  constructor:"¡Vas bien! Dominas la mayoría de los conceptos. Refuerza los temas que quedaron flojos y quedas listo.",
+  constructor:"¡Vas bien! Dominas la mayoría de los conceptos. Refuerza los temas que quedaron flojos.",
   estratega:"¡Excelente! Manejas muy bien el contenido de "+CONFIG.corto+". Ahora se trata de aplicarlo con tus datos reales."
 };
 
-let currentIdx=0, answers={}, user={}, reaction={estrellas:null,comentario:""};
+let currentIdx=0, answers={}, user={};
 const urlParams=new URLSearchParams(location.search);
 const isAdmin=urlParams.has("admin"), isDashboard=urlParams.has("dashboard");
 
-// cover
 document.getElementById("coverTitle").innerHTML=CONFIG.coverTitle;
 document.getElementById("coverLead").textContent=CONFIG.lead;
 document.getElementById("coverTag").textContent=CONFIG.tag;
 document.getElementById("footTitle").textContent=CONFIG.titulo;
 document.getElementById("adminSub").textContent=CONFIG.titulo+" · Coomeva";
-document.getElementById("coverPills").innerHTML=`<div class="pill"><b>${TOTAL}</b> preguntas</div><div class="pill">≈ <b>${CONFIG.minutos}</b> min</div><div class="pill">Nivel: Explorador · Constructor · Estratega</div>`;
+document.getElementById("coverPills").innerHTML=`<div class="pill"><b>${TOTAL}</b> preguntas</div><div class="pill"><b>${N_CONT}</b> de contenido + <b>${DOCQS.length}</b> del docente</div><div class="pill">≈ <b>${CONFIG.minutos}</b> min</div>`;
 document.title=CONFIG.titulo+" · Evaluación";
 
 if(isAdmin){document.getElementById("modeLabel").textContent="PANEL · CONFIDENCIAL";
@@ -307,11 +304,13 @@ document.getElementById("btnStart").addEventListener("click",()=>{
 function renderQuestions(){
   const c=document.getElementById("questionsContainer");c.innerHTML="";
   QUESTIONS.forEach((q,idx)=>{
+    const doc=q.tipo==="valoracion";
     const s=document.createElement("div");s.className="q-screen";s.id="q-"+idx;
     s.innerHTML=`<div class="q-wm">${q.wm||"💡"}</div>
       <div class="q-meta">Pregunta ${idx+1} de ${TOTAL}</div>
-      <div class="q-grupo">${q.grupo}</div>
+      <div class="q-grupo ${doc?'doc':''}">${q.grupo}</div>
       <div class="q-text">${q.text}</div>
+      ${doc?'<div class="q-hint">Marca qué tan de acuerdo estás.</div>':''}
       <div class="q-body" id="qb-${idx}"></div>
       <div class="nav-row">
         <button class="btn-secondary" ${idx===0?'style="visibility:hidden"':''} onclick="prevQ()">← Atrás</button>
@@ -319,57 +318,56 @@ function renderQuestions(){
       </div>`;
     c.appendChild(s);
     document.getElementById("qb-"+idx).innerHTML=`<div class="options">`+q.options.map((o,oi)=>
-      `<div class="option" data-q="${q.id}" data-idx="${oi}" onclick="pickOpt(this,'${q.id}',${oi})"><div class="check-box"></div><div>${o.t}</div></div>`).join("")+`</div>`;
+      `<div class="option ${doc?'doc':''}" data-q="${q.id}" data-idx="${oi}" onclick="pickOpt(this,'${q.id}',${oi})"><div class="check-box"></div><div>${o.t}</div></div>`).join("")+`</div>`;
   });
 }
 function pickOpt(el,qid,oi){document.querySelectorAll(`.option[data-q="${qid}"]`).forEach(o=>o.classList.remove("selected"));el.classList.add("selected");answers[qid]=oi;}
 function goToQuestion(idx){document.querySelectorAll(".q-screen").forEach(e=>e.classList.remove("active"));document.getElementById("screenCover").style.display="none";
   const s=document.getElementById("q-"+idx);if(s)s.classList.add("active");currentIdx=idx;
   document.getElementById("progressBar").style.width=((idx+1)/TOTAL*100)+"%";window.scrollTo({top:0,behavior:"smooth"});}
-function nextQ(){if(answers[QUESTIONS[currentIdx].id]===undefined){alert("Elige una opción. Si no sabes, marca “No lo sé aún”.");return;}
+function nextQ(){if(answers[QUESTIONS[currentIdx].id]===undefined){alert("Elige una opción para continuar.");return;}
   if(currentIdx===TOTAL-1)finish();else goToQuestion(currentIdx+1);}
 function prevQ(){goToQuestion(currentIdx-1);}
 
 function computeScores(){
   let correct=0; const byG={};
-  QUESTIONS.forEach(q=>{
+  CONTENT.forEach(q=>{
     if(!byG[q.grupo])byG[q.grupo]={c:0,t:0};
     byG[q.grupo].t++;
     const sel=answers[q.id];
     if(sel!==undefined&&q.options[sel]&&q.options[sel].ok){correct++;byG[q.grupo].c++;}
   });
-  const pct=Math.round(correct/TOTAL*100);
+  const pct=N_CONT?Math.round(correct/N_CONT*100):0;
   const grupos=Object.keys(byG).map(g=>({g,pct:Math.round(byG[g].c/byG[g].t*100),c:byG[g].c,t:byG[g].t}));
-  return {correct,total:TOTAL,pct,lvl:levelFor(pct),grupos};
+  // docente
+  let dsum=0,dn=0; const dItems={};
+  DOCQS.forEach(q=>{const sel=answers[q.id];if(sel!==undefined&&q.options[sel]&&typeof q.options[sel].val==="number"){dsum+=q.options[sel].val;dn++;dItems[q.id]=q.options[sel].val;}});
+  const docProm=dn?+(dsum/dn).toFixed(2):null;
+  return {correct,total:N_CONT,pct,lvl:levelFor(pct),grupos,docProm,dItems,dn};
 }
 function finish(){
   const r=computeScores();window.__r=r;
   document.getElementById("resultName").textContent=(user.nombre?user.nombre.split(" ")[0]+", ":"")+"así te fue";
   const bl=document.getElementById("bigLevel");bl.textContent=r.lvl.nombre;bl.style.color=r.lvl.color;
-  document.getElementById("bigScore").textContent=`${r.correct} de ${r.total} correctas · ${r.pct}%`;
+  document.getElementById("bigScore").textContent=`${r.correct} de ${r.total} correctas · ${r.pct}% (contenido)`;
   let steps="";for(let i=1;i<=3;i++)steps+=`<div class="step-dot ${i<=r.lvl.n?'on':''}" style="color:${r.lvl.color}"></div>`;
   document.getElementById("lvlSteps").innerHTML=steps;
   document.getElementById("resultFeedback").textContent=FEEDBACK[r.lvl.key];
   const gc=["#00d4ff","#7b2fff","#ff8c00","#00e08a","#ff5470"];
-  document.getElementById("gruposBody").innerHTML=r.grupos.map((g,i)=>{
-    const col=gc[i%gc.length];
-    return `<div class="g-row"><div class="g-top"><span class="nm">${g.g}</span><span class="vl" style="color:var(--text-3)">${g.c}/${g.t} · ${g.pct}%</span></div><div class="g-bar"><div style="width:${g.pct}%;background:${col}"></div></div></div>`;
-  }).join("");
-  renderStars();
+  document.getElementById("gruposBody").innerHTML=r.grupos.map((g,i)=>{const col=gc[i%gc.length];
+    return `<div class="g-row"><div class="g-top"><span class="nm">${g.g}</span><span class="vl" style="color:var(--text-3)">${g.c}/${g.t} · ${g.pct}%</span></div><div class="g-bar"><div style="width:${g.pct}%;background:${col}"></div></div></div>`;}).join("");
+  if(r.docProm!=null){document.getElementById("docSummary").style.display="flex";document.getElementById("docNum").textContent=r.docProm.toFixed(1);}
   showScreen("screenResult");document.getElementById("progressBar").style.width="100%";
 }
-function renderStars(){const el=document.getElementById("stars");el.innerHTML="";
-  for(let i=1;i<=5;i++){const s=document.createElement("span");s.className="star";s.textContent="★";s.dataset.v=i;
-    s.onclick=()=>{reaction.estrellas=i;document.querySelectorAll("#stars .star").forEach(x=>x.classList.toggle("on",+x.dataset.v<=i));};el.appendChild(s);}}
 
 document.getElementById("btnSubmit").addEventListener("click",()=>{
   const btn=document.getElementById("btnSubmit"),note=document.getElementById("submitNote");
-  const r=window.__r||computeScores();reaction.comentario=document.getElementById("comentario").value.trim();
+  const r=window.__r||computeScores();const comentario=document.getElementById("comentario").value.trim();
   btn.disabled=true;btn.textContent="Enviando…";note.textContent="";
   const meta={tipo:CONFIG.tipo,slug:CONFIG.slug,respuestas:answers,correctas:r.correct,total:r.total,pct:r.pct,nivel:r.lvl.nombre,
-    grupos:r.grupos,reaccion:reaction,ts:new Date().toISOString(),ua:navigator.userAgent};
+    grupos:r.grupos,docente:{promedio:r.docProm,porItem:r.dItems},comentario:comentario,ts:new Date().toISOString(),ua:navigator.userAgent};
   const payload={entrenamiento:CONFIG.slug,nombre:user.nombre,emprendimiento:CONFIG.titulo,
-    satisfaccion_pct:r.pct,nps:reaction.estrellas!=null?reaction.estrellas:null,meta:meta};
+    satisfaccion_pct:r.pct,nps:r.docProm!=null?Math.round(r.docProm):null,meta:meta};
   fetch(`${SB_URL}/rest/v1/${SB_TABLE}`,{method:"POST",
     headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json","Prefer":"return=minimal"},
     body:JSON.stringify(payload)}).then(res=>{
@@ -394,26 +392,25 @@ function parseRow(row){let m=row.meta;if(typeof m==="string"){try{m=JSON.parse(m
 async function loadResponses(){
   const list=document.getElementById("responsesList");list.innerHTML=`<div style="text-align:center;color:var(--text-3);padding:30px">Cargando…</div>`;
   try{const rows=(await fetchRows()).map(parseRow);window.__rows=rows;
-    renderStats(rows,"adminStats");renderDist(rows,"distLevels");renderItems(rows,"itemAnalysis");renderGrupoAvg(rows,"grupoAvg");renderReac(rows);renderTable(rows);
+    renderStats(rows,"adminStats");renderDist(rows,"distLevels");renderItems(rows,"itemAnalysis");renderGrupoAvg(rows,"grupoAvg");renderDocAvg(rows,"docAvg");renderComments(rows);renderTable(rows);
   }catch(e){list.innerHTML=`<div style="text-align:center;color:var(--accent);padding:30px">${e.message}</div>`;}}
 
 function nivelCounts(rows){const c={Explorador:0,Constructor:0,Estratega:0};rows.forEach(r=>{const n=r.m.nivel;if(c[n]!==undefined)c[n]++;});return c;}
 function avg(rows,f){const v=rows.map(f).filter(x=>typeof x==="number");return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):0;}
-function renderStats(rows,id){const t=rows.length,a=avg(rows,r=>r.m.pct);
-  const stars=rows.map(r=>r.m.reaccion&&r.m.reaccion.estrellas).filter(x=>typeof x==="number");
-  const sa=stars.length?(stars.reduce((x,y)=>x+y,0)/stars.length).toFixed(1):"—";
+function docAvgAll(rows){const v=rows.map(r=>r.m.docente&&r.m.docente.promedio).filter(x=>typeof x==="number");return v.length?(v.reduce((a,b)=>a+b,0)/v.length):null;}
+function renderStats(rows,id){const t=rows.length,a=avg(rows,r=>r.m.pct);const da=docAvgAll(rows);
   const last=rows[0]?new Date(rows[0].fecha).toLocaleDateString('es-CO'):"—";
   document.getElementById(id).innerHTML=`
     <div class="stat-card"><div class="stat-num">${t}</div><div class="stat-label">Respuestas</div></div>
-    <div class="stat-card"><div class="stat-num">${a}%</div><div class="stat-label">Promedio de aciertos</div></div>
-    <div class="stat-card"><div class="stat-num">${sa}${sa!=="—"?"★":""}</div><div class="stat-label">Satisfacción</div></div>
+    <div class="stat-card"><div class="stat-num">${a}%</div><div class="stat-label">Promedio contenido</div></div>
+    <div class="stat-card"><div class="stat-num">${da!=null?da.toFixed(1)+" ★":"—"}</div><div class="stat-label">Docente (sobre 5)</div></div>
     <div class="stat-card"><div class="stat-num" style="font-size:17px;line-height:1.3">${last}</div><div class="stat-label">Última respuesta</div></div>`;}
 function distBars(counts,total){const o=[["Explorador","#ff8c00"],["Constructor","#00d4ff"],["Estratega","#7b2fff"]];
   return o.map(([n,c])=>{const v=counts[n]||0,p=total?Math.round(v/total*100):0;
     return `<div class="dist-row"><div class="dist-top"><span class="nm" style="color:${c}">${n}</span><span class="vl">${v} · ${p}%</span></div><div class="dist-bar"><div style="width:${p}%;background:${c}"></div></div></div>`;}).join("");}
 function renderDist(rows,id){document.getElementById(id).innerHTML=distBars(nivelCounts(rows),rows.length);}
 function renderItems(rows,id){const el=document.getElementById(id);if(!rows.length){el.innerHTML=`<div style="color:var(--text-3);font-size:13px">Sin datos.</div>`;return;}
-  const items=QUESTIONS.map(q=>{let c=0,a=0;rows.forEach(r=>{const s=r.m.respuestas?r.m.respuestas[q.id]:undefined;if(s===undefined)return;a++;if(q.options[s]&&q.options[s].ok)c++;});
+  const items=CONTENT.map(q=>{let c=0,a=0;rows.forEach(r=>{const s=r.m.respuestas?r.m.respuestas[q.id]:undefined;if(s===undefined)return;a++;if(q.options[s]&&q.options[s].ok)c++;});
     return {tema:q.tema,pct:a?Math.round(c/a*100):0};}).sort((x,y)=>x.pct-y.pct).slice(0,6);
   el.innerHTML=items.map(it=>{const col=it.pct<50?"#ff5470":it.pct<80?"#ff8c00":"#00e08a";
     return `<div class="item-row"><div class="qn">${it.tema}</div><div class="item-mini"><div style="width:${it.pct}%;background:${col}"></div></div><div class="item-pct" style="color:${col}">${it.pct}%</div></div>`;}).join("");}
@@ -423,38 +420,44 @@ function renderGrupoAvg(rows,id){const el=document.getElementById(id);const acc=
   if(!keys.length){el.innerHTML=`<div style="color:var(--text-3);font-size:13px">Sin datos.</div>`;return;}
   el.innerHTML=keys.map((g,i)=>{const p=Math.round(acc[g].s/acc[g].n),col=gc[i%gc.length];
     return `<div class="dist-row"><div class="dist-top"><span class="nm">${g}</span><span class="vl">${p}%</span></div><div class="dist-bar"><div style="width:${p}%;background:${col}"></div></div></div>`;}).join("");}
-function renderReac(rows){const cs=rows.map(r=>r.m.reaccion).filter(Boolean);
-  const comments=cs.filter(x=>x.comentario);const box=document.getElementById("reacBox");
-  const stars=cs.map(x=>x.estrellas).filter(x=>typeof x==="number");
-  const sa=stars.length?(stars.reduce((a,b)=>a+b,0)/stars.length).toFixed(1):"—";
-  box.innerHTML=`<div style="font-size:13px;color:var(--text-2);margin-bottom:12px">Satisfacción promedio: <b style="color:var(--accent)">${sa}${sa!=="—"?" ★":""}</b> · ${comments.length} comentario(s)</div>`;
-  document.getElementById("commentsList").innerHTML=comments.length?comments.map(c=>`<div class="comment">${c.estrellas?"★".repeat(c.estrellas)+" — ":""}${c.comentario}</div>`).join(""):`<div style="color:var(--text-3);font-size:13px">Aún sin comentarios.</div>`;}
+function renderDocAvg(rows,id){const el=document.getElementById(id);
+  if(!DOCQS.length){el.innerHTML=`<div style="color:var(--text-3);font-size:13px">Esta evaluación no incluye ítems de docente.</div>`;return;}
+  const items=DOCQS.map(q=>{let s=0,n=0;rows.forEach(r=>{const v=r.m.docente&&r.m.docente.porItem&&r.m.docente.porItem[q.id];if(typeof v==="number"){s+=v;n++;}});
+    return {tema:q.tema,avg:n?s/n:null};});
+  el.innerHTML=items.map(it=>{if(it.avg==null)return "";const p=it.avg/5*100;const col=it.avg>=4?"#00e08a":it.avg>=3?"#ff8c00":"#ff5470";
+    return `<div class="dist-row"><div class="dist-top"><span class="nm">${it.tema}</span><span class="vl">${it.avg.toFixed(1)} / 5</span></div><div class="dist-bar"><div style="width:${p}%;background:${col}"></div></div></div>`;}).join("")||`<div style="color:var(--text-3);font-size:13px">Sin datos.</div>`;}
+function renderComments(rows){const cs=rows.map(r=>r.m.comentario).filter(x=>x&&x.trim());
+  document.getElementById("commentsList").innerHTML=cs.length?`<div class="detail-sec" style="margin:16px 0 6px">Comentarios (${cs.length})</div>`+cs.map(c=>`<div class="comment">💬 ${c}</div>`).join(""):"";}
 function chip(n){const c=n==="Estratega"?"#7b2fff":n==="Constructor"?"#00d4ff":"#ff8c00";return `<span class="lvl-chip" style="color:${c};background:${c}22;border:1px solid ${c}55">${n||"—"}</span>`;}
 function renderTable(rows){const list=document.getElementById("responsesList");
   if(!rows.length){list.innerHTML=`<div style="text-align:center;color:var(--text-3);padding:30px">Aún no hay respuestas.</div>`;return;}
-  let h=`<div class="response-row header"><div class="col-label">Fecha</div><div class="col-label">Nombre</div><div class="col-label">Nivel</div><div class="col-label">Aciertos</div><div class="col-label">Satisf.</div><div></div><div></div></div>`;
-  rows.forEach((r,i)=>{const est=r.m.reaccion&&r.m.reaccion.estrellas;
-    h+=`<div class="response-row"><div>${new Date(r.fecha).toLocaleDateString('es-CO')}</div><div style="font-weight:600">${r.nombre}</div><div>${chip(r.m.nivel)}</div><div>${r.m.correctas}/${r.m.total}</div><div>${est?est+"★":"—"}</div><div><button class="view-detail-btn" onclick="showDetail(${i})">Ver →</button></div><div><button class="del-btn" onclick="delRow('${r.id}')">🗑</button></div></div>`;});
+  let h=`<div class="response-row header"><div class="col-label">Fecha</div><div class="col-label">Nombre</div><div class="col-label">Nivel</div><div class="col-label">Aciertos</div><div class="col-label">Docente</div><div></div><div></div></div>`;
+  rows.forEach((r,i)=>{const d=r.m.docente&&r.m.docente.promedio;
+    h+=`<div class="response-row"><div>${new Date(r.fecha).toLocaleDateString('es-CO')}</div><div style="font-weight:600">${r.nombre}</div><div>${chip(r.m.nivel)}</div><div>${r.m.correctas}/${r.m.total}</div><div>${d!=null?d.toFixed(1)+"★":"—"}</div><div><button class="view-detail-btn" onclick="showDetail(${i})">Ver →</button></div><div><button class="del-btn" onclick="delRow('${r.id}')">🗑</button></div></div>`;});
   list.innerHTML=h;}
-function showDetail(i){const r=window.__rows[i];document.getElementById("modalTitle").textContent=r.nombre+" — detalle";
-  const resp=r.m.respuestas||{};
-  let h=`<div style="margin-bottom:18px;font-size:13px;color:var(--text-2)">📅 ${new Date(r.fecha).toLocaleString('es-CO')} &nbsp;·&nbsp; ${chip(r.m.nivel)} ${r.m.correctas}/${r.m.total} (${r.m.pct}%)${r.m.reaccion&&r.m.reaccion.estrellas?" &nbsp;·&nbsp; "+r.m.reaccion.estrellas+"★":""}</div>`;
-  if(r.m.reaccion&&r.m.reaccion.comentario)h+=`<div style="margin-bottom:16px;padding:12px;background:var(--card);border-radius:10px;font-size:13px;color:var(--text-2)">💬 ${r.m.reaccion.comentario}</div>`;
-  QUESTIONS.forEach(q=>{const s=resp[q.id];const chosen=s!==undefined?(q.options[s]?.t||"—"):"(sin responder)";
+function showDetail(i){const r=window.__rows[i];document.getElementById("modalTitle").textContent=r.nombre;
+  const resp=r.m.respuestas||{};const d=r.m.docente;
+  let h=`<div style="margin-bottom:8px;font-size:13px;color:var(--text-2)">📅 ${new Date(r.fecha).toLocaleString('es-CO')} &nbsp;·&nbsp; ${chip(r.m.nivel)} ${r.m.correctas}/${r.m.total} (${r.m.pct}%)${d&&d.promedio!=null?" &nbsp;·&nbsp; Docente "+d.promedio.toFixed(1)+"★":""}</div>`;
+  if(r.m.comentario)h+=`<div style="margin:12px 0;padding:12px;background:var(--card);border-radius:10px;font-size:13px;color:var(--text-2)">💬 ${r.m.comentario}</div>`;
+  h+=`<div class="detail-sec">Contenido</div>`;
+  CONTENT.forEach(q=>{const s=resp[q.id];const chosen=s!==undefined?(q.options[s]?.t||"—"):"(sin responder)";
     const ok=s!==undefined&&q.options[s]?.ok;const correct=q.options.find(o=>o.ok)?.t||"";
     h+=`<div class="detail-question"><div class="detail-q-text">${q.text}</div><div class="detail-a-text ${ok?'badge-ok':'badge-no'}">${ok?'✓':'✗'} ${chosen}</div>${ok?'':`<div class="correct-hint">Correcta: ${correct}</div>`}</div>`;});
+  if(DOCQS.length){h+=`<div class="detail-sec">Docente y dinámica</div>`;
+    DOCQS.forEach(q=>{const s=resp[q.id];const chosen=s!==undefined?(q.options[s]?.t||"—"):"(sin responder)";const val=s!==undefined?q.options[s]?.val:null;
+      h+=`<div class="detail-question"><div class="detail-q-text">${q.text}</div><div class="detail-a-text badge-val">${val?val+"/5 — ":""}${chosen}</div></div>`;});}
   document.getElementById("modalBody").innerHTML=h;document.getElementById("modalBg").classList.add("active");}
 function closeModal(){document.getElementById("modalBg").classList.remove("active");}
 async function delRow(id){if(!confirm("¿Eliminar esta respuesta?"))return;
   try{const r=await fetch(`${SB_URL}/rest/v1/rpc/delete_evaluacion_e`,{method:"POST",headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"},body:JSON.stringify({pass:SB_PASS,rid:id})});
     if(r.ok)loadResponses();else alert("No se pudo eliminar.");}catch{alert("Error de red.");}}
-function exportCSV(){const rows=window.__rows||[];const head=["fecha","nombre","nivel","aciertos","total","pct","satisfaccion","comentario"];const L=[head];
-  rows.forEach(r=>{const rc=r.m.reaccion||{};L.push([new Date(r.fecha).toLocaleDateString('es-CO'),r.nombre,r.m.nivel||"",r.m.correctas??"",r.m.total??"",r.m.pct??"",rc.estrellas??"",rc.comentario||""]);});
+function exportCSV(){const rows=window.__rows||[];const head=["fecha","nombre","nivel","aciertos","total_contenido","pct","docente_promedio","comentario"];const L=[head];
+  rows.forEach(r=>{const d=r.m.docente||{};L.push([new Date(r.fecha).toLocaleDateString('es-CO'),r.nombre,r.m.nivel||"",r.m.correctas??"",r.m.total??"",r.m.pct??"",d.promedio??"",r.m.comentario||""]);});
   const csv=L.map(l=>l.map(c=>`"${String(c==null?"":c).replace(/"/g,'""')}"`).join(",")).join("\n");
   const b=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="evaluacion-"+CONFIG.slug+".csv";a.click();}
 
 async function loadDashboard(){try{const rows=(await fetchRows()).map(parseRow);
-  renderStats(rows,"dashStats");document.getElementById("dashDist").innerHTML=distBars(nivelCounts(rows),rows.length);renderGrupoAvg(rows,"dashGrupo");
+  renderStats(rows,"dashStats");document.getElementById("dashDist").innerHTML=distBars(nivelCounts(rows),rows.length);renderDocAvg(rows,"dashDoc");
   }catch(e){document.getElementById("dashStats").innerHTML=`<div style="color:var(--accent)">${e.message}</div>`;}}
 function copyLink(){const u=location.origin+location.pathname+"?dashboard";navigator.clipboard?.writeText(u).then(()=>alert("Enlace copiado."),()=>prompt("Copia:",u));}
 </script>
