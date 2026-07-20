@@ -174,7 +174,6 @@
   <div class="cover-tag" id="coverTag">EVALUACIÓN</div>
   <h1 id="coverTitle">Evaluación</h1>
   <p class="lead" id="coverLead"></p>
-  <div class="pills" id="coverPills"></div>
   <div class="form-field"><label>Tu nombre</label><input type="text" id="userName" placeholder="Nombre y apellido"></div>
   <button class="btn-primary" id="btnStart">Empezar →</button>
   <div class="disclaimer">Primero, preguntas de contenido (responde con lo que aprendiste; si no sabes, marca “No lo sé aún”). Al final, tu valoración del docente y la sesión.</div>
@@ -283,7 +282,6 @@ document.getElementById("coverLead").textContent=CONFIG.lead;
 document.getElementById("coverTag").textContent=CONFIG.tag;
 document.getElementById("footTitle").textContent=CONFIG.titulo;
 document.getElementById("adminSub").textContent=CONFIG.titulo+" · Coomeva";
-document.getElementById("coverPills").innerHTML=`<div class="pill"><b>${TOTAL}</b> preguntas</div><div class="pill"><b>${N_CONT}</b> de contenido + <b>${DOCQS.length}</b> del docente</div><div class="pill">≈ <b>${CONFIG.minutos}</b> min</div>`;
 document.title=CONFIG.titulo+" · Evaluación";
 
 if(isAdmin){document.getElementById("modeLabel").textContent="PANEL · CONFIDENCIAL";
