@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluación del Entrenamiento · Domina tus finanzas con IA</title>
+<meta name="description" content="Cuéntanos cómo te fue en el entrenamiento de Domina tus finanzas con IA. Tu opinión nos ayuda a mejorar y a inspirar a más emprendedores. Coomeva.">
+<meta name="theme-color" content="#050d1f">
+<style>
+:root{
+  --bg:#050d1f; --surface:rgba(9,22,40,0.9); --surface2:#0d1e35; --surface3:#122540;
+  --border:rgba(22,46,74,0.8); --border2:#1e3d5e;
+  --accent:#00d4ff; --accent2:#7b2fff; --accent3:#10b981; --orange:#ff8c00;
+  --gold:#f59e0b; --pink:#ec4899; --danger:#ef4444;
+  --text:#e2e8f0; --text-muted:#7a93b4; --text-dim:#3d5272;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;position:relative;overflow-x:hidden}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:28px 18px 80px}
+.brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:22px}
+.brand .logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#03101f;box-shadow:0 0 24px rgba(0,212,255,.45)}
+.brand .bt{font-weight:800;letter-spacing:.5px}
+.brand .bs{font-size:11px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--accent);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:7px 16px;border-radius:999px}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.center{text-align:center}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:30px;backdrop-filter:blur(8px);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+h1{font-size:34px;font-weight:800;line-height:1.15;margin:18px 0 10px}
+h1 .grad{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.lead{color:var(--text-muted);font-size:16px;max-width:620px;margin:0 auto}
+.stats{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:26px 0}
+.stat{flex:1;min-width:110px;background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:16px 10px}
+.stat b{display:block;font-size:26px;color:var(--accent);font-weight:800}
+.stat span{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+label{display:block;font-size:13px;color:var(--text-muted);margin:16px 0 7px;text-transform:uppercase;letter-spacing:.5px}
+input,textarea{width:100%;background:var(--surface3);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;color:var(--text);font-size:16px;outline:none;transition:.2s;font-family:inherit}
+input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,.15)}
+textarea{resize:vertical;min-height:96px;line-height:1.5}
+.hint{font-size:12px;color:var(--text-dim);margin-top:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(120deg,var(--accent),var(--accent2));color:#03101f;font-weight:800;font-size:16px;border:none;border-radius:12px;padding:15px 26px;cursor:pointer;transition:.2s;box-shadow:0 8px 26px rgba(0,212,255,.3)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,212,255,.45)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border2);box-shadow:none}
+.btn.full{width:100%;margin-top:22px}
+.hidden{display:none!important}
+/* progress */
+.prog-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.prog-bar{height:8px;background:var(--surface3);border-radius:999px;overflow:hidden}
+.prog-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:999px;transition:width .35s}
+.q-cat{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:999px;margin:22px 0 14px}
+.q-text{font-size:22px;font-weight:700;line-height:1.3;margin-bottom:8px}
+.q-sub{font-size:14px;color:var(--text-muted);margin-bottom:22px}
+/* star rating */
+.stars-in{display:flex;gap:10px;justify-content:center;margin:10px 0 6px}
+.star{font-size:46px;line-height:1;cursor:pointer;color:var(--surface3);transition:transform .12s,color .12s;-webkit-text-stroke:1px var(--border2);user-select:none}
+.star:hover{transform:scale(1.15)}
+.star.on{color:var(--gold);-webkit-text-stroke:1px var(--gold);text-shadow:0 0 18px rgba(245,158,11,.55)}
+.scale-lbls{display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);max-width:340px;margin:4px auto 0}
+.rating-word{text-align:center;font-weight:700;font-size:16px;min-height:24px;margin-top:8px;color:var(--gold)}
+/* nps */
+.nps{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0 6px}
+.nps b{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;transition:.15s}
+.nps b:hover{border-color:var(--accent)}
+.nps b.on{color:#03101f;border-color:transparent;transform:translateY(-2px)}
+.nps-ends{display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);margin-top:4px}
+/* options (single choice) */
+.opts{display:flex;flex-direction:column;gap:12px}
+.opt{display:flex;align-items:center;gap:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:16px 18px;cursor:pointer;transition:.18s;font-size:15px}
+.opt:hover{border-color:var(--accent);background:var(--surface3)}
+.opt.sel{border-color:var(--accent);background:rgba(0,212,255,.08);box-shadow:0 0 0 2px rgba(0,212,255,.2)}
+.opt .mk{width:24px;height:24px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.18s}
+.opt.sel .mk{border-color:var(--accent);background:var(--accent)}
+.opt.sel .mk::after{content:"";width:9px;height:9px;border-radius:50%;background:#03101f}
+/* multi-select chips */
+.ms{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.ms .c{display:inline-flex;align-items:center;gap:9px;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:12px 16px;cursor:pointer;transition:.15s;font-size:15px}
+.ms .c:hover{border-color:var(--accent)}
+.ms .c.on{border-color:var(--accent);background:rgba(0,212,255,.08);box-shadow:0 0 0 2px rgba(0,212,255,.18)}
+.ms .c .bx{width:20px;height:20px;border-radius:6px;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#03101f}
+.ms .c.on .bx{background:var(--accent);border-color:var(--accent)}
+.nav{display:flex;justify-content:space-between;gap:12px;margin-top:30px}
+/* thank you */
+.ty-circle{width:140px;height:140px;border-radius:50%;margin:6px auto 18px;display:flex;align-items:center;justify-content:center;font-size:64px;background:radial-gradient(circle at 50% 40%,rgba(16,185,129,.25),rgba(0,212,255,.08));box-shadow:0 0 50px rgba(16,185,129,.4)}
+.r-title{font-size:30px;font-weight:800;margin:10px 0 8px}
+.r-desc{color:var(--text-muted);max-width:560px;margin:0 auto 6px}
+.summary{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:26px 0 6px}
+.sm{flex:1;min-width:130px;background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:18px 12px}
+.sm b{display:block;font-size:30px;font-weight:800}
+.sm span{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+.save-note{font-size:13px;text-align:center;margin-top:18px;color:var(--text-dim)}
+.foot{text-align:center;color:var(--text-dim);font-size:12px;margin-top:34px;line-height:1.7}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#03101f;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(max-width:560px){h1{font-size:27px}.q-text{font-size:19px}.card{padding:22px}.star{font-size:38px}.nps b{width:42px;height:42px;font-size:15px}}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <div class="brand">
+    <div class="logo">IA</div>
+    <div><div class="bt">Domina tus finanzas con IA</div><div class="bs">Evaluación del entrenamiento · Coomeva</div></div>
+  </div>
+
+  <!-- INTRO -->
+  <div id="intro" class="card center">
+    <span class="pill"><span class="dot"></span> Tu opinión cuenta</span>
+    <h1>¿Cómo te fue en el <span class="grad">entrenamiento</span>?</h1>
+    <p class="lead">Cuéntanos tu experiencia con el entrenamiento de Domina tus finanzas con IA. Son 15 preguntas rápidas: tu opinión nos ayuda a mejorar y a inspirar a más emprendedores como tú.</p>
+    <div class="stats">
+      <div class="stat"><b>15</b><span>Preguntas</span></div>
+      <div class="stat"><b>~5</b><span>Minutos</span></div>
+      <div class="stat"><b>100%</b><span>Anónimo si quieres</span></div>
+    </div>
+    <div style="text-align:left;max-width:520px;margin:0 auto">
+      <label>¿Cómo te llamas? *</label>
+      <input id="in-nombre" placeholder="Tu nombre y apellido" autocomplete="name">
+      <label>Tu emprendimiento o idea de negocio (opcional)</label>
+      <input id="in-emp" placeholder="Nombre de tu negocio o idea">
+      <p class="hint">Usaremos tu nombre solo para el seguimiento del curso. Más adelante podrás decidir si autorizas publicar tu testimonio.</p>
+    </div>
+    <button class="btn full" id="start">Comenzar evaluación →</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" class="card hidden">
+    <div class="prog-head"><span id="prog-label">Pregunta 1 / 15</span><span id="prog-cat">Tu experiencia</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+    <div class="q-cat" id="q-cat">Tu experiencia</div>
+    <div class="q-text" id="q-text">…</div>
+    <div class="q-sub" id="q-sub"></div>
+    <div id="q-body"></div>
+    <div class="nav">
+      <button class="btn ghost" id="prev">← Anterior</button>
+      <button class="btn" id="next" disabled>Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- THANK YOU -->
+  <div id="results" class="hidden">
+    <div class="card center">
+      <div class="ty-circle">🎉</div>
+      <div class="r-title" id="tyName">¡Gracias!</div>
+      <p class="r-desc" id="tyDesc">Tu evaluación quedó registrada. Gracias por ayudarnos a hacer crecer este entrenamiento.</p>
+      <div class="summary" id="summary"></div>
+      <p class="r-desc" id="tyMsg" style="margin-top:18px"></p>
+      <div style="margin-top:24px">
+        <button class="btn ghost" onclick="location.reload()">Enviar otra evaluación</button>
+      </div>
+      <p class="save-note" id="saveNote"></p>
+    </div>
+  </div>
+
+  <div class="foot">
+    Evaluación del entrenamiento &nbsp;·&nbsp; Domina tus finanzas con IA<br>
+    Coomeva &nbsp;·&nbsp; Creado por el Ing. Jorge Hugo Pérez &nbsp;·&nbsp; Mentor experto en IA aplicada a los negocios y las finanzas &nbsp;·&nbsp; ICONE ialabs
+  </div>
+</div>
+
+<script>
+/* ====== CONFIG SUPABASE ====== */
+const SB_URL = "https://nvgkhdrrxqdgxktfkioa.supabase.co";
+const SB_KEY = "sb_publishable_d1RrtE7S-9a8e8mGKRRjxQ_4HU_nkDl";
+const SB_TABLE = "icone_evaluaciones";
+const ENTRENAMIENTO = "domina-finanzas-ia-coomeva";
+
+/* ====== ESCALAS ====== */
+const RATING_WORDS = ["", "Muy malo", "Regular", "Bien", "Muy bien", "¡Excelente!"];
+
+/* ====== 15 PREGUNTAS ======
+ type: star (1-5) | nps (0-10) | single (opts) | multi (opts) | text (textarea, opcional) | text_req
+ key: columna en la tabla */
+const QS = [
+ // --- BLOQUE A: CALIFICACIÓN (estrellas 1-5) ---
+ {cat:"Calificación general", type:"star", key:"r_satisfaccion",
+  q:"En general, ¿qué tan satisfecho/a quedaste con el entrenamiento?",
+  sub:"Toca las estrellas: 1 = muy bajo, 5 = excelente."},
+ {cat:"El docente", type:"star", key:"r_docente",
+  q:"¿Cómo evalúas al docente, Ing. Jorge Hugo Pérez?",
+  sub:"Dominio del tema, claridad al explicar y cercanía con el grupo."},
+ {cat:"El contenido", type:"star", key:"r_contenido",
+  q:"¿Qué tan útil y valioso te pareció el contenido?",
+  sub:"Las herramientas, los ejemplos y lo que aprendiste."},
+ {cat:"La experiencia", type:"star", key:"r_organizacion",
+  q:"¿Cómo califican la organización, el ritmo y la duración?",
+  sub:"Que todo fluyera bien y el tiempo estuviera bien aprovechado."},
+ {cat:"La práctica", type:"star", key:"r_practica",
+  q:"Las demos en vivo y los ejercicios prácticos, ¿qué tal?",
+  sub:"Hacer las cosas en el momento, no solo verlas."},
+ {cat:"Para tu negocio", type:"star", key:"r_aplicabilidad",
+  q:"¿Qué tan aplicable es lo aprendido a TU negocio o idea?",
+  sub:"Si puedes usarlo de verdad en tu emprendimiento."},
+ {cat:"Expectativas", type:"star", key:"r_expectativas",
+  q:"¿El entrenamiento cumplió lo que esperabas?",
+  sub:"Comparado con lo que imaginabas antes de empezar."},
+
+ // --- BLOQUE B: IMPACTO ---
+ {cat:"Tu confianza con la IA", type:"star", key:"r_confianza",
+  q:"Después del curso, ¿qué tan seguro/a te sientes usando IA en tu negocio?",
+  sub:"Tu confianza HOY para ponerte a trabajar con estas herramientas."},
+ {cat:"Recomendación", type:"nps", key:"nps",
+  q:"¿Qué tan probable es que recomiendes este entrenamiento a otro emprendedor?",
+  sub:"En una escala de 0 (nada probable) a 10 (totalmente seguro)."},
+ {cat:"Tu avance", type:"single", key:"avance",
+  q:"¿Cuánto sientes que avanzó tu nivel de IA con el curso?",
+  sub:"Tu progreso real respecto a cómo llegaste.",
+  opts:["Nada, sigo igual","Un poco","Algo, ya manejo cosas nuevas","Mucho, di un salto","Muchísimo, cambió mi forma de trabajar"]},
+ {cat:"Lo que te llevas", type:"multi", key:"llevas",
+  q:"¿Qué te llevas montado y funcionando del curso?",
+  sub:"Marca todo lo que aplica para ti.",
+  opts:["Mi tablero de finanzas personales con IA", "Mi simulador de metas, ahorro e inversión", "Mi tablero de flujo de caja para mi emprendimiento", "Mi tablero de decisiones con datos para mi empresa", "Mis prompts para analizar mis finanzas con IA", "Saber usar Claude en Excel para mis cuentas"]},
+
+ // --- BLOQUE C: CUALITATIVO / TESTIMONIO ---
+ {cat:"Lo más valioso", type:"text", key:"valioso",
+  q:"¿Qué fue lo MÁS valioso del entrenamiento para ti?",
+  sub:"Lo que más te sirvió, te sorprendió o te marcó. (Opcional pero nos encanta leerlo)"},
+ {cat:"Tu próximo paso", type:"text", key:"aplicar",
+  q:"¿Qué vas a aplicar primero esta semana?",
+  sub:"Tu primer movimiento ahora que terminó el curso. (Opcional)"},
+ {cat:"Tu testimonio", type:"text", key:"testimonio",
+  q:"En tus palabras: ¿cómo describirías este entrenamiento y a Jorge como facilitador?",
+  sub:"Tu testimonio puede inspirar a otros emprendedores a dar el paso. (Opcional)"},
+ {cat:"Autorización", type:"single", key:"autoriza",
+  q:"¿Nos autorizas a compartir tu testimonio?",
+  sub:"Tú decides. Respetamos tu elección al 100%.",
+  opts:["Sí, con mi nombre y mi emprendimiento","Sí, solo con mi nombre","Sí, pero de forma anónima","No, prefiero que sea privado"]}
+];
+
+/* ====== ESTADO ====== */
+let user={nombre:"",emp:""};
+let answers=new Array(QS.length).fill(null); // star/nps/single -> número ; multi -> array ; text -> string
+let cur=0;
+
+const $=id=>document.getElementById(id);
+function hexA(hex,a){const n=parseInt(hex.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;}
+
+/* INTRO */
+$("start").onclick=()=>{
+  const n=$("in-nombre").value.trim();
+  if(!n){$("in-nombre").focus();$("in-nombre").style.borderColor="#ef4444";return;}
+  user={nombre:n,emp:$("in-emp").value.trim()};
+  $("intro").classList.add("hidden");
+  $("quiz").classList.remove("hidden");
+  render();
+};
+
+/* ¿la pregunta actual está respondida? (las de texto son opcionales = siempre ok) */
+function answered(i){
+  const t=QS[i].type, a=answers[i];
+  if(t==="text") return true;
+  if(t==="multi") return Array.isArray(a) && a.length>0;
+  return a!==null && a!==undefined;
+}
+
+/* QUIZ render */
+function render(){
+  const item=QS[cur];
+  $("prog-label").textContent=`Pregunta ${cur+1} / ${QS.length}`;
+  $("prog-cat").textContent=item.cat;
+  $("prog-fill").style.width=((cur)/QS.length*100)+"%";
+  const cat=$("q-cat"); cat.textContent=item.cat; cat.style.color="var(--accent)"; cat.style.background=hexA("#00d4ff",.12);
+  $("q-text").textContent=item.q;
+  $("q-sub").textContent=item.sub||"";
+  const body=$("q-body"); body.innerHTML="";
+
+  if(item.type==="star")      renderStars(body);
+  else if(item.type==="nps")  renderNps(body);
+  else if(item.type==="single")renderSingle(body,item);
+  else if(item.type==="multi")renderMulti(body,item);
+  else                        renderText(body,item);
+
+  $("prev").disabled=cur===0;
+  $("next").disabled=!answered(cur);
+  $("next").textContent=cur===QS.length-1?"Finalizar ✓":"Siguiente →";
+}
+
+function renderStars(body){
+  const wrap=document.createElement("div");
+  const row=document.createElement("div"); row.className="stars-in";
+  const word=document.createElement("div"); word.className="rating-word";
+  const val=answers[cur];
+  for(let s=1;s<=5;s++){
+    const st=document.createElement("div"); st.className="star"+((val&&s<=val)?" on":"");
+    st.textContent="★";
+    st.onmouseenter=()=>paint(row,s);
+    st.onmouseleave=()=>paint(row,answers[cur]||0);
+    st.onclick=()=>{answers[cur]=s; word.textContent=RATING_WORDS[s]; paint(row,s); $("next").disabled=false; setTimeout(()=>{if(cur<QS.length-1){cur++;render();}},220);};
+    row.appendChild(st);
+  }
+  const lbl=document.createElement("div"); lbl.className="scale-lbls";
+  lbl.innerHTML="<span>Muy bajo</span><span>Excelente</span>";
+  word.textContent=val?RATING_WORDS[val]:"";
+  wrap.appendChild(row); wrap.appendChild(lbl); wrap.appendChild(word);
+  body.appendChild(wrap);
+}
+function paint(row,n){[...row.children].forEach((c,i)=>c.classList.toggle("on",i<n));}
+
+function renderNps(body){
+  const wrap=document.createElement("div");
+  const row=document.createElement("div"); row.className="nps";
+  const val=answers[cur];
+  for(let n=0;n<=10;n++){
+    const b=document.createElement("b");
+    b.textContent=n;
+    const col = n<=6?"#ef4444":n<=8?"#f59e0b":"#10b981";
+    if(val===n){b.classList.add("on");b.style.background=col;}
+    b.onclick=()=>{answers[cur]=n; render(); $("next").disabled=false; setTimeout(()=>{if(cur<QS.length-1){cur++;render();}},220);};
+    row.appendChild(b);
+  }
+  const ends=document.createElement("div"); ends.className="nps-ends";
+  ends.innerHTML="<span>0 · Nada probable</span><span>10 · Totalmente</span>";
+  wrap.appendChild(row); wrap.appendChild(ends);
+  body.appendChild(wrap);
+}
+
+function renderSingle(body,item){
+  const ow=document.createElement("div"); ow.className="opts";
+  item.opts.forEach((o,i)=>{
+    const d=document.createElement("div");
+    d.className="opt"+(answers[cur]===i?" sel":"");
+    d.innerHTML=`<span class="mk"></span><span>${o}</span>`;
+    d.onclick=()=>{answers[cur]=i;render();$("next").disabled=false;setTimeout(()=>{if(cur<QS.length-1){cur++;render();}},200);};
+    ow.appendChild(d);
+  });
+  body.appendChild(ow);
+}
+
+function renderMulti(body,item){
+  if(!Array.isArray(answers[cur])) answers[cur]=[];
+  const ms=document.createElement("div"); ms.className="ms";
+  item.opts.forEach((o,i)=>{
+    const on=answers[cur].includes(i);
+    const c=document.createElement("div"); c.className="c"+(on?" on":"");
+    c.innerHTML=`<span class="bx">${on?"✓":""}</span><span>${o}</span>`;
+    c.onclick=()=>{
+      const arr=answers[cur];
+      const p=arr.indexOf(i);
+      if(p>=0)arr.splice(p,1); else arr.push(i);
+      render();
+    };
+    ms.appendChild(c);
+  });
+  body.appendChild(ms);
+}
+
+function renderText(body,item){
+  const ta=document.createElement("textarea");
+  ta.placeholder="Escribe aquí… (puedes dejarlo en blanco)";
+  ta.value=answers[cur]||"";
+  ta.oninput=()=>{answers[cur]=ta.value;};
+  body.appendChild(ta);
+}
+
+$("prev").onclick=()=>{if(cur>0){cur--;render();}};
+$("next").onclick=()=>{
+  if(!answered(cur))return;
+  if(cur<QS.length-1){cur++;render();}
+  else finish();
+};
+
+/* FINISH */
+function finish(){
+  // armar respuestas estructuradas
+  const resp={};
+  QS.forEach((q,i)=>{ resp[q.key]=answers[i]; });
+
+  // promedio de satisfacción (las 8 estrellas) -> %
+  const starKeys=QS.filter(q=>q.type==="star").map(q=>q.key);
+  const starVals=starKeys.map(k=>resp[k]).filter(v=>typeof v==="number");
+  const starAvg = starVals.length? starVals.reduce((a,b)=>a+b,0)/starVals.length : 0;
+  const satPct = Math.round(starAvg/5*100);
+
+  const nps = (typeof resp.nps==="number")?resp.nps:null;
+  const llevasArr = Array.isArray(resp.llevas)? resp.llevas.map(i=>QS.find(q=>q.key==="llevas").opts[i]) : [];
+  const avanceLabel = (typeof resp.avance==="number")? QS.find(q=>q.key==="avance").opts[resp.avance] : null;
+  const autorizaLabel = (typeof resp.autoriza==="number")? QS.find(q=>q.key==="autoriza").opts[resp.autoriza] : null;
+
+  // mostrar agradecimiento
+  $("quiz").classList.add("hidden");
+  $("results").classList.remove("hidden");
+  $("prog-fill").style.width="100%";
+  $("tyName").textContent=`¡Gracias, ${user.nombre.split(" ")[0]}! 🙌`;
+
+  const sm=$("summary"); sm.innerHTML="";
+  const cards=[
+    ["Tu satisfacción", satPct+"%", "#10b981"],
+    ["Recomendarías", nps!==null?nps+"/10":"—", nps!==null?(nps>=9?"#10b981":nps>=7?"#f59e0b":"#ef4444"):"#7a93b4"],
+    ["Tu avance", avanceLabel?("★".repeat((resp.avance||0)+1)):"—", "#00d4ff"]
+  ];
+  cards.forEach(([lab,val,col])=>{sm.innerHTML+=`<div class="sm"><b style="color:${col}">${val}</b><span>${lab}</span></div>`;});
+
+  let msg = nps!==null && nps>=9
+    ? "¡Eso nos encanta! Si conoces a otro emprendedor que necesite este impulso, cuéntale. 🚀"
+    : "Gracias por tu honestidad: con esto hacemos que el próximo entrenamiento sea aún mejor.";
+  if(autorizaLabel && autorizaLabel.startsWith("Sí")) msg += " Gracias por permitirnos compartir tu testimonio.";
+  $("tyMsg").textContent=msg;
+
+  saveToSupabase(resp, {satPct, nps, llevasArr, avanceLabel, autorizaLabel});
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* SUPABASE SAVE */
+function saveToSupabase(resp, derived){
+  const note=$("saveNote"); note.textContent="Guardando tu evaluación…";
+  const payload={
+    entrenamiento:ENTRENAMIENTO,
+    nombre:user.nombre, emprendimiento:user.emp||null,
+    r_satisfaccion:resp.r_satisfaccion??null, r_docente:resp.r_docente??null,
+    r_contenido:resp.r_contenido??null, r_organizacion:resp.r_organizacion??null,
+    r_practica:resp.r_practica??null, r_aplicabilidad:resp.r_aplicabilidad??null,
+    r_expectativas:resp.r_expectativas??null, r_confianza:resp.r_confianza??null,
+    nps: (typeof resp.nps==="number")?resp.nps:null,
+    avance: (typeof resp.avance==="number")?(resp.avance+1):null,
+    avance_label: derived.avanceLabel,
+    llevas: derived.llevasArr,
+    valioso: (resp.valioso||"").trim()||null,
+    aplicar: (resp.aplicar||"").trim()||null,
+    testimonio: (resp.testimonio||"").trim()||null,
+    autoriza: derived.autorizaLabel,
+    satisfaccion_pct: derived.satPct,
+    meta:{ua:navigator.userAgent, ts:new Date().toISOString()}
+  };
+  fetch(`${SB_URL}/rest/v1/${SB_TABLE}`,{
+    method:"POST",
+    headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json","Prefer":"return=minimal"},
+    body:JSON.stringify(payload)
+  }).then(r=>{
+    note.textContent = r.ok ? "✓ Evaluación guardada. ¡Mil gracias!" : "Tu evaluación se registró localmente (no se pudo guardar online).";
+  }).catch(()=>{ note.textContent="No hubo conexión para guardar, pero gracias por tu tiempo."; });
+}
+
+/* STARS BG */
+(function(){const cv=$("stars");const ctx=cv.getContext("2d");let st=[];function rs(){cv.width=innerWidth;cv.height=innerHeight;st=[];const n=Math.min(90,innerWidth/14);for(let i=0;i<n;i++)st.push({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.4+.3,a:Math.random(),s:Math.random()*.02+.005});}
+function loop(){ctx.clearRect(0,0,cv.width,cv.height);st.forEach(p=>{p.a+=p.s;const al=.3+Math.abs(Math.sin(p.a))*.6;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fillStyle=`rgba(0,212,255,${al*.5})`;ctx.fill();});requestAnimationFrame(loop);}
+addEventListener("resize",rs);rs();loop();})();
+</script>
+</body>
+</html>
