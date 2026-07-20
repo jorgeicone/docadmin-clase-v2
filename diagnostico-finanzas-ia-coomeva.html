@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico inicial · Domina tus finanzas con IA — Coomeva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050d1f; --bg-2:#0a1430;
+    --primary:#00d4ff; --secondary:#7b2fff; --accent:#ff8c00;
+    --green:#00e08a; --red:#ff5470;
+    --text:#fff; --text-2:rgba(255,255,255,.72); --text-3:rgba(255,255,255,.45);
+    --border:rgba(255,255,255,.12); --border-strong:rgba(255,255,255,.3);
+    --card:rgba(255,255,255,.03);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;font-weight:400;line-height:1.55;
+    min-height:100vh;overflow-x:hidden;
+    background-image:
+      radial-gradient(at 8% 4%,rgba(123,47,255,.16) 0,transparent 45%),
+      radial-gradient(at 92% 12%,rgba(0,212,255,.13) 0,transparent 45%),
+      radial-gradient(at 70% 92%,rgba(255,140,0,.08) 0,transparent 50%);
+  }
+  .container{max-width:920px;margin:0 auto;padding:32px 24px}
+  /* ===== fondo contextual sutil (finanzas + IA) ===== */
+  .bg-fx{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+  .bg-fx svg{width:100%;height:100%;display:block}
+  @keyframes drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+  @keyframes drift2{0%,100%{transform:translateY(0)}50%{transform:translateY(12px)}}
+  .bg-fx .float-a{animation:drift 13s ease-in-out infinite}
+  .bg-fx .float-b{animation:drift2 16s ease-in-out infinite}
+  @media(prefers-reduced-motion:reduce){.bg-fx .float-a,.bg-fx .float-b{animation:none}}
+  /* watermark contextual por pregunta */
+  .q-wm{position:absolute;top:38px;right:2px;font-size:76px;line-height:1;opacity:.06;pointer-events:none;user-select:none}
+  /* top bar */
+  .top-bar{position:sticky;top:0;z-index:50;background:rgba(5,13,31,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+  .top-bar-inner{display:flex;align-items:center;justify-content:space-between;padding:13px 24px;max-width:1160px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px;letter-spacing:.01em}
+  .brand-dot{width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));box-shadow:0 0 14px var(--primary)}
+  .brand small{font-weight:500;color:var(--text-3);letter-spacing:.06em}
+  .confidential{font-size:10.5px;font-weight:700;letter-spacing:.14em;color:var(--primary);background:rgba(0,212,255,.08);padding:6px 12px;border-radius:99px;border:1px solid var(--border)}
+  .progress-wrap{height:4px;background:rgba(255,255,255,.05);position:sticky;top:59px;z-index:49}
+  .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--primary),var(--secondary),var(--accent));transition:width .35s ease}
+  /* cover */
+  .cover{padding:64px 24px 80px;text-align:center;max-width:740px;margin:0 auto}
+  .cover-tag{display:inline-block;font-size:11px;letter-spacing:.22em;color:var(--primary);font-weight:700;padding:6px 14px;border:1px solid var(--border-strong);border-radius:99px;margin-bottom:24px}
+  .cover h1{font-size:clamp(30px,5vw,50px);font-weight:800;line-height:1.08;letter-spacing:-.025em;margin-bottom:18px}
+  .cover h1 .grad{background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .cover p.lead{font-size:16px;color:var(--text-2);margin-bottom:14px}
+  .cover .pills{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:26px 0 30px}
+  .pill{font-size:12px;font-weight:600;color:var(--text-2);background:var(--card);border:1px solid var(--border);border-radius:99px;padding:8px 14px}
+  .pill b{color:var(--primary)}
+  .form-field{margin-bottom:18px;text-align:left}
+  .form-field label{display:block;font-size:12px;letter-spacing:.14em;font-weight:600;color:var(--text-3);text-transform:uppercase;margin-bottom:8px}
+  .form-field input,.form-field select{width:100%;padding:14px 18px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:15px;font-family:inherit;transition:all .2s}
+  .form-field select{appearance:none;cursor:pointer}
+  .form-field input:focus,.form-field select:focus{outline:none;border-color:var(--primary);background:rgba(0,212,255,.04)}
+  .btn-primary{display:inline-block;padding:15px 42px;border-radius:99px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;font-weight:700;font-size:15px;border:none;cursor:pointer;box-shadow:0 8px 32px rgba(0,212,255,.28);transition:transform .15s;font-family:inherit;letter-spacing:.02em}
+  .btn-primary:hover{transform:translateY(-2px)}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  .disclaimer{font-size:12.5px;color:var(--text-3);margin-top:18px;max-width:520px;margin-left:auto;margin-right:auto}
+  /* question */
+  .q-screen{padding:44px 24px;display:none;max-width:760px;margin:0 auto;position:relative}
+  .q-screen.active{display:block;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .q-meta{font-size:11px;letter-spacing:.18em;font-weight:700;color:var(--primary);text-transform:uppercase;margin-bottom:12px}
+  .q-block{display:inline-block;font-size:10px;letter-spacing:.16em;font-weight:700;padding:4px 11px;border-radius:99px;margin-bottom:16px;text-transform:uppercase}
+  .q-block.fin{color:var(--primary);background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3)}
+  .q-block.ia{color:var(--secondary);background:rgba(123,47,255,.12);border:1px solid rgba(123,47,255,.35)}
+  .q-text{font-size:clamp(21px,3vw,28px);font-weight:700;line-height:1.28;letter-spacing:-.015em;margin-bottom:8px}
+  .q-hint{font-size:14px;color:var(--text-3);margin-bottom:26px}
+  .options{display:grid;gap:10px;margin-bottom:28px}
+  .option{padding:16px 20px;border:1px solid var(--border);border-radius:14px;background:var(--card);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px;font-size:15px;line-height:1.4}
+  .option:hover{background:rgba(255,255,255,.06);border-color:var(--border-strong)}
+  .option .check-box{width:22px;height:22px;border-radius:50%;border:2px solid var(--border-strong);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+  .option.selected{background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(123,47,255,.12));border-color:var(--primary)}
+  .option.selected .check-box{background:linear-gradient(135deg,var(--primary),var(--secondary));border-color:transparent}
+  .option.selected .check-box::after{content:"";width:8px;height:8px;border-radius:50%;background:#fff}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:28px}
+  .btn-secondary{background:transparent;color:var(--text-2);border:1px solid var(--border);padding:12px 24px;border-radius:99px;font-weight:500;font-size:14px;cursor:pointer;font-family:inherit;transition:all .2s}
+  .btn-secondary:hover{color:var(--text);border-color:var(--border-strong)}
+  /* result */
+  .result-screen{padding:44px 24px;display:none;max-width:900px;margin:0 auto}
+  .result-screen.active{display:block;animation:fade .4s ease}
+  .result-hero{text-align:center;margin-bottom:36px}
+  .result-hero .tag{display:inline-block;font-size:11px;letter-spacing:.22em;color:var(--accent);font-weight:700;padding:6px 14px;border:1px solid var(--border);border-radius:99px;margin-bottom:18px}
+  .result-hero h1{font-size:clamp(26px,4vw,38px);font-weight:800;margin-bottom:10px}
+  .result-hero p{color:var(--text-2);font-size:15px;max-width:560px;margin:0 auto}
+  .levels-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+  @media(max-width:720px){.levels-grid{grid-template-columns:1fr}}
+  .level-card{background:var(--card);border:1px solid var(--border-strong);border-radius:20px;padding:28px 26px;position:relative;overflow:hidden}
+  .level-card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px}
+  .level-card.fin::before{background:linear-gradient(90deg,var(--primary),var(--secondary))}
+  .level-card.ia::before{background:linear-gradient(90deg,var(--secondary),var(--accent))}
+  .level-block-label{font-size:11px;letter-spacing:.18em;font-weight:700;text-transform:uppercase;color:var(--text-3);margin-bottom:14px}
+  .level-name{font-size:30px;font-weight:800;line-height:1;margin-bottom:6px}
+  .level-score{font-size:13px;color:var(--text-3);margin-bottom:16px;font-weight:600}
+  .level-bar{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:18px}
+  .level-bar > div{height:100%;border-radius:99px;transition:width .8s ease}
+  .level-feedback{font-size:14px;color:var(--text-2);line-height:1.55}
+  .level-steps{display:flex;gap:6px;margin-top:16px}
+  .step-dot{flex:1;height:6px;border-radius:99px;background:rgba(255,255,255,.08)}
+  .step-dot.on{background:currentColor}
+  .submit-box{text-align:center;margin-top:12px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px}
+  .submit-box h3{font-size:18px;font-weight:700;margin-bottom:8px}
+  .submit-box p{color:var(--text-3);font-size:13.5px;margin-bottom:20px}
+  .submit-note{margin-top:16px;font-size:13.5px;color:var(--text-2);min-height:20px}
+  /* auth */
+  .auth-screen{display:none;max-width:420px;margin:70px auto;padding:32px;background:var(--card);border:1px solid var(--border-strong);border-radius:18px;text-align:center}
+  .auth-screen.active{display:block}
+  .auth-screen h2{font-size:22px;font-weight:700;margin-bottom:12px}
+  .auth-screen p{color:var(--text-3);font-size:14px;margin-bottom:22px}
+  /* admin / dashboard */
+  .admin-screen{display:none;padding:32px 24px;max-width:1160px;margin:0 auto}
+  .admin-screen.active{display:block}
+  .admin-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;flex-wrap:wrap;gap:14px}
+  .admin-header h2{font-size:26px;font-weight:800;letter-spacing:-.015em}
+  .admin-header p{color:var(--text-3);font-size:13px;margin-top:4px}
+  .admin-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .admin-btn{padding:10px 18px;background:var(--card);border:1px solid var(--border);border-radius:99px;color:var(--text-2);font-size:13px;cursor:pointer;text-decoration:none;font-family:inherit;font-weight:500;transition:all .2s}
+  .admin-btn:hover{color:var(--text);border-color:var(--border-strong)}
+  .admin-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+  @media(max-width:760px){.admin-stats{grid-template-columns:1fr 1fr}}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+  .stat-num{font-size:30px;font-weight:800;line-height:1;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat-label{font-size:11px;letter-spacing:.14em;font-weight:600;color:var(--text-3);text-transform:uppercase;margin-top:8px}
+  .panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:26px}
+  @media(max-width:860px){.panel-grid{grid-template-columns:1fr}}
+  .panel-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
+  .panel-card h3{font-size:14px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+  .panel-card h3 .dot{width:9px;height:9px;border-radius:50%}
+  .dist-row{margin-bottom:14px}
+  .dist-row:last-child{margin-bottom:0}
+  .dist-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+  .dist-top .nm{font-weight:600}
+  .dist-top .vl{color:var(--text-3)}
+  .dist-bar{height:10px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
+  .dist-bar > div{height:100%;border-radius:99px;transition:width .6s ease}
+  .item-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px}
+  .item-row:last-child{border-bottom:none}
+  .item-row .qn{flex:1;color:var(--text-2);line-height:1.35}
+  .item-pct{font-weight:700;font-variant-numeric:tabular-nums;min-width:44px;text-align:right}
+  .item-mini{width:90px;height:7px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden;flex-shrink:0}
+  .item-mini > div{height:100%;border-radius:99px}
+  .responses-list{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;overflow-x:auto}
+  .response-row{display:grid;grid-template-columns:90px 1.6fr 1fr 1.3fr 1.3fr 60px auto;gap:12px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.04);align-items:center;font-size:13px;min-width:760px}
+  .response-row:last-child{border-bottom:none}
+  .response-row.header{font-weight:700;color:var(--text-3)}
+  .response-row .col-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+  .lvl-chip{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px}
+  .view-detail-btn{padding:6px 14px;background:transparent;border:1px solid var(--border-strong);border-radius:99px;color:var(--primary);font-size:12px;cursor:pointer;font-family:inherit}
+  .del-btn{background:transparent;border:none;color:var(--text-3);cursor:pointer;font-size:15px;padding:4px}
+  .del-btn:hover{color:var(--red)}
+  /* modal */
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(5,13,31,.88);backdrop-filter:blur(8px);z-index:100;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+  .modal-bg.active{display:flex}
+  .modal-content{background:var(--bg-2);border:1px solid var(--border-strong);border-radius:20px;max-width:720px;width:100%;padding:30px}
+  .modal-close{float:right;background:transparent;border:none;color:var(--text-3);font-size:26px;cursor:pointer;font-family:inherit;line-height:1}
+  .detail-question{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.05)}
+  .detail-question:last-child{border-bottom:none}
+  .detail-q-text{font-size:13px;color:var(--text-3);margin-bottom:6px}
+  .detail-a-text{font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px}
+  .badge-ok{color:var(--green)} .badge-no{color:var(--red)}
+  .correct-hint{font-size:12.5px;color:var(--green);margin-top:4px}
+  .footer{text-align:center;padding:40px 24px;color:var(--text-3);font-size:12.5px}
+  .footer b{color:var(--text-2)}
+</style>
+</head>
+<body>
+
+<!-- ===== Fondo contextual sutil: finanzas + IA ===== -->
+<div class="bg-fx" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="grid" width="46" height="46" patternUnits="userSpaceOnUse">
+        <path d="M46 0H0V46" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+      </pattern>
+      <linearGradient id="gline" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#00d4ff"/><stop offset="1" stop-color="#7b2fff"/>
+      </linearGradient>
+    </defs>
+    <rect width="1440" height="900" fill="url(#grid)"/>
+
+    <!-- Gráfica de línea ascendente (finanzas) -->
+    <g class="float-a" opacity="0.5">
+      <polyline points="90,300 190,250 290,275 390,190 490,210 590,130"
+        fill="none" stroke="url(#gline)" stroke-opacity="0.28" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="590" cy="130" r="5" fill="#00d4ff" fill-opacity="0.35"/>
+      <path d="M90 300 190,250 290,275 390,190 490,210 590,130 590,340 90,340 Z" fill="#00d4ff" fill-opacity="0.04"/>
+    </g>
+
+    <!-- Barras (finanzas) -->
+    <g opacity="0.5" transform="translate(1150,150)">
+      <rect x="0"  y="60"  width="20" height="70"  rx="4" fill="#00d4ff" fill-opacity="0.10"/>
+      <rect x="34" y="30"  width="20" height="100" rx="4" fill="#00d4ff" fill-opacity="0.14"/>
+      <rect x="68" y="80"  width="20" height="50"  rx="4" fill="#7b2fff" fill-opacity="0.12"/>
+      <rect x="102" y="10" width="20" height="120" rx="4" fill="#ff8c00" fill-opacity="0.12"/>
+    </g>
+
+    <!-- Red neuronal (IA) -->
+    <g class="float-b" opacity="0.55" transform="translate(1080,560)">
+      <g stroke="#7b2fff" stroke-opacity="0.22" stroke-width="1.4">
+        <line x1="0" y1="0" x2="120" y2="-50"/><line x1="0" y1="0" x2="120" y2="40"/>
+        <line x1="0" y1="90" x2="120" y2="-50"/><line x1="0" y1="90" x2="120" y2="40"/>
+        <line x1="120" y1="-50" x2="240" y2="0"/><line x1="120" y1="40" x2="240" y2="0"/>
+      </g>
+      <g fill="#7b2fff" fill-opacity="0.4">
+        <circle cx="0" cy="0" r="6"/><circle cx="0" cy="90" r="6"/>
+        <circle cx="120" cy="-50" r="6"/><circle cx="120" cy="40" r="6"/>
+        <circle cx="240" cy="0" r="7" fill="#00d4ff" fill-opacity="0.45"/>
+      </g>
+    </g>
+
+    <!-- Moneda (finanzas) -->
+    <g opacity="0.5" transform="translate(150,650)">
+      <circle cx="0" cy="0" r="46" fill="none" stroke="#ff8c00" stroke-opacity="0.18" stroke-width="2.5"/>
+      <text x="0" y="16" text-anchor="middle" font-family="Inter,sans-serif" font-size="46" font-weight="800" fill="#ff8c00" fill-opacity="0.15">$</text>
+    </g>
+
+    <!-- Nodo IA / chip -->
+    <g class="float-a" opacity="0.5" transform="translate(470,700)">
+      <rect x="-26" y="-26" width="52" height="52" rx="12" fill="none" stroke="#00d4ff" stroke-opacity="0.20" stroke-width="2"/>
+      <circle cx="0" cy="0" r="9" fill="#00d4ff" fill-opacity="0.18"/>
+      <g stroke="#00d4ff" stroke-opacity="0.20" stroke-width="2">
+        <line x1="0" y1="-26" x2="0" y2="-40"/><line x1="0" y1="26" x2="0" y2="40"/>
+        <line x1="-26" y1="0" x2="-40" y2="0"/><line x1="26" y1="0" x2="40" y2="0"/>
+      </g>
+    </g>
+
+    <!-- Símbolos de porcentaje dispersos -->
+    <g font-family="Inter,sans-serif" font-weight="700" fill="#ffffff" fill-opacity="0.05">
+      <text x="760" y="820" font-size="40">%</text>
+      <text x="330" y="140" font-size="30">%</text>
+      <text x="900" y="380" font-size="26" fill="#7b2fff" fill-opacity="0.08">◇</text>
+    </g>
+  </svg>
+</div>
+
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <div class="brand"><div class="brand-dot"></div>Domina tus finanzas con IA <small>· Coomeva</small></div>
+    <div class="confidential" id="modeLabel">DIAGNÓSTICO INICIAL</div>
+  </div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<!-- ===== COVER ===== -->
+<div class="cover" id="screenCover">
+  <div class="cover-tag">DIAGNÓSTICO INICIAL DE CONOCIMIENTO</div>
+  <h1>¿Desde dónde <span class="grad">arrancas</span> en finanzas e IA?</h1>
+  <p class="lead">
+    Antes de empezar el programa, queremos conocer tu punto de partida. No es un examen ni afecta nada:
+    nos ayuda a ajustar las sesiones a tu nivel real. <b>No hay respuestas que te definan como persona — solo un mapa de dónde estás hoy.</b>
+  </p>
+  <div class="pills">
+    <div class="pill"><b>25</b> preguntas</div>
+    <div class="pill"><b>2</b> bloques: Finanzas · IA</div>
+    <div class="pill">≈ <b>8–10</b> min</div>
+  </div>
+  <div class="form-field">
+    <label>Tu nombre</label>
+    <input type="text" id="userName" placeholder="Nombre y apellido">
+  </div>
+  <div class="form-field">
+    <label>¿Con cuál perfil te identificas más hoy?</label>
+    <select id="userPerfil">
+      <option value="">Selecciona…</option>
+      <option value="Personal">Manejo mis finanzas personales / familiares</option>
+      <option value="Emprendedor">Tengo o estoy empezando un emprendimiento</option>
+      <option value="Empresarial">Tengo una empresa constituida</option>
+    </select>
+  </div>
+  <button class="btn-primary" id="btnStart">Empezar diagnóstico →</button>
+  <div class="disclaimer">Responde con lo que sepas hoy. Si no conoces algo, elige “No lo sé aún” — es una respuesta perfectamente válida y honesta.</div>
+</div>
+
+<!-- ===== QUESTIONS ===== -->
+<div id="questionsContainer"></div>
+
+<!-- ===== RESULT ===== -->
+<div class="result-screen" id="screenResult">
+  <div class="result-hero">
+    <div class="tag">TU PUNTO DE PARTIDA</div>
+    <h1 id="resultTitle">Listo, <span class="grad">este es tu mapa</span></h1>
+    <p id="resultIntro">Estos son tus dos niveles de partida. Recuerda: el objetivo del programa es que subas de nivel en ambos.</p>
+  </div>
+  <div class="levels-grid">
+    <div class="level-card fin">
+      <div class="level-block-label">Bloque 1 · Finanzas</div>
+      <div class="level-name" id="finLevelName">—</div>
+      <div class="level-score" id="finScore">—</div>
+      <div class="level-bar"><div id="finBar"></div></div>
+      <div class="level-steps" id="finSteps"></div>
+      <div class="level-feedback" id="finFeedback"></div>
+    </div>
+    <div class="level-card ia">
+      <div class="level-block-label">Bloque 2 · Inteligencia Artificial</div>
+      <div class="level-name" id="iaLevelName">—</div>
+      <div class="level-score" id="iaScore">—</div>
+      <div class="level-bar"><div id="iaBar"></div></div>
+      <div class="level-steps" id="iaSteps"></div>
+      <div class="level-feedback" id="iaFeedback"></div>
+    </div>
+  </div>
+  <div class="submit-box">
+    <h3>Envía tu resultado al facilitador</h3>
+    <p>Con esto, Jorge ajustará las sesiones al nivel del grupo. Tus respuestas son confidenciales.</p>
+    <button class="btn-primary" id="btnSubmit">Enviar mi resultado →</button>
+    <div class="submit-note" id="submitNote"></div>
+  </div>
+</div>
+
+<!-- ===== AUTH ===== -->
+<div class="auth-screen" id="screenAuth">
+  <h2>Panel del facilitador</h2>
+  <p>Ingresa la clave para ver las respuestas del grupo.</p>
+  <div class="form-field"><input type="password" id="authKey" placeholder="Clave"></div>
+  <button class="btn-primary" id="btnAuth">Entrar</button>
+</div>
+
+<!-- ===== ADMIN ===== -->
+<div class="admin-screen" id="screenAdmin">
+  <div class="admin-header">
+    <div>
+      <h2>Panel del facilitador</h2>
+      <p>Diagnóstico inicial · Domina tus finanzas con IA — Coomeva</p>
+    </div>
+    <div class="admin-actions">
+      <button class="admin-btn" onclick="loadResponses()">↻ Actualizar</button>
+      <button class="admin-btn" onclick="exportCSV()">⬇ CSV</button>
+      <a class="admin-btn" href="?dashboard">📊 Dashboard público</a>
+    </div>
+  </div>
+  <div class="admin-stats" id="adminStats"></div>
+  <div class="panel-grid">
+    <div class="panel-card">
+      <h3><span class="dot" style="background:var(--primary)"></span>Distribución de niveles</h3>
+      <div id="distLevels"></div>
+    </div>
+    <div class="panel-card">
+      <h3><span class="dot" style="background:var(--accent)"></span>Temas más flojos del grupo</h3>
+      <div id="itemAnalysis"></div>
+    </div>
+  </div>
+  <div class="responses-list" id="responsesList">
+    <div style="text-align:center;color:var(--text-3);padding:30px">Cargando respuestas…</div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div class="admin-screen" id="screenDashboard">
+  <div class="admin-header">
+    <div>
+      <h2>Dashboard del grupo</h2>
+      <p>Punto de partida colectivo · sin datos personales</p>
+    </div>
+    <div class="admin-actions">
+      <button class="admin-btn" onclick="copyLink()">🔗 Copiar enlace</button>
+      <a class="admin-btn" href="?admin">← Panel</a>
+    </div>
+  </div>
+  <div class="admin-stats" id="dashStats"></div>
+  <div class="panel-grid" style="margin-top:6px">
+    <div class="panel-card">
+      <h3><span class="dot" style="background:var(--primary)"></span>Niveles en Finanzas</h3>
+      <div id="dashDistFin"></div>
+    </div>
+    <div class="panel-card">
+      <h3><span class="dot" style="background:var(--secondary)"></span>Niveles en IA</h3>
+      <div id="dashDistIA"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <h2 id="modalTitle" style="font-size:21px;font-weight:700;margin-bottom:18px">Detalle</h2>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <b>Domina tus finanzas con IA</b> · Programa para asociados Coomeva<br>
+  Ing. Jorge Hugo Pérez — Mentor en IA aplicada a los negocios y las finanzas · ICONE ialabs
+</div>
+
+<script>
+/* =========================================================
+ * CONFIG
+ * ========================================================= */
+const CONFIG = {
+  slug: "finanzas-ia-coomeva",
+  marca: "ICONE ialabs · Coomeva",
+  fechaGeneracion: "2026-07-20"
+};
+/* Backend ICONE (Supabase compartido, separado por slug) */
+const SB_URL   = "https://nvgkhdrrxqdgxktfkioa.supabase.co";
+const SB_KEY   = "sb_publishable_d1RrtE7S-9a8e8mGKRRjxQ_4HU_nkDl";
+const SB_TABLE = "icone_evaluaciones";
+const SB_PASS  = "Diagnosticos2026";
+
+/* =========================================================
+ * PREGUNTAS — 25 (13 Finanzas + 12 IA)
+ * cada opción: {t: texto, ok: true si es correcta}
+ * tema: etiqueta corta para el análisis del docente
+ * ========================================================= */
+const QUESTIONS = [
+  /* ============ BLOQUE 1 · FINANZAS (13) ============ */
+  { id:"f1", block:"fin", tema:"Presupuesto", text:"¿Qué es un presupuesto personal?",
+    options:[
+      {t:"Un plan que compara cuánto dinero entra y cuánto sale en un periodo", ok:true},
+      {t:"La cantidad de dinero que tengo en el banco hoy"},
+      {t:"Una lista de todo lo que quiero comprar"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"f2", block:"fin", tema:"Regla 50/30/20", text:"La regla 50/30/20 sugiere repartir tus ingresos así:",
+    options:[
+      {t:"50% necesidades, 30% gustos, 20% ahorro y pago de deudas", ok:true},
+      {t:"50% ahorro, 30% necesidades, 20% gustos"},
+      {t:"50% gustos, 30% ahorro, 20% necesidades"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"f3", block:"fin", tema:"Fondo de emergencia", text:"Un fondo de emergencia razonable equivale a…",
+    options:[
+      {t:"Entre 3 y 6 meses de tus gastos, guardados y disponibles", ok:true},
+      {t:"Todo el dinero que puedas, invertido en acciones de riesgo"},
+      {t:"Un mes de tu sueldo, prestado si hace falta"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"f4", block:"fin", tema:"Interés compuesto", text:"El interés compuesto significa que…",
+    options:[
+      {t:"Los intereses generan a su vez nuevos intereses con el tiempo", ok:true},
+      {t:"Siempre pagas el mismo interés fijo sin importar el tiempo"},
+      {t:"El banco te devuelve el interés al final"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"f5", block:"fin", tema:"Costo del crédito", text:"La tasa de interés de un crédito representa…",
+    options:[
+      {t:"El costo que pagas por usar dinero prestado, expresado en porcentaje", ok:true},
+      {t:"Un premio que te da el banco por pedir prestado"},
+      {t:"El valor total del producto que compras"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"f6", block:"fin", tema:"Capacidad de endeudamiento", text:"Como regla prudente, la suma de las cuotas de tus deudas no debería superar aproximadamente…",
+    options:[
+      {t:"Un tercio (cerca del 30–40%) de tus ingresos mensuales", ok:true},
+      {t:"El 90% de tus ingresos mensuales"},
+      {t:"No importa el porcentaje si pagas el mínimo"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"f7", block:"fin", tema:"Historial crediticio", text:"Tener un buen historial crediticio (en centrales de riesgo) sirve para…",
+    options:[
+      {t:"Acceder a créditos más fácilmente y en mejores condiciones", ok:true},
+      {t:"Pagar más intereses en todos tus créditos"},
+      {t:"Que nadie sepa cómo manejas tu dinero"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"f8", block:"fin", tema:"Separar cuentas", text:"Al emprender, una buena práctica financiera es…",
+    options:[
+      {t:"Separar el dinero del negocio del dinero personal", ok:true},
+      {t:"Usar la misma cuenta para todo y no complicarse"},
+      {t:"Sacar del negocio lo que quieras cuando quieras"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"f9", block:"fin", tema:"Flujo de caja", text:"El flujo de caja (o flujo de efectivo) de un negocio es…",
+    options:[
+      {t:"El movimiento de entradas y salidas de dinero en el tiempo", ok:true},
+      {t:"Lo mismo que la ganancia total del año"},
+      {t:"El dinero que le debes a los proveedores"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"f10", block:"fin", tema:"Margen / cálculo", text:"Si vendes un producto en $10.000 y te costó $6.000, tu ganancia bruta por unidad es…",
+    options:[
+      {t:"$4.000", ok:true},
+      {t:"$6.000"},
+      {t:"$10.000"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"f11", block:"fin", tema:"Costos fijos y variables", text:"¿Cuál de estos es un costo FIJO (no depende de cuánto vendas)?",
+    options:[
+      {t:"El arriendo mensual del local", ok:true},
+      {t:"La materia prima de cada producto que fabricas"},
+      {t:"Las comisiones que pagas por cada venta"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"f12", block:"fin", tema:"Punto de equilibrio", text:"El punto de equilibrio de un negocio es el nivel de ventas donde…",
+    options:[
+      {t:"Los ingresos igualan a los costos: ni ganas ni pierdes", ok:true},
+      {t:"Ya duplicaste tu inversión inicial"},
+      {t:"Vendiste todo tu inventario"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"f13", block:"fin", tema:"Estados financieros", text:"¿Cuál informe muestra si la empresa ganó o perdió durante un periodo?",
+    options:[
+      {t:"El estado de resultados (o de pérdidas y ganancias)", ok:true},
+      {t:"El registro de asistencia del personal"},
+      {t:"La factura de venta más reciente"},
+      {t:"No lo sé aún"}
+    ]},
+
+  /* ============ BLOQUE 2 · INTELIGENCIA ARTIFICIAL (12) ============ */
+  { id:"i1", block:"ia", tema:"Qué es la IA generativa", text:"Una inteligencia artificial generativa como Claude es, ante todo…",
+    options:[
+      {t:"Una herramienta que crea texto y contenido a partir de instrucciones tuyas", ok:true},
+      {t:"Una fuente que nunca se equivoca en cifras"},
+      {t:"Un robot físico que hace las tareas por ti"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"i2", block:"ia", tema:"Qué es un prompt", text:"En el mundo de la IA, un “prompt” es…",
+    options:[
+      {t:"La instrucción o pregunta que le escribes a la IA", ok:true},
+      {t:"Un error del programa"},
+      {t:"El precio de la suscripción"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"i3", block:"ia", tema:"Buen prompting", text:"Para obtener mejores respuestas financieras de la IA conviene…",
+    options:[
+      {t:"Darle contexto claro: tus datos, tu objetivo y el formato que quieres", ok:true},
+      {t:"Escribir todo en mayúsculas para que entienda mejor"},
+      {t:"Preguntar lo más corto y vago posible"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"i4", block:"ia", tema:"Verificar (alucinaciones)", text:"¿Por qué debes revisar los números o datos que te entrega la IA?",
+    options:[
+      {t:"Porque puede “alucinar”: inventar o equivocarse, y hay que verificar", ok:true},
+      {t:"No hace falta, la IA siempre acierta en cálculos"},
+      {t:"Porque la IA cobra por cada dato correcto"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"i5", block:"ia", tema:"Privacidad de datos", text:"Al usar IA con información financiera, un cuidado importante es…",
+    options:[
+      {t:"No compartir datos sensibles o confidenciales sin necesidad", ok:true},
+      {t:"Subir toda tu información bancaria completa siempre"},
+      {t:"Publicar tus resultados en redes para que otros los usen"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"i6", block:"ia", tema:"Claude en Excel", text:"“Claude en Excel” sirve principalmente para…",
+    options:[
+      {t:"Tener un asistente de IA dentro de la hoja de cálculo para analizar y organizar tus datos", ok:true},
+      {t:"Convertir Excel en un videojuego"},
+      {t:"Eliminar automáticamente tus archivos viejos"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"i7", block:"ia", tema:"Qué es un dashboard", text:"Un “dashboard” (tablero) financiero es…",
+    options:[
+      {t:"Una vista visual e interactiva que resume tus indicadores (ingresos, gastos, etc.)", ok:true},
+      {t:"Un documento de texto de muchas páginas sin gráficos"},
+      {t:"Una cuenta bancaria especial"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"i8", block:"ia", tema:"IA crea herramientas", text:"¿Puede la IA ayudarte a crear una aplicación sencilla para seguir tus finanzas a partir de tus datos (facturas, informes)?",
+    options:[
+      {t:"Sí, puede generar artefactos y herramientas simples que uses tú mismo", ok:true},
+      {t:"No, la IA solo sirve para escribir correos"},
+      {t:"Solo si eres programador experto"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"i9", block:"ia", tema:"Perplexity / investigar", text:"Una herramienta como Perplexity es especialmente útil para…",
+    options:[
+      {t:"Buscar e investigar con respuestas apoyadas en fuentes citadas (por ej. datos actuales)", ok:true},
+      {t:"Guardar tus contraseñas bancarias"},
+      {t:"Reemplazar por completo tu banco"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"i10", block:"ia", tema:"Datos ordenados", text:"Un buen primer paso para usar IA en tus finanzas es…",
+    options:[
+      {t:"Tener tus datos (ingresos y gastos) organizados para que la IA los procese", ok:true},
+      {t:"Esperar a que la IA adivine tus cuentas sin darle nada"},
+      {t:"Comprar el computador más caro del mercado"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"i11", block:"ia", tema:"IA como apoyo", text:"¿Cómo conviene usar la IA para tus decisiones financieras?",
+    options:[
+      {t:"Como apoyo que agiliza y aclara, pero verificando y decidiendo tú", ok:true},
+      {t:"Dejar que la IA decida por ti sin revisar nada"},
+      {t:"Ignorarla siempre porque no sirve para dinero"},
+      {t:"No lo sé aún"}
+    ]},
+  { id:"i12", block:"ia", tema:"IA y lenguaje natural", text:"Para trabajar con herramientas de IA como Claude o Gemini, principalmente necesitas…",
+    options:[
+      {t:"Saber explicar en tus propias palabras lo que quieres (lenguaje natural)", ok:true},
+      {t:"Saber programar en varios lenguajes de código"},
+      {t:"Tener un título en ingeniería de sistemas"},
+      {t:"No lo sé aún"}
+    ]}
+];
+
+const TOTAL_FIN = QUESTIONS.filter(q=>q.block==="fin").length;
+const TOTAL_IA  = QUESTIONS.filter(q=>q.block==="ia").length;
+
+/* =========================================================
+ * NIVELES
+ * ========================================================= */
+const LEVELS = {
+  explorador:{key:"explorador", nombre:"Explorador", n:1, color:"#ff8c00",
+    grad:"linear-gradient(135deg,#ff8c00,#ff5470)"},
+  constructor:{key:"constructor", nombre:"Constructor", n:2, color:"#00d4ff",
+    grad:"linear-gradient(135deg,#00d4ff,#7b2fff)"},
+  estratega:{key:"estratega", nombre:"Estratega", n:3, color:"#7b2fff",
+    grad:"linear-gradient(135deg,#7b2fff,#00d4ff)"}
+};
+function levelFor(pct){ if(pct>=80) return LEVELS.estratega; if(pct>=50) return LEVELS.constructor; return LEVELS.explorador; }
+
+const FEEDBACK = {
+  fin:{
+    explorador:"Estás empezando tu mapa financiero, ¡y eso está perfecto! Arrancaremos por lo esencial: presupuesto, ahorro y separar tu dinero personal del de tu negocio.",
+    constructor:"Ya manejas las bases del dinero. En el programa fortaleceremos flujo de caja, márgenes y cómo tomar decisiones con datos reales.",
+    estratega:"Tienes un buen dominio financiero. Nos enfocaremos en el siguiente nivel: indicadores, punto de equilibrio y decisiones de empresa."
+  },
+  ia:{
+    explorador:"La IA es territorio nuevo para ti, y aquí empieza lo divertido. Iremos desde lo básico: qué es, cómo darle instrucciones (prompts) y cómo verificar lo que responde.",
+    constructor:"Ya te mueves con IA. Profundizaremos en Claude, Claude en Excel y en construir tus propios dashboards y artefactos financieros.",
+    estratega:"Dominas lo esencial de IA. Iremos a lo avanzado: crear aplicaciones y tableros que se alimenten de tus datos reales (facturas, informes)."
+  }
+};
+
+/* =========================================================
+ * ESTADO
+ * ========================================================= */
+let currentIdx = 0;
+let answers = {};      // qid -> optIdx
+let user = {};
+
+/* =========================================================
+ * MODO
+ * ========================================================= */
+const urlParams = new URLSearchParams(window.location.search);
+const isAdmin = urlParams.has("admin");
+const isDashboard = urlParams.has("dashboard");
+
+if(isAdmin){
+  document.getElementById("modeLabel").textContent = "PANEL · CONFIDENCIAL";
+  if(sessionStorage.getItem("authed_fic")==="1"){ showScreen("screenAdmin"); loadResponses(); }
+  else showScreen("screenAuth");
+} else if(isDashboard){
+  document.getElementById("modeLabel").textContent = "DASHBOARD";
+  showScreen("screenDashboard"); loadDashboard();
+}
+
+function showScreen(id){
+  document.querySelectorAll(".cover, .q-screen, .result-screen, .admin-screen, .auth-screen")
+    .forEach(el=>el.classList.remove("active"));
+  const cover = document.getElementById("screenCover");
+  if(id==="screenCover"){ cover.style.display="block"; }
+  else { cover.style.display="none"; document.getElementById(id).classList.add("active"); }
+}
+
+/* =========================================================
+ * COVER -> preguntas
+ * ========================================================= */
+document.getElementById("btnStart").addEventListener("click", ()=>{
+  const name = document.getElementById("userName").value.trim();
+  const perfil = document.getElementById("userPerfil").value;
+  if(!name){ alert("Por favor escribe tu nombre."); return; }
+  user = { nombre:name, perfil:perfil||"No indicado", startedAt:new Date().toISOString() };
+  renderQuestions();
+  goToQuestion(0);
+});
+
+function renderQuestions(){
+  const c = document.getElementById("questionsContainer");
+  c.innerHTML = "";
+  QUESTIONS.forEach((q, idx)=>{
+    const s = document.createElement("div");
+    s.className = "q-screen"; s.id = `q-${idx}`;
+    const blockLabel = q.block==="fin" ? '<span class="q-block fin">Bloque 1 · Finanzas</span>'
+                                       : '<span class="q-block ia">Bloque 2 · Inteligencia Artificial</span>';
+    s.innerHTML = `
+      <div class="q-wm">${q.block==="fin"?"💰":"🤖"}</div>
+      <div class="q-meta">Pregunta ${idx+1} de ${QUESTIONS.length}</div>
+      ${blockLabel}
+      <div class="q-text">${q.text}</div>
+      <div class="q-body" id="q-body-${idx}"></div>
+      <div class="nav-row">
+        <button class="btn-secondary" ${idx===0?'style="visibility:hidden"':''} onclick="prevQ()">← Atrás</button>
+        <button class="btn-primary" onclick="nextQ()">${idx===QUESTIONS.length-1?'Ver mi resultado →':'Siguiente →'}</button>
+      </div>`;
+    c.appendChild(s);
+    const body = document.getElementById(`q-body-${idx}`);
+    body.innerHTML = `<div class="options">` + q.options.map((o,oi)=>`
+      <div class="option" data-q="${q.id}" data-idx="${oi}" onclick="pickOpt(this,'${q.id}',${oi})">
+        <div class="check-box"></div><div>${o.t}</div>
+      </div>`).join("") + `</div>`;
+  });
+}
+
+function pickOpt(el, qid, optIdx){
+  document.querySelectorAll(`.option[data-q="${qid}"]`).forEach(o=>o.classList.remove("selected"));
+  el.classList.add("selected");
+  answers[qid] = optIdx;
+}
+
+function goToQuestion(idx){
+  document.querySelectorAll(".q-screen").forEach(el=>el.classList.remove("active"));
+  document.getElementById("screenCover").style.display="none";
+  const s = document.getElementById(`q-${idx}`);
+  if(s) s.classList.add("active");
+  currentIdx = idx;
+  document.getElementById("progressBar").style.width = ((idx+1)/QUESTIONS.length*100)+"%";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function nextQ(){
+  if(answers[QUESTIONS[currentIdx].id]===undefined){ alert("Elige una opción para continuar. Si no sabes, marca “No lo sé aún”."); return; }
+  if(currentIdx===QUESTIONS.length-1) finish();
+  else goToQuestion(currentIdx+1);
+}
+function prevQ(){ goToQuestion(currentIdx-1); }
+
+/* =========================================================
+ * SCORING
+ * ========================================================= */
+function computeScores(){
+  let cFin=0, cIA=0;
+  QUESTIONS.forEach(q=>{
+    const sel = answers[q.id];
+    if(sel===undefined) return;
+    if(q.options[sel] && q.options[sel].ok){ if(q.block==="fin") cFin++; else cIA++; }
+  });
+  const pFin = Math.round(cFin/TOTAL_FIN*100);
+  const pIA  = Math.round(cIA/TOTAL_IA*100);
+  const pAll = Math.round((cFin+cIA)/(TOTAL_FIN+TOTAL_IA)*100);
+  return { cFin, cIA, pFin, pIA, pAll, lvlFin:levelFor(pFin), lvlIA:levelFor(pIA) };
+}
+
+function finish(){
+  const r = computeScores();
+  // Finanzas
+  document.getElementById("finLevelName").textContent = r.lvlFin.nombre;
+  document.getElementById("finLevelName").style.color = r.lvlFin.color;
+  document.getElementById("finScore").textContent = `${r.cFin} de ${TOTAL_FIN} correctas · ${r.pFin}%`;
+  const finBar = document.getElementById("finBar"); finBar.style.width = r.pFin+"%"; finBar.style.background = r.lvlFin.grad;
+  document.getElementById("finFeedback").textContent = FEEDBACK.fin[r.lvlFin.key];
+  document.getElementById("finSteps").innerHTML = stepsHTML(r.lvlFin.n, r.lvlFin.color);
+  // IA
+  document.getElementById("iaLevelName").textContent = r.lvlIA.nombre;
+  document.getElementById("iaLevelName").style.color = r.lvlIA.color;
+  document.getElementById("iaScore").textContent = `${r.cIA} de ${TOTAL_IA} correctas · ${r.pIA}%`;
+  const iaBar = document.getElementById("iaBar"); iaBar.style.width = r.pIA+"%"; iaBar.style.background = r.lvlIA.grad;
+  document.getElementById("iaFeedback").textContent = FEEDBACK.ia[r.lvlIA.key];
+  document.getElementById("iaSteps").innerHTML = stepsHTML(r.lvlIA.n, r.lvlIA.color);
+
+  window.__result = r;
+  showScreen("screenResult");
+  document.getElementById("progressBar").style.width = "100%";
+  document.querySelectorAll(".step-dot.on").forEach(d=>{});
+}
+function stepsHTML(n,color){
+  let h="";
+  for(let i=1;i<=3;i++) h += `<div class="step-dot ${i<=n?'on':''}" style="color:${color}"></div>`;
+  return h;
+}
+
+/* =========================================================
+ * ENVIAR -> Supabase (tabla ICONE, separada por slug)
+ * ========================================================= */
+document.getElementById("btnSubmit").addEventListener("click", ()=>{
+  const btn = document.getElementById("btnSubmit");
+  const note = document.getElementById("submitNote");
+  const r = window.__result || computeScores();
+  btn.disabled = true; btn.textContent = "Enviando…"; note.textContent = "";
+
+  const meta = {
+    tipo:"diagnostico-conocimiento-finanzas-ia",
+    perfil:user.perfil,
+    respuestas:answers,
+    cFin:r.cFin, totalFin:TOTAL_FIN, pFin:r.pFin, nivelFin:r.lvlFin.nombre,
+    cIA:r.cIA, totalIA:TOTAL_IA, pIA:r.pIA, nivelIA:r.lvlIA.nombre,
+    ts:new Date().toISOString(), ua:navigator.userAgent
+  };
+  const payload = {
+    entrenamiento:CONFIG.slug,
+    nombre:user.nombre,
+    emprendimiento:user.perfil,
+    satisfaccion_pct:r.pAll,
+    meta:meta
+  };
+  fetch(`${SB_URL}/rest/v1/${SB_TABLE}`,{
+    method:"POST",
+    headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json","Prefer":"return=minimal"},
+    body:JSON.stringify(payload)
+  }).then(res=>{
+    if(res.ok){ btn.textContent="✓ ¡Enviado! Gracias"; note.style.color="var(--green)"; note.textContent="Tu diagnóstico quedó registrado. Nos vemos en la primera sesión."; }
+    else { btn.disabled=false; btn.textContent="Reintentar envío"; note.style.color="var(--accent)"; note.textContent="No se pudo guardar en línea. Intenta de nuevo o avísale a Jorge."; }
+  }).catch(()=>{ btn.disabled=false; btn.textContent="Reintentar envío"; note.style.color="var(--accent)"; note.textContent="Sin conexión para guardar. Intenta de nuevo en un momento."; });
+});
+
+/* =========================================================
+ * AUTH
+ * ========================================================= */
+document.getElementById("btnAuth")?.addEventListener("click", ()=>{
+  const k = document.getElementById("authKey").value.trim();
+  if(k===SB_PASS){ sessionStorage.setItem("authed_fic","1"); showScreen("screenAdmin"); loadResponses(); }
+  else alert("Clave incorrecta.");
+});
+document.getElementById("authKey")?.addEventListener("keydown", e=>{ if(e.key==="Enter") document.getElementById("btnAuth").click(); });
+
+/* =========================================================
+ * LEER respuestas (panel) via RPC get_evaluaciones_e
+ * ========================================================= */
+async function fetchRows(){
+  const r = await fetch(`${SB_URL}/rest/v1/rpc/get_evaluaciones_e`,{
+    method:"POST",
+    headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"},
+    body:JSON.stringify({pass:SB_PASS, ent:CONFIG.slug})
+  });
+  if(!r.ok) throw new Error("No autorizado o error de red ("+r.status+")");
+  return await r.json();
+}
+function parseRow(row){
+  let m = row.meta;
+  if(typeof m==="string"){ try{ m=JSON.parse(m); }catch{ m={}; } }
+  return { id:row.id, fecha:row.created_at, nombre:row.nombre||"—", perfil:row.emprendimiento||(m&&m.perfil)||"—", pAll:row.satisfaccion_pct, m:m||{} };
+}
+
+async function loadResponses(){
+  const list = document.getElementById("responsesList");
+  list.innerHTML = `<div style="text-align:center;color:var(--text-3);padding:30px">Cargando…</div>`;
+  try{
+    const rows = (await fetchRows()).map(parseRow);
+    window.__rows = rows;
+    renderStats(rows, "adminStats");
+    renderDistLevels(rows);
+    renderItemAnalysis(rows);
+    renderTable(rows);
+  }catch(err){
+    list.innerHTML = `<div style="text-align:center;color:var(--accent);padding:30px">Error al cargar: ${err.message}</div>`;
+  }
+}
+
+function levelCounts(rows, blockKey){
+  const c = {Explorador:0, Constructor:0, Estratega:0};
+  rows.forEach(r=>{ const nm = blockKey==="fin"? r.m.nivelFin : r.m.nivelIA; if(c[nm]!==undefined) c[nm]++; });
+  return c;
+}
+function avg(rows, sel){ const v=rows.map(sel).filter(x=>typeof x==="number"); return v.length? Math.round(v.reduce((a,b)=>a+b,0)/v.length):0; }
+
+function renderStats(rows, targetId){
+  const total = rows.length;
+  const avgFin = avg(rows, r=>r.m.pFin);
+  const avgIA  = avg(rows, r=>r.m.pIA);
+  const last = rows[0] ? new Date(rows[0].fecha).toLocaleDateString('es-CO') : "—";
+  document.getElementById(targetId).innerHTML = `
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Respuestas</div></div>
+    <div class="stat-card"><div class="stat-num">${avgFin}%</div><div class="stat-label">Promedio Finanzas</div></div>
+    <div class="stat-card"><div class="stat-num">${avgIA}%</div><div class="stat-label">Promedio IA</div></div>
+    <div class="stat-card"><div class="stat-num" style="font-size:17px;line-height:1.3">${last}</div><div class="stat-label">Última respuesta</div></div>`;
+}
+
+function distBarsHTML(counts, total){
+  const order = [["Explorador","#ff8c00"],["Constructor","#00d4ff"],["Estratega","#7b2fff"]];
+  return order.map(([nm,col])=>{
+    const n = counts[nm]||0; const pct = total? Math.round(n/total*100):0;
+    return `<div class="dist-row">
+      <div class="dist-top"><span class="nm" style="color:${col}">${nm}</span><span class="vl">${n} · ${pct}%</span></div>
+      <div class="dist-bar"><div style="width:${pct}%;background:${col}"></div></div>
+    </div>`;
+  }).join("");
+}
+function renderDistLevels(rows){
+  const total = rows.length;
+  document.getElementById("distLevels").innerHTML = `
+    <div style="font-size:11px;letter-spacing:.14em;color:var(--text-3);text-transform:uppercase;font-weight:700;margin-bottom:10px">Finanzas</div>
+    ${distBarsHTML(levelCounts(rows,"fin"), total)}
+    <div style="font-size:11px;letter-spacing:.14em;color:var(--text-3);text-transform:uppercase;font-weight:700;margin:18px 0 10px">Inteligencia Artificial</div>
+    ${distBarsHTML(levelCounts(rows,"ia"), total)}`;
+}
+
+function renderItemAnalysis(rows){
+  const total = rows.length;
+  const el = document.getElementById("itemAnalysis");
+  if(!total){ el.innerHTML = `<div style="color:var(--text-3);font-size:13px">Aún sin datos.</div>`; return; }
+  const items = QUESTIONS.map(q=>{
+    let correct=0, answered=0;
+    rows.forEach(r=>{
+      const sel = r.m.respuestas ? r.m.respuestas[q.id] : undefined;
+      if(sel===undefined) return;
+      answered++;
+      if(q.options[sel] && q.options[sel].ok) correct++;
+    });
+    const pct = answered? Math.round(correct/answered*100):0;
+    return {tema:q.tema, block:q.block, pct};
+  }).sort((a,b)=>a.pct-b.pct).slice(0,6);
+  el.innerHTML = items.map(it=>{
+    const col = it.pct<50?"#ff5470":it.pct<80?"#ff8c00":"#00e08a";
+    const tag = it.block==="fin"?"Fin":"IA";
+    return `<div class="item-row">
+      <div class="qn"><b style="color:var(--text-3);font-size:11px">${tag}</b> · ${it.tema}</div>
+      <div class="item-mini"><div style="width:${it.pct}%;background:${col}"></div></div>
+      <div class="item-pct" style="color:${col}">${it.pct}%</div>
+    </div>`;
+  }).join("");
+}
+
+function chip(nm){
+  const col = nm==="Estratega"?"#7b2fff":nm==="Constructor"?"#00d4ff":"#ff8c00";
+  return `<span class="lvl-chip" style="color:${col};background:${col}22;border:1px solid ${col}55">${nm||"—"}</span>`;
+}
+function renderTable(rows){
+  const list = document.getElementById("responsesList");
+  if(!rows.length){ list.innerHTML = `<div style="text-align:center;color:var(--text-3);padding:30px">Aún no hay respuestas.</div>`; return; }
+  let html = `<div class="response-row header">
+    <div class="col-label">Fecha</div><div class="col-label">Nombre</div><div class="col-label">Perfil</div>
+    <div class="col-label">Nivel Finanzas</div><div class="col-label">Nivel IA</div><div class="col-label">Global</div><div></div>
+  </div>`;
+  rows.forEach((r,idx)=>{
+    html += `<div class="response-row">
+      <div>${new Date(r.fecha).toLocaleDateString('es-CO')}</div>
+      <div style="font-weight:600">${r.nombre}</div>
+      <div style="color:var(--text-3)">${r.perfil}</div>
+      <div>${chip(r.m.nivelFin)}</div>
+      <div>${chip(r.m.nivelIA)}</div>
+      <div style="font-weight:700">${r.pAll??"—"}%</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="view-detail-btn" onclick="showDetail(${idx})">Ver →</button>
+        <button class="del-btn" title="Eliminar" onclick="delRow('${r.id}')">🗑</button>
+      </div>
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+function showDetail(idx){
+  const r = window.__rows[idx];
+  document.getElementById("modalTitle").textContent = `${r.nombre} — detalle`;
+  let html = `<div style="margin-bottom:20px;font-size:13px;color:var(--text-2)">
+    👤 Perfil: ${r.perfil} &nbsp;·&nbsp; 📅 ${new Date(r.fecha).toLocaleString('es-CO')}<br>
+    Finanzas: ${chip(r.m.nivelFin)} ${r.m.pFin??"—"}% &nbsp;·&nbsp; IA: ${chip(r.m.nivelIA)} ${r.m.pIA??"—"}%
+  </div>`;
+  const resp = r.m.respuestas||{};
+  QUESTIONS.forEach(q=>{
+    const sel = resp[q.id];
+    const chosen = sel!==undefined ? (q.options[sel]?.t||"—") : "(sin responder)";
+    const ok = sel!==undefined && q.options[sel]?.ok;
+    const correct = q.options.find(o=>o.ok)?.t || "";
+    html += `<div class="detail-question">
+      <div class="detail-q-text">${q.block==="fin"?"🟦":"🟪"} ${q.text}</div>
+      <div class="detail-a-text ${ok?'badge-ok':'badge-no'}">${ok?'✓':'✗'} ${chosen}</div>
+      ${ok?'':`<div class="correct-hint">Correcta: ${correct}</div>`}
+    </div>`;
+  });
+  document.getElementById("modalBody").innerHTML = html;
+  document.getElementById("modalBg").classList.add("active");
+}
+function closeModal(){ document.getElementById("modalBg").classList.remove("active"); }
+
+async function delRow(id){
+  if(!confirm("¿Eliminar esta respuesta? No se puede deshacer.")) return;
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/delete_evaluacion_e`,{
+      method:"POST",
+      headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"},
+      body:JSON.stringify({pass:SB_PASS, rid:id})
+    });
+    if(r.ok) loadResponses(); else alert("No se pudo eliminar.");
+  }catch{ alert("Error de red al eliminar."); }
+}
+
+function exportCSV(){
+  const rows = window.__rows||[];
+  const head = ["fecha","nombre","perfil","nivel_finanzas","pct_finanzas","nivel_ia","pct_ia","pct_global"];
+  const lines = [head];
+  rows.forEach(r=>{
+    lines.push([
+      new Date(r.fecha).toLocaleDateString('es-CO'), r.nombre, r.perfil,
+      r.m.nivelFin||"", r.m.pFin??"", r.m.nivelIA||"", r.m.pIA??"", r.pAll??""
+    ]);
+  });
+  const csv = lines.map(l=>l.map(c=>`"${String(c==null?"":c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download = `diagnostico-finanzas-ia-coomeva.csv`; a.click();
+}
+
+/* =========================================================
+ * DASHBOARD público (solo agregados)
+ * ========================================================= */
+async function loadDashboard(){
+  try{
+    const rows = (await fetchRows()).map(parseRow);
+    renderStats(rows, "dashStats");
+    document.getElementById("dashDistFin").innerHTML = distBarsHTML(levelCounts(rows,"fin"), rows.length);
+    document.getElementById("dashDistIA").innerHTML  = distBarsHTML(levelCounts(rows,"ia"), rows.length);
+  }catch(err){
+    document.getElementById("dashStats").innerHTML = `<div style="color:var(--accent)">No se pudo cargar: ${err.message}</div>`;
+  }
+}
+function copyLink(){
+  const url = location.origin+location.pathname+"?dashboard";
+  navigator.clipboard?.writeText(url).then(()=>alert("Enlace del dashboard copiado."),()=>prompt("Copia el enlace:",url));
+}
+</script>
+</body>
+</html>
