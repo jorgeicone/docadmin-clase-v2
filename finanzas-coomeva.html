@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domina tus finanzas con IA · Coomeva</title>
+<style>
+  :root{
+    --verde:#009639;--verde-osc:#00722c;--verde-cl:#e7f6ec;
+    --ambar:#f5a623;--ia:#5b6cf5;--ia-cl:#eef0ff;--cyan:#00c2a8;
+    --tinta:#0f1b24;--gris:#5b6b74;--linea:#e3e9ec;--bg:#f4f7f8;--blanco:#ffffff;
+    --sombra:0 18px 50px rgba(15,27,36,.10);--radio:20px;
+    --fuente:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    --dot:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ccircle cx='2' cy='2' r='1.2' fill='%23009639' fill-opacity='0.5'/%3E%3C/svg%3E");
+    --net:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 520'%3E%3Cg fill='none' stroke='%2300b050' stroke-width='1.2'%3E%3Cpath d='M60 120 L200 80 L340 160 L460 110'/%3E%3Cpath d='M80 300 L220 260 L360 320 L470 280'/%3E%3Cpath d='M200 80 L220 260'/%3E%3Cpath d='M340 160 L360 320'/%3E%3Cpath d='M60 120 L80 300'/%3E%3Cpath d='M460 110 L470 280'/%3E%3C/g%3E%3Cg fill='%2300d47a'%3E%3Ccircle cx='60' cy='120' r='5'/%3E%3Ccircle cx='200' cy='80' r='6'/%3E%3Ccircle cx='340' cy='160' r='5'/%3E%3Ccircle cx='460' cy='110' r='4'/%3E%3Ccircle cx='80' cy='300' r='4'/%3E%3Ccircle cx='220' cy='260' r='6'/%3E%3Ccircle cx='360' cy='320' r='5'/%3E%3Ccircle cx='470' cy='280' r='4'/%3E%3C/g%3E%3C/svg%3E");
+    --graph:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 300'%3E%3Cpolyline fill='none' stroke='%23009639' stroke-width='3' points='0,240 90,210 180,220 270,160 360,175 450,110 540,90 600,60'/%3E%3Cg fill='%23f5a623'%3E%3Crect x='95' y='180' width='10' height='50'/%3E%3Crect x='185' y='160' width='10' height='70'/%3E%3Crect x='275' y='130' width='10' height='60'/%3E%3Crect x='365' y='140' width='10' height='55'/%3E%3Crect x='455' y='90' width='10' height='60'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--fuente);background:var(--bg);color:var(--tinta);overflow:hidden}
+
+  #deck{position:relative;width:100vw;height:100vh}
+  .slide{position:absolute;inset:0;padding:clamp(28px,5vw,72px) clamp(24px,6vw,96px);
+    display:none;flex-direction:column;justify-content:center;overflow-y:auto;animation:fade .5s ease}
+  .slide.on{display:flex}
+  @keyframes fade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .slide::-webkit-scrollbar{width:8px}.slide::-webkit-scrollbar-thumb{background:#cdd7db;border-radius:8px}
+  /* capa ambiente: retícula IA sutil en todas las secciones */
+  .slide::before{content:"";position:absolute;inset:0;background-image:var(--dot);opacity:.5;pointer-events:none;z-index:0}
+  /* motivos de fondo (no protagonistas) */
+  .slide.ai::after,.slide.fin::after{content:"";position:absolute;pointer-events:none;z-index:0}
+  .slide.ai::after{right:-70px;top:-60px;width:min(46vw,540px);height:min(46vw,540px);
+    background:var(--net) no-repeat center/contain;opacity:.13}
+  .slide.fin::after{right:0;bottom:0;width:min(62vw,640px);height:min(34vw,320px);
+    background:var(--graph) no-repeat right bottom/contain;opacity:.10}
+  .wrap{width:100%;max-width:1180px;margin:0 auto;position:relative;z-index:2}
+
+  h1{font-size:clamp(2rem,5vw,4rem);line-height:1.04;font-weight:800;letter-spacing:-.02em}
+  h2{font-size:clamp(1.5rem,3.4vw,2.6rem);font-weight:800;letter-spacing:-.01em;line-height:1.1}
+  h3{font-size:1.12rem;font-weight:700}
+  p{color:var(--gris);line-height:1.6;font-size:1.02rem}
+  .lead{font-size:clamp(1.05rem,1.8vw,1.35rem);color:var(--gris);max-width:60ch;line-height:1.55}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--verde);background:var(--verde-cl);padding:7px 14px;border-radius:100px}
+  .eyebrow.ia{color:var(--ia);background:var(--ia-cl)}
+  .kicker{font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gris)}
+  .mt8{margin-top:8px}.mt16{margin-top:16px}.mt24{margin-top:24px}.mt32{margin-top:32px}.mt40{margin-top:40px}
+
+  .grid{display:grid;gap:18px}
+  .g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:860px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--blanco);border:1px solid var(--linea);border-radius:var(--radio);padding:22px;box-shadow:0 4px 14px rgba(15,27,36,.04)}
+  .card h3{margin-bottom:6px}.card p{font-size:.94rem}
+  .num{width:38px;height:38px;border-radius:12px;background:var(--verde);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.05rem;margin-bottom:12px}
+  .num.ia{background:var(--ia)}.num.am{background:var(--ambar)}
+  .pill{display:inline-block;font-size:.76rem;font-weight:700;padding:5px 11px;border-radius:100px;background:var(--verde-cl);color:var(--verde-osc);margin:3px 4px 3px 0}
+  .pill.ia{background:var(--ia-cl);color:var(--ia)}.pill.am{background:#fdf1dc;color:#b9760c}
+  ul.clean{list-style:none;display:flex;flex-direction:column;gap:9px;margin-top:6px}
+  ul.clean li{position:relative;padding-left:26px;color:var(--gris);font-size:.96rem;line-height:1.45}
+  ul.clean li::before{content:"";position:absolute;left:0;top:.42em;width:12px;height:12px;border-radius:50%;background:var(--verde-cl);border:2px solid var(--verde)}
+  ul.clean.ia li::before{background:var(--ia-cl);border-color:var(--ia)}
+  ul.clean.am li::before{background:#fdf1dc;border-color:var(--ambar)}
+
+  /* logo */
+  .logo{height:24px;display:block}.logo-lg{height:42px;display:block}
+  .logo-img{height:30px;display:block}.logo-img.lg{height:52px}
+  .logo-chip{background:#fff;border-radius:12px;padding:8px 12px;display:inline-flex;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+  /* fotografía real de Coomeva como fondo sutil (no protagonista) */
+  .photo{position:absolute;inset:0;background-size:cover;background-position:center;pointer-events:none;z-index:0}
+  #s0 .photo{opacity:.16;mix-blend-mode:luminosity}
+  #s14 .photo{opacity:.10}
+
+  /* portada */
+  #s0{background:radial-gradient(1200px 700px at 78% -10%,#0a3a22 0%,#07271a 42%,#04160f 100%);color:#fff;justify-content:center}
+  #s0::before{opacity:.25}
+  #s0::after{content:"";position:absolute;right:-40px;top:-40px;width:min(60vw,720px);height:min(60vw,720px);background:var(--net) no-repeat center/contain;opacity:.22;pointer-events:none;animation:float 9s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(18px)}}
+  #s0 .lead{color:#bfe9cf}#s0 h1{color:#fff}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .badge{border:1px solid rgba(255,255,255,.22);color:#eafff1;padding:9px 15px;border-radius:100px;font-size:.85rem;font-weight:600;backdrop-filter:blur(4px)}
+  .glow{color:#7bffb0}
+
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 4px}
+  .tab{border:1px solid var(--linea);background:#fff;padding:11px 18px;border-radius:100px;font-weight:700;font-size:.92rem;cursor:pointer;color:var(--gris);transition:.2s}
+  .tab.act{background:var(--verde);color:#fff;border-color:var(--verde)}
+  .panel{display:none;animation:fade .35s ease}.panel.on{display:block}
+
+  .rail{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:860px){.rail{grid-template-columns:1fr}}
+  .stop{background:#fff;border:1px solid var(--linea);border-radius:var(--radio);padding:20px;position:relative;overflow:hidden}
+  .stop::before{content:"";position:absolute;left:0;top:0;height:5px;width:100%;background:var(--verde)}
+  .stop:nth-child(2)::before{background:#2bb36b}.stop:nth-child(3)::before{background:var(--ia)}.stop:nth-child(4)::before{background:var(--ambar)}
+  .stop .tag{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gris)}
+  .stop h3{margin:8px 0;font-size:1.02rem;line-height:1.2}.stop small{color:var(--gris);font-size:.86rem;line-height:1.4;display:block}
+
+  .sess-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .sbadge{width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.6rem;color:#fff;background:var(--verde);flex:none}
+  .box{background:var(--blanco);border:1px solid var(--linea);border-radius:16px;padding:18px 20px;height:100%}
+  .box .kicker{color:var(--verde);margin-bottom:8px;display:block}.box.ia .kicker{color:var(--ia)}.box.am .kicker{color:#b9760c}
+  .tool{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--linea);border-radius:16px;padding:16px}
+  .tchip{flex:none;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.9rem}
+
+  /* ---- Dashboard mock (experiencia IA) ---- */
+  .dash{background:linear-gradient(160deg,#07261a,#0a1424);border:1px solid #17352a;border-radius:24px;padding:20px;color:#e9fff4;box-shadow:0 30px 60px rgba(4,22,15,.35);position:relative;overflow:hidden}
+  .dash::after{content:"";position:absolute;right:-40px;top:-40px;width:320px;height:320px;background:var(--net) no-repeat center/contain;opacity:.16}
+  .dash .top{display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;z-index:2}
+  .dash .title{font-weight:800;font-size:1rem;display:flex;align-items:center;gap:9px}
+  .live{width:9px;height:9px;border-radius:50%;background:#3ff0a0;box-shadow:0 0 0 0 rgba(63,240,160,.6);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,240,160,.6)}70%{box-shadow:0 0 0 12px rgba(63,240,160,0)}100%{box-shadow:0 0 0 0 rgba(63,240,160,0)}}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;position:relative;z-index:2}
+  .kpi{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px}
+  .kpi small{color:#9fd8bd;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .kpi b{display:block;font-size:1.5rem;margin-top:4px;letter-spacing:-.01em}
+  .kpi .up{color:#3ff0a0;font-size:.8rem;font-weight:700}.kpi .down{color:#ff9a7b;font-size:.8rem;font-weight:700}
+  .charts{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-top:12px;position:relative;z-index:2}
+  @media(max-width:760px){.kpis{grid-template-columns:1fr}.charts{grid-template-columns:1fr}}
+  .paneld{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px}
+  .paneld h4{font-size:.78rem;color:#9fd8bd;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+  .aisug{margin-top:12px;background:linear-gradient(90deg,rgba(91,108,245,.22),rgba(0,194,168,.14));border:1px solid rgba(123,255,176,.25);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;position:relative;z-index:2}
+  .aisug .ai-ic{flex:none;width:26px;height:26px;border-radius:8px;background:#5b6cf5;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800}
+  .aisug p{color:#dff7ea;font-size:.9rem;margin:0}
+  .lens{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .lens span{font-size:.72rem;font-weight:800;letter-spacing:.05em;padding:6px 12px;border-radius:100px;border:1px solid var(--linea);background:#fff;color:var(--tinta)}
+  .lens b{color:var(--verde)}
+
+  /* nav */
+  #bar{position:fixed;left:0;bottom:0;width:100%;height:5px;background:transparent;z-index:40}
+  #barfill{height:100%;width:0;background:linear-gradient(90deg,var(--verde),var(--ia));transition:width .35s ease}
+  #nav{position:fixed;right:22px;bottom:20px;display:flex;align-items:center;gap:10px;z-index:50}
+  .nbtn{width:46px;height:46px;border-radius:50%;border:none;background:#fff;box-shadow:var(--sombra);cursor:pointer;font-size:1.2rem;color:var(--tinta);display:flex;align-items:center;justify-content:center;transition:.15s}
+  .nbtn:hover{transform:translateY(-2px);color:var(--verde)}.nbtn:disabled{opacity:.35;cursor:default;transform:none}
+  #count{font-size:.85rem;font-weight:700;color:var(--gris);background:#fff;padding:8px 12px;border-radius:100px;box-shadow:var(--sombra)}
+  #dots{position:fixed;left:22px;bottom:24px;display:flex;gap:7px;z-index:50}
+  .d{width:9px;height:9px;border-radius:50%;background:#cdd7db;cursor:pointer;transition:.2s}
+  .d.on{background:var(--verde);width:24px;border-radius:6px}
+  .hint{position:fixed;top:18px;right:22px;font-size:.72rem;color:var(--gris);z-index:50;opacity:.7}
+  @media(max-width:640px){.hint,#dots{display:none}}
+  .foot{position:fixed;left:22px;top:16px;z-index:50;display:flex;align-items:center;gap:10px}
+  .foot .sep{width:1px;height:16px;background:var(--linea)}.foot span{font-size:.7rem;font-weight:700;letter-spacing:.1em;color:var(--gris);text-transform:uppercase}
+  #s0 ~ *{} /* noop */
+</style>
+</head>
+<body>
+<!-- LOGO en encabezado (no protagonista) -->
+<div class="foot">
+  <span>Domina tus finanzas con IA · para asociados Coomeva</span>
+</div>
+<div class="hint">← → o clic para navegar</div>
+
+<div id="deck">
+
+  <!-- 0 PORTADA -->
+  <section class="slide on" id="s0">
+    <div class="photo" style="background-image:url('https://www.coomeva.com.co/info/coomeva/media/galeria218458.png')"></div>
+    <div class="wrap">
+      <span class="logo-chip">
+        <img class="logo-img lg" src="https://www.coomeva.com.co/info/coomeva/media/bloque39800.png" alt="Coomeva" onerror="this.parentElement.style.display='none';this.closest('.wrap').querySelector('.logo-fallback').style.display='block'">
+      </span>
+      <svg class="logo-lg logo-fallback" style="display:none" viewBox="0 0 200 34" xmlns="http://www.w3.org/2000/svg" aria-label="Coomeva">
+        <circle cx="17" cy="17" r="15" fill="#00b050"/>
+        <path d="M6 18 a11 7.5 0 0 1 22 -2" fill="none" stroke="#04160f" stroke-width="2.8" stroke-linecap="round"/>
+        <circle cx="26" cy="10" r="2.8" fill="#f5a623"/>
+        <text x="40" y="25" font-family="Segoe UI,Arial,sans-serif" font-weight="800" font-size="23" letter-spacing="-0.5" fill="#ffffff">coomeva</text>
+      </svg>
+      <h1 class="mt24">Domina tus finanzas<br>con <span class="glow">IA</span></h1>
+      <p class="lead mt24">Un programa para <b>asociados Coomeva</b>: domina tu plata personal, tu emprendimiento y tu empresa — paso a paso.</p>
+      <p class="mt16" style="color:#bfe9cf;max-width:60ch;line-height:1.5">Construyes tus propios tableros y apps con IA, a partir de tus datos reales — sin depender de Excel.</p>
+      <div class="badges">
+        <span class="badge">4 sesiones · 8 horas</span>
+        <span class="badge">Nivel básico</span>
+        <span class="badge">Aprender haciendo</span>
+        <span class="badge glow">Fundamentado en marcos OCDE/INFE</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1 RESUMEN -->
+  <section class="slide fin" id="s1">
+    <div class="wrap">
+      <span class="eyebrow">Resumen del programa</span>
+      <h2 class="mt16">Del miedo a los números al control con datos propios</h2>
+      <p class="lead mt16">Los asociados no aprenden teoría: cada uno sale de las sesiones con <b>artefactos interactivos propios</b> —presupuestos, calculadoras y dashboards— que la IA construye a partir de sus datos reales (facturas, recibos, informes). Menos dependencia de Excel, más herramientas vivas que ellos mismos alimentan.</p>
+      <div class="grid g4 mt32">
+        <div class="card"><div class="num">1</div><h3>Diagnóstico</h3><p>Cada asociado entiende dónde está parado hoy con ayuda de la IA como tutor.</p></div>
+        <div class="card"><div class="num am">2</div><h3>Construcción</h3><p>Crea tableros y apps sencillas con IA usando sus propios datos.</p></div>
+        <div class="card"><div class="num ia">3</div><h3>Decisión</h3><p>Lee sus indicadores y toma decisiones financieras informadas.</p></div>
+        <div class="card"><div class="num">4</div><h3>Autonomía</h3><p>Se lleva herramientas reutilizables que sigue usando tras el curso.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 FUNDAMENTO INTERNACIONAL -->
+  <section class="slide" id="s2">
+    <div class="wrap">
+      <span class="eyebrow">Fundamento internacional</span>
+      <h2 class="mt16">Construido sobre estándares reconocidos, no sobre opiniones</h2>
+      <p class="lead mt16">El contenido financiero sigue los marcos de competencias de la <b>OCDE/INFE</b>, referencia global en educación financiera de adultos y de micro y pequeñas empresas.</p>
+      <div class="grid g2 mt24">
+        <div class="card">
+          <span class="pill">Marco de adultos</span>
+          <h3 class="mt8">4 dominios de competencia financiera</h3>
+          <ul class="clean mt8">
+            <li><b>Dinero y transacciones:</b> ingresos, pagos, precios, registro.</li>
+            <li><b>Planeación y gestión:</b> presupuesto, ahorro, crédito y deuda.</li>
+            <li><b>Riesgo y recompensa:</b> fondo de emergencia, seguros, diversificación.</li>
+            <li><b>Entorno financiero:</b> derechos, protección, impuestos, fraude.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="pill am">Marco de MSMEs</span>
+          <h3 class="mt8">Competencias para negocios</h3>
+          <ul class="clean am mt8">
+            <li><b>Gestión financiera:</b> flujo de caja, registros, estados financieros.</li>
+            <li><b>Financiación:</b> capital de trabajo, fuentes y manejo de deuda.</li>
+            <li><b>Riesgo del negocio:</b> seguros, colchón, diversificación.</li>
+            <li><b>Entorno y formalización:</b> impuestos, regulación, finanzas digitales.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="mt16" style="font-size:.86rem">Buenas prácticas pedagógicas aplicadas: aprendizaje práctico y aplicado, contenido <i>just-in-time</i>, uso de datos reales del participante y evaluación de impacto (modelo Kirkpatrick).</p>
+    </div>
+  </section>
+
+  <!-- 3 METODOLOGÍA -->
+  <section class="slide ai" id="s3">
+    <div class="wrap">
+      <span class="eyebrow ia">Enfoque metodológico</span>
+      <h2 class="mt16">La IA como profesor, traductor y constructor</h2>
+      <div class="grid g3 mt24">
+        <div class="card"><div class="num ia">A</div><h3>IA que enseña</h3><p>Explica cada concepto financiero en lenguaje simple, con ejemplos del día a día del asociado. El participante pregunta sin miedo.</p></div>
+        <div class="card"><div class="num ia">B</div><h3>IA que construye</h3><p>A partir de facturas, recibos o informes, la IA genera dashboards y apps sencillas de seguimiento — sin programar ni dominar Excel.</p></div>
+        <div class="card"><div class="num ia">C</div><h3>IA que simula</h3><p>Escenarios "¿qué pasa si…?": subir el ahorro, bajar un gasto, cambiar el precio. Decisiones ensayadas antes de la vida real.</p></div>
+      </div>
+      <div class="card mt24" style="border-left:5px solid var(--verde)">
+        <h3>Principio rector: cada asociado se lleva algo que funciona</h3>
+        <p class="mt8">Ninguna sesión termina solo con apuntes. Termina con un artefacto vivo — un presupuesto interactivo, una calculadora de metas, un tablero de ventas o un panel de indicadores — que el asociado seguirá alimentando con sus datos reales.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 EXPERIENCIA UX/CX/IX (dashboard mock) -->
+  <section class="slide ai" id="s4">
+    <div class="wrap">
+      <span class="eyebrow ia">La experiencia · UX · CX · IX</span>
+      <h2 class="mt16">Así se siente un artefacto hecho con IA</h2>
+      <p class="lead mt16">Cada tablero se diseña en tres capas: fácil de usar (<b>UX</b>), valioso para el asociado (<b>CX</b>) e inteligente, porque la IA analiza y recomienda (<b>IX</b>). Esto es lo que el participante construye y se lleva:</p>
+
+      <div class="dash mt24">
+        <div class="top">
+          <div class="title"><span class="live"></span> Panel financiero · asistido por IA</div>
+          <div style="font-size:.78rem;color:#9fd8bd;font-weight:700">Julio 2026</div>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><small>Ahorro del mes</small><b>$540.000</b><span class="up">▲ 18% vs. junio</span></div>
+          <div class="kpi"><small>Margen del negocio</small><b>34%</b><span class="up">▲ 3 pts</span></div>
+          <div class="kpi"><small>Flujo de caja</small><b>$2,4M</b><span class="down">▼ meta $3M</span></div>
+        </div>
+        <div class="charts">
+          <div class="paneld">
+            <h4>Ingresos vs. gastos · 6 meses</h4>
+            <svg viewBox="0 0 340 130" width="100%" height="130">
+              <g fill="#3ff0a0">
+                <rect x="14" y="60" width="20" height="55" rx="3"/><rect x="66" y="45" width="20" height="70" rx="3"/>
+                <rect x="118" y="52" width="20" height="63" rx="3"/><rect x="170" y="34" width="20" height="81" rx="3"/>
+                <rect x="222" y="40" width="20" height="75" rx="3"/><rect x="274" y="24" width="20" height="91" rx="3"/>
+              </g>
+              <g fill="#f5a623" opacity="0.9">
+                <rect x="36" y="80" width="12" height="35" rx="3"/><rect x="88" y="72" width="12" height="43" rx="3"/>
+                <rect x="140" y="78" width="12" height="37" rx="3"/><rect x="192" y="66" width="12" height="49" rx="3"/>
+                <rect x="244" y="70" width="12" height="45" rx="3"/><rect x="296" y="58" width="12" height="57" rx="3"/>
+              </g>
+            </svg>
+          </div>
+          <div class="paneld">
+            <h4>Distribución de gastos</h4>
+            <svg viewBox="0 0 120 120" width="100%" height="130">
+              <circle cx="60" cy="60" r="42" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="16"/>
+              <circle cx="60" cy="60" r="42" fill="none" stroke="#3ff0a0" stroke-width="16" stroke-dasharray="118 146" transform="rotate(-90 60 60)"/>
+              <circle cx="60" cy="60" r="42" fill="none" stroke="#5b6cf5" stroke-width="16" stroke-dasharray="66 198" stroke-dashoffset="-118" transform="rotate(-90 60 60)"/>
+              <circle cx="60" cy="60" r="42" fill="none" stroke="#f5a623" stroke-width="16" stroke-dasharray="45 219" stroke-dashoffset="-184" transform="rotate(-90 60 60)"/>
+              <text x="60" y="58" text-anchor="middle" fill="#e9fff4" font-size="15" font-weight="800">45%</text>
+              <text x="60" y="74" text-anchor="middle" fill="#9fd8bd" font-size="8">necesidades</text>
+            </svg>
+          </div>
+        </div>
+        <div class="aisug">
+          <div class="ai-ic">IA</div>
+          <p><b>Sugerencia:</b> si recortas $180.000 en "suscripciones" y lo mueves a tu meta de ahorro, la alcanzas <b>2 meses antes</b>. ¿Aplico el ajuste al plan?</p>
+        </div>
+      </div>
+
+      <div class="lens">
+        <span><b>UX</b> · claro y fácil de usar</span>
+        <span><b>CX</b> · resuelve algo que le importa al asociado</span>
+        <span><b>IX</b> · la IA analiza, alerta y recomienda</span>
+      </div>
+      <p class="mt16" style="font-size:.82rem">Mockup ilustrativo del tipo de tablero que los asociados generan con IA a partir de sus propios datos.</p>
+    </div>
+  </section>
+
+  <!-- 5 TEMAS POR PERFIL -->
+  <section class="slide" id="s5">
+    <div class="wrap">
+      <span class="eyebrow">Temas recomendados por perfil</span>
+      <h2 class="mt16">Qué necesita dominar cada asociado</h2>
+      <div class="tabs" id="tabs">
+        <button class="tab act" data-p="p1">Personal (básico)</button>
+        <button class="tab" data-p="p2">Emprendedor</button>
+        <button class="tab" data-p="p3">Empresarial</button>
+      </div>
+      <div class="panel on" id="p1">
+        <div class="grid g2 mt16">
+          <div class="box"><span class="kicker">Habilidades clave</span>
+            <ul class="clean">
+              <li>Presupuesto personal y regla 50/30/20</li>
+              <li>Flujo de caja del hogar: ingresos vs. egresos</li>
+              <li>Fondo de emergencia y metas de ahorro</li>
+              <li>Deuda sana vs. deuda cara: tasa efectiva y capacidad de pago</li>
+              <li>Protección básica: seguros y previsión</li>
+            </ul></div>
+          <div class="box am"><span class="kicker">Por qué importa</span>
+            <p>Es la base de todo: sin control del gasto personal, ningún emprendimiento ni empresa se sostiene. Reduce el estrés financiero y previene el sobreendeudamiento, la principal causa de dificultades entre asociados de nivel básico.</p>
+            <div class="mt16"><span class="pill">Dinero y transacciones</span><span class="pill">Planeación</span><span class="pill">Riesgo</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel" id="p2">
+        <div class="grid g2 mt16">
+          <div class="box"><span class="kicker">Habilidades clave</span>
+            <ul class="clean">
+              <li>Separar las finanzas personales de las del negocio</li>
+              <li>Costos, precio de venta y margen de ganancia</li>
+              <li>Punto de equilibrio: cuánto vender para no perder</li>
+              <li>Flujo de caja del emprendimiento y capital de trabajo</li>
+              <li>Fuentes de financiación y crédito responsable</li>
+            </ul></div>
+          <div class="box am"><span class="kicker">Por qué importa</span>
+            <p>El error más común del emprendedor es mezclar el bolsillo con la caja del negocio y no saber si realmente gana. Fijar bien el precio y conocer el punto de equilibrio decide si el emprendimiento vive o muere en el primer año.</p>
+            <div class="mt16"><span class="pill am">Gestión financiera MSME</span><span class="pill am">Financiación</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel" id="p3">
+        <div class="grid g2 mt16">
+          <div class="box"><span class="kicker">Habilidades clave</span>
+            <ul class="clean">
+              <li>Leer estados financieros básicos: P&G y flujo de caja</li>
+              <li>Indicadores clave: liquidez, rentabilidad, endeudamiento</li>
+              <li>Presupuesto y proyección empresarial</li>
+              <li>Formalización, impuestos y cumplimiento</li>
+              <li>Seguridad financiera digital y prevención de fraude</li>
+            </ul></div>
+          <div class="box am"><span class="kicker">Por qué importa</span>
+            <p>Al crecer, la intuición ya no basta: se decide con datos. Entender los indicadores permite anticipar problemas de liquidez, negociar mejor con bancos y cumplir con las obligaciones sin sorpresas ni sanciones.</p>
+            <div class="mt16"><span class="pill am">Estados financieros</span><span class="pill am">Entorno y formalización</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 ECOSISTEMA IA -->
+  <section class="slide ai" id="s6">
+    <div class="wrap">
+      <span class="eyebrow ia">Ecosistema de herramientas de IA</span>
+      <h2 class="mt16">Herramientas simples, accesibles y complementarias</h2>
+      <p class="lead mt16">Cada herramienta cumple un papel. Todas son de nivel básico: el asociado escribe en lenguaje natural, no programa.</p>
+      <div class="grid g3 mt24">
+        <div class="tool"><div class="tchip" style="background:#c15f3c">C</div><div><h3>Ecosistema Claude</h3><p>Crea los <b>dashboards y apps</b> interactivas a partir de datos. El motor de construcción de artefactos.</p></div></div>
+        <div class="tool"><div class="tchip" style="background:#217346">Xl</div><div><h3>Claude en Excel</h3><p>Ordena, categoriza y analiza gastos e ingresos <b>dentro de la hoja de cálculo</b> que ya conocen.</p></div></div>
+        <div class="tool"><div class="tchip" style="background:#4285f4">G</div><div><h3>Ecosistema Google</h3><p>Gemini + Sheets/Drive para <b>documentar, colaborar</b> y guardar los artefactos en la nube.</p></div></div>
+        <div class="tool"><div class="tchip" style="background:#20b8cd">P</div><div><h3>Perplexity</h3><p>Investigar conceptos y comparar opciones con <b>fuentes verificables</b> — antídoto contra la desinformación.</p></div></div>
+        <div class="tool"><div class="tchip" style="background:#5b6cf5">GL</div><div><h3>GLM</h3><p>Modelo alternativo para <b>contrastar respuestas</b> y ampliar la caja de herramientas del asociado.</p></div></div>
+        <div class="tool"><div class="tchip" style="background:var(--verde)">✓</div><div><h3>Criterio propio</h3><p>Enseñamos a <b>verificar</b> lo que la IA responde: la persona decide, la IA acompaña.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 MAPA DE SESIONES -->
+  <section class="slide fin" id="s7">
+    <div class="wrap">
+      <span class="eyebrow">Ruta de aprendizaje</span>
+      <h2 class="mt16">Las 4 sesiones: de lo personal a lo empresarial</h2>
+      <div class="rail mt24">
+        <div class="stop"><span class="tag">Sesión 1 · 2h</span><h3>Mis finanzas personales con IA</h3><small>Del desorden al control. Presupuesto y primer dashboard personal.</small></div>
+        <div class="stop"><span class="tag">Sesión 2 · 2h</span><h3>Metas, ahorro e inversión</h3><small>Planear el futuro. Calculadora de metas e interés compuesto.</small></div>
+        <div class="stop"><span class="tag">Sesión 3 · 2h</span><h3>Finanzas para emprender</h3><small>De la idea al negocio. Precio, margen y app de seguimiento.</small></div>
+        <div class="stop"><span class="tag">Sesión 4 · 2h</span><h3>Del negocio a la empresa</h3><small>Decisiones con datos. Dashboard de indicadores y proyecto final.</small></div>
+      </div>
+      <p class="lead mt32">Cada sesión es autónoma pero se encadena: los artefactos creados se reutilizan y enriquecen en la siguiente.</p>
+    </div>
+  </section>
+
+  <!-- 8 SESIÓN 1 -->
+  <section class="slide" id="s8">
+    <div class="wrap">
+      <div class="sess-head"><div class="sbadge">1</div><div><span class="kicker">Sesión 1 · 2 horas</span><h2>Mis finanzas personales con IA</h2></div></div>
+      <div class="grid g4 mt24">
+        <div class="box"><span class="kicker">Objetivos</span><ul class="clean"><li>Diagnosticar la salud financiera personal</li><li>Dominar el presupuesto 50/30/20</li><li>Distinguir deuda sana de deuda cara</li></ul></div>
+        <div class="box am"><span class="kicker">Contenido</span><ul class="clean am"><li>Ingresos, gastos y flujo de caja del hogar</li><li>Ahorro y fondo de emergencia</li><li>Tasa efectiva y capacidad de pago</li></ul></div>
+        <div class="box ia"><span class="kicker">Actividad con IA</span><ul class="clean ia"><li>Cargar gastos de ejemplo y categorizarlos con <b>Claude en Excel</b></li><li>Generar su <b>dashboard de presupuesto</b> interactivo con Claude</li></ul></div>
+        <div class="box ia"><span class="kicker">Artefacto que se lleva</span><ul class="clean ia"><li>Tablero de presupuesto personal editable</li><li>Prompts guía para su tutor financiero IA</li></ul></div>
+      </div>
+      <div class="card mt24" style="border-left:5px solid var(--ia)"><h3>Cómo la IA facilita el aprendizaje</h3><p class="mt8">La IA traduce cada término financiero a ejemplos cotidianos y arma el primer tablero del participante en minutos. El asociado ve sus propios números convertidos en una herramienta viva — el "clic" que motiva a seguir.</p></div>
+    </div>
+  </section>
+
+  <!-- 9 SESIÓN 2 -->
+  <section class="slide" id="s9">
+    <div class="wrap">
+      <div class="sess-head"><div class="sbadge" style="background:#2bb36b">2</div><div><span class="kicker">Sesión 2 · 2 horas</span><h2>Metas, ahorro e inversión</h2></div></div>
+      <div class="grid g4 mt24">
+        <div class="box"><span class="kicker">Objetivos</span><ul class="clean"><li>Fijar metas financieras SMART</li><li>Entender interés compuesto e inflación</li><li>Equilibrar riesgo y recompensa</li></ul></div>
+        <div class="box am"><span class="kicker">Contenido</span><ul class="clean am"><li>Ahorro programado y planeación</li><li>Diversificación y protección (seguros)</li><li>Productos de la cooperativa Coomeva</li></ul></div>
+        <div class="box ia"><span class="kicker">Actividad con IA</span><ul class="clean ia"><li>Construir una <b>calculadora de metas</b> y un simulador de interés compuesto</li><li>Comparar opciones de ahorro con <b>Perplexity</b></li></ul></div>
+        <div class="box ia"><span class="kicker">Artefacto que se lleva</span><ul class="clean ia"><li>Simulador de metas con escenarios "¿qué pasa si…?"</li><li>Plan de ahorro visual</li></ul></div>
+      </div>
+      <div class="card mt24" style="border-left:5px solid var(--ia)"><h3>Cómo la IA facilita el aprendizaje</h3><p class="mt8">La IA vuelve tangible el interés compuesto: el asociado mueve una cifra y ve al instante cómo cambia su meta a 1, 5 y 10 años. La abstracción financiera se convierte en una decisión visual y concreta.</p></div>
+    </div>
+  </section>
+
+  <!-- 10 SESIÓN 3 -->
+  <section class="slide" id="s10">
+    <div class="wrap">
+      <div class="sess-head"><div class="sbadge" style="background:var(--ia)">3</div><div><span class="kicker">Sesión 3 · 2 horas</span><h2>Finanzas para emprender</h2></div></div>
+      <div class="grid g4 mt24">
+        <div class="box"><span class="kicker">Objetivos</span><ul class="clean"><li>Separar finanzas personales y del negocio</li><li>Calcular costos, precio y margen</li><li>Hallar el punto de equilibrio</li></ul></div>
+        <div class="box am"><span class="kicker">Contenido</span><ul class="clean am"><li>Flujo de caja del emprendimiento</li><li>Capital de trabajo</li><li>Fuentes de financiación y crédito responsable</li></ul></div>
+        <div class="box ia"><span class="kicker">Actividad con IA</span><ul class="clean ia"><li>A partir de <b>facturas de ejemplo</b>, la IA arma una <b>app de seguimiento de ventas y gastos</b></li><li>Cálculo automático de margen y punto de equilibrio</li></ul></div>
+        <div class="box ia"><span class="kicker">Artefacto que se lleva</span><ul class="clean ia"><li>Mini-app de control del negocio</li><li>Calculadora de precio y margen</li></ul></div>
+      </div>
+      <div class="card mt24" style="border-left:5px solid var(--ia)"><h3>Cómo la IA facilita el aprendizaje</h3><p class="mt8">La IA lee las facturas reales del emprendedor y las convierte en un tablero de ventas, márgenes y punto de equilibrio. Lo que antes exigía un contador o una hoja compleja, ahora nace de una conversación.</p></div>
+    </div>
+  </section>
+
+  <!-- 11 SESIÓN 4 -->
+  <section class="slide" id="s11">
+    <div class="wrap">
+      <div class="sess-head"><div class="sbadge" style="background:var(--ambar)">4</div><div><span class="kicker">Sesión 4 · 2 horas</span><h2>Del negocio a la empresa: decisiones con datos</h2></div></div>
+      <div class="grid g4 mt24">
+        <div class="box"><span class="kicker">Objetivos</span><ul class="clean"><li>Leer estados financieros básicos</li><li>Interpretar indicadores clave (KPIs)</li><li>Decidir con datos y cumplir obligaciones</li></ul></div>
+        <div class="box am"><span class="kicker">Contenido</span><ul class="clean am"><li>P&G, flujo de caja y balance simplificado</li><li>Liquidez, rentabilidad, endeudamiento</li><li>Formalización, impuestos y seguridad digital</li></ul></div>
+        <div class="box ia"><span class="kicker">Actividad con IA</span><ul class="clean ia"><li>Consolidar <b>informes de ejemplo</b> en un <b>dashboard empresarial con KPIs y semáforos</b></li><li>La IA genera alertas y recomendaciones</li></ul></div>
+        <div class="box ia"><span class="kicker">Proyecto integrador</span><ul class="clean ia"><li>Cada asociado presenta su tablero de indicadores</li><li>Retroalimentación grupal guiada por IA</li></ul></div>
+      </div>
+      <div class="card mt24" style="border-left:5px solid var(--ia)"><h3>Cómo la IA facilita el aprendizaje</h3><p class="mt8">La IA actúa como analista financiero: transforma informes dispersos en un panel con indicadores, semáforos y recomendaciones en lenguaje claro. El asociado cierra el programa tomando una decisión real sobre su empresa.</p></div>
+    </div>
+  </section>
+
+  <!-- 12 RESULTADOS -->
+  <section class="slide" id="s12">
+    <div class="wrap">
+      <span class="eyebrow">Lo que se lleva el asociado</span>
+      <h2 class="mt16">4 herramientas vivas, no 4 certificados en un cajón</h2>
+      <div class="grid g4 mt24">
+        <div class="card"><div class="num">1</div><h3>Dashboard personal</h3><p>Su presupuesto y flujo de caja del hogar, siempre actualizable.</p></div>
+        <div class="card"><div class="num am">2</div><h3>Simulador de metas</h3><p>Calculadora de ahorro e interés compuesto con escenarios.</p></div>
+        <div class="card"><div class="num ia">3</div><h3>App del negocio</h3><p>Seguimiento de ventas, gastos, margen y punto de equilibrio.</p></div>
+        <div class="card"><div class="num" style="background:var(--ambar)">4</div><h3>Panel de KPIs</h3><p>Indicadores empresariales con alertas y recomendaciones.</p></div>
+      </div>
+      <div class="card mt24" style="border-left:5px solid var(--verde)"><h3>+ Una nueva competencia transversal</h3><p class="mt8">Aprender a <b>conversar con la IA</b> para resolver problemas financieros: hacer buenas preguntas, verificar respuestas y construir sus propias herramientas. Una habilidad que trasciende el curso.</p></div>
+    </div>
+  </section>
+
+  <!-- 13 EVALUACIÓN -->
+  <section class="slide" id="s13">
+    <div class="wrap">
+      <span class="eyebrow">Evaluación e impacto</span>
+      <h2 class="mt16">Medimos que el aprendizaje se traduzca en acción</h2>
+      <p class="lead mt16">Siguiendo el modelo internacional de Kirkpatrick, evaluamos en cuatro niveles.</p>
+      <div class="grid g4 mt24">
+        <div class="card"><div class="num">N1</div><h3>Reacción</h3><p>Encuesta de satisfacción y percepción de utilidad al cierre de cada sesión.</p></div>
+        <div class="card"><div class="num am">N2</div><h3>Aprendizaje</h3><p>Diagnóstico inicial vs. final de conceptos clave por perfil.</p></div>
+        <div class="card"><div class="num ia">N3</div><h3>Comportamiento</h3><p>¿Siguen usando sus artefactos? Seguimiento a 30–60 días.</p></div>
+        <div class="card"><div class="num" style="background:var(--ambar)">N4</div><h3>Resultados</h3><p>Mejoras reportadas: ahorro, orden del negocio, decisiones tomadas.</p></div>
+      </div>
+      <p class="mt24" style="font-size:.9rem">Cada artefacto entregado es, además, evidencia tangible de aprendizaje aplicado — el mejor indicador de que el programa funcionó.</p>
+    </div>
+  </section>
+
+  <!-- 14 CIERRE -->
+  <section class="slide ai" id="s14">
+    <div class="photo" style="background-image:url('https://www.coomeva.com.co/info/coomeva/media/galeria218458.png')"></div>
+    <div class="wrap" style="text-align:center">
+      <img class="logo-img lg" style="margin:0 auto 8px" src="https://www.coomeva.com.co/info/coomeva/media/bloque39800.png" alt="Coomeva" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <svg class="logo-lg" style="display:none;margin:0 auto 6px" viewBox="0 0 200 34" xmlns="http://www.w3.org/2000/svg" aria-label="Coomeva">
+        <circle cx="17" cy="17" r="15" fill="#009639"/>
+        <path d="M6 18 a11 7.5 0 0 1 22 -2" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
+        <circle cx="26" cy="10" r="2.8" fill="#f5a623"/>
+        <text x="40" y="25" font-family="Segoe UI,Arial,sans-serif" font-weight="800" font-size="23" letter-spacing="-0.5" fill="#009639">coomeva</text>
+      </svg>
+      <span class="eyebrow" style="margin:0 auto">Listo para arrancar</span>
+      <h2 class="mt16">Finanzas que se entienden, herramientas que se usan</h2>
+      <p class="lead mt16" style="margin:16px auto 0">Un programa sólido en lo financiero, factible en lo tecnológico y profundamente práctico: los asociados de Coomeva pasan de temerle a los números a construir, con IA, las herramientas que gobiernan su dinero.</p>
+      <div class="badges" style="justify-content:center;margin-top:28px">
+        <span class="badge" style="border-color:var(--linea);color:var(--verde-osc);background:var(--verde-cl)">4 sesiones · 8 horas</span>
+        <span class="badge" style="border-color:var(--linea);color:#b9760c;background:#fdf1dc">3 perfiles cubiertos</span>
+        <span class="badge" style="border-color:var(--linea);color:var(--ia);background:var(--ia-cl)">Artefactos propios con IA</span>
+      </div>
+      <p class="mt40" style="font-size:.82rem">Diseño instruccional fundamentado en los marcos de competencia financiera OCDE/INFE para adultos y para micro y pequeñas empresas.</p>
+    </div>
+  </section>
+
+</div>
+
+<div id="bar"><div id="barfill"></div></div>
+<div id="dots"></div>
+<div id="nav">
+  <button class="nbtn" id="prev" aria-label="Anterior">‹</button>
+  <span id="count">1 / 15</span>
+  <button class="nbtn" id="next" aria-label="Siguiente">›</button>
+</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  let i=0;const total=slides.length;
+  const dots=document.getElementById('dots');
+  slides.forEach((_,k)=>{const d=document.createElement('div');d.className='d'+(k===0?' on':'');d.onclick=()=>go(k);dots.appendChild(d);});
+  const ds=[...dots.children];
+  const fill=document.getElementById('barfill');
+  const count=document.getElementById('count');
+  const prev=document.getElementById('prev'),next=document.getElementById('next');
+  function go(n){
+    if(n<0||n>=total)return;
+    slides[i].classList.remove('on');ds[i].classList.remove('on');
+    i=n;
+    slides[i].classList.add('on');ds[i].classList.add('on');
+    slides[i].scrollTop=0;
+    count.textContent=(i+1)+' / '+total;
+    fill.style.width=(i/(total-1)*100)+'%';
+    prev.disabled=i===0;next.disabled=i===total-1;
+  }
+  next.onclick=()=>go(i+1);prev.onclick=()=>go(i-1);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')go(i+1);
+    if(e.key==='ArrowLeft'||e.key==='PageUp')go(i-1);
+    if(e.key==='Home')go(0);if(e.key==='End')go(total-1);
+  });
+  document.getElementById('deck').addEventListener('click',e=>{
+    if(e.target.closest('.tab,.nbtn,.d,a,button'))return;
+    const x=e.clientX/window.innerWidth;
+    if(x>0.62)go(i+1);else if(x<0.20)go(i-1);
+  });
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.onclick=()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('act'));
+      document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+      t.classList.add('act');document.getElementById(t.dataset.p).classList.add('on');
+    };
+  });
+  go(0);
+</script>
+</body>
+</html>
