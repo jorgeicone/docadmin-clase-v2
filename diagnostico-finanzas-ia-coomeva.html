@@ -62,7 +62,14 @@
   .form-field{margin-bottom:18px;text-align:left}
   .form-field label{display:block;font-size:12px;letter-spacing:.14em;font-weight:600;color:var(--text-3);text-transform:uppercase;margin-bottom:8px}
   .form-field input,.form-field select{width:100%;padding:14px 18px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:15px;font-family:inherit;transition:all .2s}
-  .form-field select{appearance:none;cursor:pointer}
+  .form-field select{
+    appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:44px;
+    background-color:var(--bg-2);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2300d4ff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 16px center;background-size:14px;
+  }
+  .form-field select option{background:#0a1430;color:#fff;padding:12px}
+  .form-field select option[value=""]{color:rgba(255,255,255,.5)}
   .form-field input:focus,.form-field select:focus{outline:none;border-color:var(--primary);background:rgba(0,212,255,.04)}
   .btn-primary{display:inline-block;padding:15px 42px;border-radius:99px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;font-weight:700;font-size:15px;border:none;cursor:pointer;box-shadow:0 8px 32px rgba(0,212,255,.28);transition:transform .15s;font-family:inherit;letter-spacing:.02em}
   .btn-primary:hover{transform:translateY(-2px)}
