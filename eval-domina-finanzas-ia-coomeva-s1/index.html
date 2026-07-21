@@ -182,21 +182,13 @@
 <div id="questionsContainer"></div>
 
 <div class="result-screen" id="screenResult">
-  <div class="result-hero">
-    <div class="tag">TU RESULTADO</div>
-    <h1 id="resultName">—</h1>
-    <div class="big-level" id="bigLevel">—</div>
-    <div class="big-score" id="bigScore">—</div>
-    <div class="lvl-steps" id="lvlSteps"></div>
-    <div class="result-feedback" id="resultFeedback"></div>
-  </div>
-  <div class="card-box" id="gruposCard"><h3>Tu desempeño por tema</h3><div id="gruposBody"></div></div>
-  <div class="doc-summary" id="docSummary" style="display:none"><div class="num" id="docNum">—</div><div class="tx">Tu valoración del docente y la sesión (promedio sobre 5). ¡Gracias por tu retroalimentación!</div></div>
-  <div class="card-box reaction-box"><h3>¿Algo más que quieras decirnos?</h3><textarea id="comentario" placeholder="Comentario libre (opcional): qué te gustó o qué mejorarías."></textarea></div>
-  <div class="submit-box">
-    <p>Envía tu evaluación al facilitador. Tus respuestas son confidenciales.</p>
-    <button class="btn-primary" id="btnSubmit">Enviar mi evaluación →</button>
-    <div class="submit-note" id="submitNote"></div>
+  <div class="result-hero" style="max-width:600px;padding-top:20px">
+    <div class="tag">EVALUACIÓN ENVIADA</div>
+    <div style="font-size:58px;margin-bottom:6px">🙌</div>
+    <h1>¡Gracias por tu tiempo!</h1>
+    <p class="result-feedback" id="thanksNote">Registrando tus respuestas…</p>
+    <div style="margin-top:22px"><button class="btn-primary" id="btnRetry" style="display:none">Reintentar envío</button></div>
+    <p style="color:var(--text-3);font-size:13px;margin-top:26px">Tus respuestas ayudan a mejorar el programa y la labor del docente. ¡Nos vemos en la próxima sesión!</p>
   </div>
 </div>
 
@@ -252,7 +244,7 @@
 
 <script>
 const CONFIG = {"slug": "domina-finanzas-ia-coomeva-s1", "titulo": "Sesión 1 · Mis finanzas personales con IA", "corto": "la sesión 1", "coverTitle": "¿Qué aprendiste en la <span class='grad'>Sesión 1</span>?", "lead": "Contenido de 'Mis finanzas personales con IA' + tu valoración del docente. No te califica: nos ayuda a mejorar.", "tag": "EVALUACIÓN · SESIÓN 1", "minutos": "7–10", "tipo": "eval-sesion"};
-const QUESTIONS = [{"id": "q1", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Presupuesto", "wm": "💰", "text": "¿Qué es un presupuesto personal?", "options": [{"t": "Un plan que compara cuánto dinero entra y cuánto sale en un periodo", "ok": true}, {"t": "La cantidad que tengo en el banco hoy", "ok": false}, {"t": "Una lista de lo que quiero comprar", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q2", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Regla 50/30/20", "wm": "💰", "text": "La regla 50/30/20 reparte tus ingresos en…", "options": [{"t": "50% necesidades, 30% gustos, 20% ahorro y deudas", "ok": true}, {"t": "50% ahorro, 30% necesidades, 20% gustos", "ok": false}, {"t": "50% gustos, 30% ahorro, 20% necesidades", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q3", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Fondo de emergencia", "wm": "💰", "text": "Un fondo de emergencia ideal equivale a…", "options": [{"t": "Entre 3 y 6 meses de tus gastos, disponibles", "ok": true}, {"t": "Un mes de sueldo, prestado si hace falta", "ok": false}, {"t": "Todo tu dinero en acciones de riesgo", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q4", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Deuda cara", "wm": "💰", "text": "¿Cuál es una señal de deuda cara?", "options": [{"t": "Tasa de interés alta y pagar solo el mínimo", "ok": true}, {"t": "Tasa baja y a plazo corto", "ok": false}, {"t": "Un préstamo de un familiar sin interés", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q5", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Capacidad de pago", "wm": "💰", "text": "Las cuotas de tus deudas no deberían superar cerca de…", "options": [{"t": "Un tercio (30–40%) de tus ingresos", "ok": true}, {"t": "El 90% de tus ingresos", "ok": false}, {"t": "No importa si pagas el mínimo", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q6", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Flujo de caja del hogar", "wm": "💰", "text": "El flujo de caja del hogar es…", "options": [{"t": "El movimiento de entradas y salidas de dinero del hogar en el tiempo", "ok": true}, {"t": "Solo lo que logras ahorrar", "ok": false}, {"t": "El saldo del banco de hoy", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q7", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Tasa efectiva", "wm": "💰", "text": "La tasa de interés efectiva te sirve para…", "options": [{"t": "Conocer el costo real de un crédito en un año y poder comparar", "ok": true}, {"t": "Saber cuánto vas a ahorrar", "ok": false}, {"t": "Calcular tu salario", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q8", "tipo": "contenido", "grupo": "IA aplicada", "tema": "Claude en Excel", "wm": "🤖", "text": "¿Para qué usas Claude en Excel en tus finanzas?", "options": [{"t": "Para categorizar y analizar tus gastos dentro de la hoja", "ok": true}, {"t": "Para jugar", "ok": false}, {"t": "Para borrar archivos viejos", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q9", "tipo": "contenido", "grupo": "IA aplicada", "tema": "Prompt", "wm": "🤖", "text": "¿Cuál es una buena instrucción (prompt) para tu presupuesto?", "options": [{"t": "“Organiza estos gastos por categoría y dime cuánto va a necesidades, gustos y ahorro”", "ok": true}, {"t": "“hola”", "ok": false}, {"t": "Escribir todo en mayúsculas", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q10", "tipo": "contenido", "grupo": "IA aplicada", "tema": "Verificar", "wm": "🤖", "text": "Cuando la IA te arma un tablero, ¿qué debes hacer?", "options": [{"t": "Revisar que las cifras estén bien, porque puede equivocarse", "ok": true}, {"t": "Confiar ciegamente en todo", "ok": false}, {"t": "No usarlo nunca", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "d1", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Claridad del docente", "wm": "🧑‍🏫", "text": "El docente explicó los temas con claridad.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}, {"id": "d2", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Resolvió dudas", "wm": "🧑‍🏫", "text": "El docente resolvió mis dudas y preguntas.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}, {"id": "d3", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Prácticas útiles", "wm": "🧑‍🏫", "text": "Los ejemplos y ejercicios prácticos fueron útiles.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}, {"id": "d4", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Ritmo y organización", "wm": "🧑‍🏫", "text": "El ritmo y la organización de la sesión fueron adecuados.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}, {"id": "d5", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Recomendaría", "wm": "🧑‍🏫", "text": "Recomendaría esta sesión a otro asociado.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}];
+const QUESTIONS = [{"id": "q1", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Presupuesto", "wm": "💰", "text": "¿Qué es un presupuesto personal?", "options": [{"t": "Un plan que compara cuánto dinero entra y cuánto sale en un periodo", "ok": true}, {"t": "La cantidad que tengo en el banco hoy", "ok": false}, {"t": "Una lista de lo que quiero comprar", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q2", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Regla 50/30/20", "wm": "💰", "text": "La regla 50/30/20 reparte tus ingresos en…", "options": [{"t": "50% necesidades, 30% gustos, 20% ahorro y deudas", "ok": true}, {"t": "50% ahorro, 30% necesidades, 20% gustos", "ok": false}, {"t": "50% gustos, 30% ahorro, 20% necesidades", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q3", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Fondo de emergencia", "wm": "💰", "text": "Un fondo de emergencia ideal equivale a…", "options": [{"t": "Entre 3 y 6 meses de tus gastos, disponibles", "ok": true}, {"t": "Un mes de sueldo, prestado si hace falta", "ok": false}, {"t": "Todo tu dinero en acciones de riesgo", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q4", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Deuda cara", "wm": "💰", "text": "¿Cuál es una señal de deuda cara?", "options": [{"t": "Tasa de interés alta y pagar solo el mínimo", "ok": true}, {"t": "Tasa baja y a plazo corto", "ok": false}, {"t": "Un préstamo de un familiar sin interés", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q5", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Capacidad de pago", "wm": "💰", "text": "Las cuotas de tus deudas no deberían superar cerca de…", "options": [{"t": "Un tercio (30–40%) de tus ingresos", "ok": true}, {"t": "El 90% de tus ingresos", "ok": false}, {"t": "No importa si pagas el mínimo", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q6", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Flujo de caja del hogar", "wm": "💰", "text": "El flujo de caja del hogar es…", "options": [{"t": "El movimiento de entradas y salidas de dinero del hogar en el tiempo", "ok": true}, {"t": "Solo lo que logras ahorrar", "ok": false}, {"t": "El saldo del banco de hoy", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q7", "tipo": "contenido", "grupo": "Finanzas personales", "tema": "Tasa efectiva", "wm": "💰", "text": "La tasa de interés efectiva te sirve para…", "options": [{"t": "Conocer el costo real de un crédito en un año y poder comparar", "ok": true}, {"t": "Saber cuánto vas a ahorrar", "ok": false}, {"t": "Calcular tu salario", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q8", "tipo": "contenido", "grupo": "IA aplicada", "tema": "Claude en Excel", "wm": "🤖", "text": "¿Para qué usas Claude en Excel en tus finanzas?", "options": [{"t": "Para categorizar y analizar tus gastos dentro de la hoja", "ok": true}, {"t": "Para jugar", "ok": false}, {"t": "Para borrar archivos viejos", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q9", "tipo": "contenido", "grupo": "IA aplicada", "tema": "Prompt", "wm": "🤖", "text": "¿Cuál es una buena instrucción (prompt) para tu presupuesto?", "options": [{"t": "“Organiza estos gastos por categoría y dime cuánto va a necesidades, gustos y ahorro”", "ok": true}, {"t": "“hola”", "ok": false}, {"t": "Escribir todo en mayúsculas", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "q10", "tipo": "contenido", "grupo": "IA aplicada", "tema": "Verificar", "wm": "🤖", "text": "Cuando la IA te arma un tablero, ¿qué debes hacer?", "options": [{"t": "Revisar que las cifras estén bien, porque puede equivocarse", "ok": true}, {"t": "Confiar ciegamente en todo", "ok": false}, {"t": "No usarlo nunca", "ok": false}, {"t": "No lo sé aún", "ok": false}]}, {"id": "d1", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Claridad del docente", "wm": "🧑‍🏫", "text": "El docente explicó los temas con claridad.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}, {"id": "d2", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Resolvió dudas", "wm": "🧑‍🏫", "text": "El docente resolvió mis dudas y preguntas.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}, {"id": "d3", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Prácticas útiles", "wm": "🧑‍🏫", "text": "Los ejemplos y ejercicios prácticos fueron útiles.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}, {"id": "d4", "tipo": "valoracion", "grupo": "Desempeño del docente", "tema": "Recomendaría", "wm": "🧑‍🏫", "text": "Recomendaría esta sesión a otro asociado.", "options": [{"t": "Totalmente de acuerdo", "val": 5}, {"t": "De acuerdo", "val": 4}, {"t": "Neutral", "val": 3}, {"t": "En desacuerdo", "val": 2}, {"t": "Totalmente en desacuerdo", "val": 1}]}, {"id": "c1", "tipo": "abierto", "grupo": "Comentario final", "tema": "Comentario", "wm": "💬", "text": "¿Algo más que quieras decirnos sobre la sesión o el docente?", "options": []}];
 const SB_URL="https://nvgkhdrrxqdgxktfkioa.supabase.co";
 const SB_KEY="sb_publishable_d1RrtE7S-9a8e8mGKRRjxQ_4HU_nkDl";
 const SB_TABLE="icone_evaluaciones";
@@ -302,29 +294,35 @@ document.getElementById("btnStart").addEventListener("click",()=>{
 function renderQuestions(){
   const c=document.getElementById("questionsContainer");c.innerHTML="";
   QUESTIONS.forEach((q,idx)=>{
-    const doc=q.tipo==="valoracion";
+    const doc=q.tipo==="valoracion", open=q.tipo==="abierto";
     const s=document.createElement("div");s.className="q-screen";s.id="q-"+idx;
+    const hint=open?'<div class="q-hint">Opcional — escríbelo con tus palabras.</div>':(doc?'<div class="q-hint">Marca qué tan de acuerdo estás.</div>':'');
     s.innerHTML=`<div class="q-wm">${q.wm||"💡"}</div>
       <div class="q-meta">Pregunta ${idx+1} de ${TOTAL}</div>
       <div class="q-grupo ${doc?'doc':''}">${q.grupo}</div>
       <div class="q-text">${q.text}</div>
-      ${doc?'<div class="q-hint">Marca qué tan de acuerdo estás.</div>':''}
+      ${hint}
       <div class="q-body" id="qb-${idx}"></div>
       <div class="nav-row">
         <button class="btn-secondary" ${idx===0?'style="visibility:hidden"':''} onclick="prevQ()">← Atrás</button>
-        <button class="btn-primary" onclick="nextQ()">${idx===TOTAL-1?'Ver resultado →':'Siguiente →'}</button>
+        <button class="btn-primary" onclick="nextQ()">${idx===TOTAL-1?'Enviar →':'Siguiente →'}</button>
       </div>`;
     c.appendChild(s);
-    document.getElementById("qb-"+idx).innerHTML=`<div class="options">`+q.options.map((o,oi)=>
-      `<div class="option ${doc?'doc':''}" data-q="${q.id}" data-idx="${oi}" onclick="pickOpt(this,'${q.id}',${oi})"><div class="check-box"></div><div>${o.t}</div></div>`).join("")+`</div>`;
+    const body=document.getElementById("qb-"+idx);
+    if(open){body.innerHTML=`<div class="reaction-box" style="border:none;padding:0"><textarea id="ta-${q.id}" placeholder="Comentario libre (opcional): qué te gustó o qué mejorarías."></textarea></div>`;}
+    else{body.innerHTML=`<div class="options">`+q.options.map((o,oi)=>
+      `<div class="option ${doc?'doc':''}" data-q="${q.id}" data-idx="${oi}" onclick="pickOpt(this,'${q.id}',${oi})"><div class="check-box"></div><div>${o.t}</div></div>`).join("")+`</div>`;}
   });
 }
 function pickOpt(el,qid,oi){document.querySelectorAll(`.option[data-q="${qid}"]`).forEach(o=>o.classList.remove("selected"));el.classList.add("selected");answers[qid]=oi;}
 function goToQuestion(idx){document.querySelectorAll(".q-screen").forEach(e=>e.classList.remove("active"));document.getElementById("screenCover").style.display="none";
   const s=document.getElementById("q-"+idx);if(s)s.classList.add("active");currentIdx=idx;
   document.getElementById("progressBar").style.width=((idx+1)/TOTAL*100)+"%";window.scrollTo({top:0,behavior:"smooth"});}
-function nextQ(){if(answers[QUESTIONS[currentIdx].id]===undefined){alert("Elige una opción para continuar.");return;}
-  if(currentIdx===TOTAL-1)finish();else goToQuestion(currentIdx+1);}
+function nextQ(){
+  const q=QUESTIONS[currentIdx];
+  if(q.tipo==="abierto"){const el=document.getElementById("ta-"+q.id);answers[q.id]=el?el.value.trim():"";}
+  else if(answers[q.id]===undefined){alert("Elige una opción para continuar.");return;}
+  if(currentIdx===TOTAL-1)submitAll();else goToQuestion(currentIdx+1);}
 function prevQ(){goToQuestion(currentIdx-1);}
 
 function computeScores(){
@@ -343,25 +341,13 @@ function computeScores(){
   const docProm=dn?+(dsum/dn).toFixed(2):null;
   return {correct,total:N_CONT,pct,lvl:levelFor(pct),grupos,docProm,dItems,dn};
 }
-function finish(){
+function submitAll(){
   const r=computeScores();window.__r=r;
-  document.getElementById("resultName").textContent=(user.nombre?user.nombre.split(" ")[0]+", ":"")+"así te fue";
-  const bl=document.getElementById("bigLevel");bl.textContent=r.lvl.nombre;bl.style.color=r.lvl.color;
-  document.getElementById("bigScore").textContent=`${r.correct} de ${r.total} correctas · ${r.pct}% (contenido)`;
-  let steps="";for(let i=1;i<=3;i++)steps+=`<div class="step-dot ${i<=r.lvl.n?'on':''}" style="color:${r.lvl.color}"></div>`;
-  document.getElementById("lvlSteps").innerHTML=steps;
-  document.getElementById("resultFeedback").textContent=FEEDBACK[r.lvl.key];
-  const gc=["#00d4ff","#7b2fff","#ff8c00","#00e08a","#ff5470"];
-  document.getElementById("gruposBody").innerHTML=r.grupos.map((g,i)=>{const col=gc[i%gc.length];
-    return `<div class="g-row"><div class="g-top"><span class="nm">${g.g}</span><span class="vl" style="color:var(--text-3)">${g.c}/${g.t} · ${g.pct}%</span></div><div class="g-bar"><div style="width:${g.pct}%;background:${col}"></div></div></div>`;}).join("");
-  if(r.docProm!=null){document.getElementById("docSummary").style.display="flex";document.getElementById("docNum").textContent=r.docProm.toFixed(1);}
+  const openQ=QUESTIONS.find(q=>q.tipo==="abierto");
+  const comentario=openQ?(answers[openQ.id]||""):"";
   showScreen("screenResult");document.getElementById("progressBar").style.width="100%";
-}
-
-document.getElementById("btnSubmit").addEventListener("click",()=>{
-  const btn=document.getElementById("btnSubmit"),note=document.getElementById("submitNote");
-  const r=window.__r||computeScores();const comentario=document.getElementById("comentario").value.trim();
-  btn.disabled=true;btn.textContent="Enviando…";note.textContent="";
+  const note=document.getElementById("thanksNote");note.style.color="";note.textContent="Registrando tus respuestas…";
+  document.getElementById("btnRetry").style.display="none";
   const meta={tipo:CONFIG.tipo,slug:CONFIG.slug,respuestas:answers,correctas:r.correct,total:r.total,pct:r.pct,nivel:r.lvl.nombre,
     grupos:r.grupos,docente:{promedio:r.docProm,porItem:r.dItems},comentario:comentario,ts:new Date().toISOString(),ua:navigator.userAgent};
   const payload={entrenamiento:CONFIG.slug,nombre:user.nombre,emprendimiento:CONFIG.titulo,
@@ -369,10 +355,11 @@ document.getElementById("btnSubmit").addEventListener("click",()=>{
   fetch(`${SB_URL}/rest/v1/${SB_TABLE}`,{method:"POST",
     headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json","Prefer":"return=minimal"},
     body:JSON.stringify(payload)}).then(res=>{
-    if(res.ok){btn.textContent="✓ ¡Enviado! Gracias";note.style.color="var(--green)";note.textContent="Tu evaluación quedó registrada.";}
-    else{btn.disabled=false;btn.textContent="Reintentar";note.style.color="var(--accent)";note.textContent="No se pudo guardar. Intenta de nuevo.";}
-  }).catch(()=>{btn.disabled=false;btn.textContent="Reintentar";note.style.color="var(--accent)";note.textContent="Sin conexión. Intenta de nuevo.";});
-});
+    if(res.ok){note.textContent="✓ Tus respuestas quedaron registradas.";}
+    else{note.style.color="var(--accent)";note.textContent="No se pudo guardar. Intenta de nuevo.";showRetry();}
+  }).catch(()=>{note.style.color="var(--accent)";note.textContent="Sin conexión para guardar. Intenta de nuevo.";showRetry();});
+}
+function showRetry(){const b=document.getElementById("btnRetry");b.style.display="inline-block";b.onclick=submitAll;}
 
 document.getElementById("btnAuth")?.addEventListener("click",()=>{
   if(document.getElementById("authKey").value.trim()===SB_PASS){sessionStorage.setItem("authed_"+CONFIG.slug,"1");showScreen("screenAdmin");loadResponses();}
