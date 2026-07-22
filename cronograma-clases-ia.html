@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cronograma de Clases IA · ICONE ialabs</title>
+<style>
+  :root{
+    --navy:#050d1f; --navy2:#0a1730; --cyan:#00d4ff; --purple:#7b2fff; --orange:#ff8c00;
+    --green:#00d48a; --red:#ff4757; --white:#ffffff;
+    --aux:#00d4ff; --aux-soft:rgba(0,212,255,.14); --aux-bd:rgba(0,212,255,.45);
+    --pro:#b07bff; --pro-soft:rgba(123,47,255,.16); --pro-bd:rgba(146,86,255,.5);
+    --card:rgba(255,255,255,.045); --bd:rgba(255,255,255,.09);
+    --muted:rgba(255,255,255,.55); --muted2:rgba(255,255,255,.38);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(1200px 700px at 12% -8%, rgba(0,212,255,.12), transparent 55%),
+      radial-gradient(1100px 650px at 92% 4%, rgba(123,47,255,.16), transparent 55%),
+      radial-gradient(900px 600px at 50% 120%, rgba(255,140,0,.08), transparent 55%),
+      var(--navy);
+    color:var(--white);
+    font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    min-height:100vh; line-height:1.5; overflow-x:hidden; position:relative;
+  }
+  canvas#particles{position:fixed; inset:0; z-index:0; pointer-events:none}
+  .wrap{position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:34px 20px 80px}
+
+  /* ---------- Header ---------- */
+  .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.5px; font-size:.82rem}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));box-shadow:0 0 14px var(--cyan)}
+  .brand span{background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  h1{font-size:clamp(1.9rem,5vw,3rem); font-weight:900; line-height:1.05; margin:16px 0 8px; letter-spacing:-.5px}
+  h1 em{font-style:normal;background:linear-gradient(120deg,var(--cyan),var(--purple) 60%,var(--orange));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--muted); max-width:640px; font-size:1.02rem}
+
+  /* ---------- KPIs ---------- */
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:30px 0 26px}
+  .kpi{background:var(--card); border:1px solid var(--bd); border-radius:16px; padding:18px 18px 16px; position:relative; overflow:hidden}
+  .kpi::after{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--cyan),var(--purple))}
+  .kpi .num{font-size:2.1rem; font-weight:900; line-height:1; letter-spacing:-1px}
+  .kpi .num small{font-size:1rem;font-weight:700;color:var(--muted)}
+  .kpi .lbl{color:var(--muted); font-size:.78rem; margin-top:6px; text-transform:uppercase; letter-spacing:.6px}
+  .kpi .sub2{color:var(--muted2); font-size:.74rem; margin-top:7px; font-weight:600; display:flex; align-items:center; gap:6px}
+  .kpi .sub2 b{color:#fff; font-weight:800}
+  .kpi.next .num{font-size:1.15rem;font-weight:800;background:linear-gradient(120deg,var(--cyan),var(--orange));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .kpi.next .cd{font-size:.78rem;color:var(--orange);font-weight:700;margin-top:4px}
+
+  /* ---------- Controls ---------- */
+  .controls{display:flex; flex-wrap:wrap; gap:20px; align-items:center; justify-content:space-between; margin-bottom:8px}
+  .chips{display:flex; flex-wrap:wrap; gap:8px}
+  .chip{border:1px solid var(--bd); background:rgba(255,255,255,.03); color:var(--muted); padding:9px 15px; border-radius:50px; font-size:.85rem; font-weight:600; cursor:pointer; transition:.18s; display:inline-flex; align-items:center; gap:8px; user-select:none}
+  .chip:hover{color:#fff; border-color:rgba(255,255,255,.25)}
+  .chip .swatch{width:9px;height:9px;border-radius:50%}
+  .chip.active{color:#fff; background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.3)}
+  .chip.active[data-team="aux"]{border-color:var(--aux-bd); background:var(--aux-soft); color:#cff4ff}
+  .chip.active[data-team="pro"]{border-color:var(--pro-bd); background:var(--pro-soft); color:#e6d7ff}
+  .seg{display:inline-flex; background:rgba(255,255,255,.04); border:1px solid var(--bd); border-radius:50px; padding:4px}
+  .seg button{border:0; background:transparent; color:var(--muted); font:inherit; font-size:.83rem; font-weight:700; padding:8px 16px; border-radius:50px; cursor:pointer; transition:.18s; display:flex; align-items:center; gap:7px}
+  .seg button.active{background:linear-gradient(120deg,var(--cyan),var(--purple)); color:#04101f}
+
+  .legend{display:flex; gap:18px; flex-wrap:wrap; margin:18px 0 4px; font-size:.8rem; color:var(--muted)}
+  .legend b{display:inline-flex;align-items:center;gap:7px;font-weight:600;color:var(--muted)}
+  .legend .swatch{width:11px;height:11px;border-radius:4px}
+
+  /* ---------- Month sections ---------- */
+  .month{margin-top:34px}
+  .month-h{display:flex; align-items:baseline; gap:12px; margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid var(--bd)}
+  .month-h h2{font-size:1.35rem; font-weight:800; letter-spacing:-.3px}
+  .month-h .mh-meta{color:var(--muted2); font-size:.82rem; margin-left:auto}
+
+  /* ---------- Agenda cards ---------- */
+  .agenda{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px}
+  .card{position:relative; background:var(--card); border:1px solid var(--bd); border-radius:16px; padding:16px 16px 15px; transition:transform .16s, border-color .16s, box-shadow .16s; overflow:hidden; cursor:default}
+  .card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+  .card[data-team="aux"]::before{background:linear-gradient(var(--cyan),#0090c8)}
+  .card[data-team="pro"]::before{background:linear-gradient(var(--purple),#b07bff)}
+  .card:hover{transform:translateY(-3px); border-color:rgba(255,255,255,.22); box-shadow:0 12px 30px rgba(0,0,0,.35)}
+  .card.next{border-color:var(--orange); box-shadow:0 0 0 1px rgba(255,140,0,.4),0 10px 34px rgba(255,140,0,.14)}
+  .card .datebox{display:flex; align-items:center; gap:12px; margin-bottom:12px}
+  .card .day{font-size:2rem; font-weight:900; line-height:.9; letter-spacing:-1px; min-width:44px}
+  .card .dm{font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.7px; font-weight:700}
+  .card .dw{font-size:.9rem; font-weight:700; text-transform:capitalize}
+  .card .team{display:inline-flex; align-items:center; gap:7px; padding:5px 11px; border-radius:50px; font-size:.72rem; font-weight:800; letter-spacing:.3px}
+  .card[data-team="aux"] .team{background:var(--aux-soft); color:#bfefff; border:1px solid var(--aux-bd)}
+  .card[data-team="pro"] .team{background:var(--pro-soft); color:#ddc9ff; border:1px solid var(--pro-bd)}
+  .card .team .swatch{width:8px;height:8px;border-radius:50%}
+  .card[data-team="aux"] .team .swatch{background:var(--cyan)}
+  .card[data-team="pro"] .team .swatch{background:var(--pro)}
+  .card .foot{display:flex; align-items:center; justify-content:space-between; margin-top:13px; padding-top:12px; border-top:1px dashed rgba(255,255,255,.1)}
+  .card .time{font-size:.9rem; font-weight:700; display:flex; align-items:center; gap:7px}
+  .card .time svg{width:14px;height:14px;opacity:.7}
+  .card .hrs{font-size:.74rem; color:var(--muted); font-weight:700; background:rgba(255,255,255,.06); padding:3px 9px; border-radius:50px}
+  .card .flag{position:absolute; top:12px; right:12px; font-size:.62rem; font-weight:800; letter-spacing:.4px; text-transform:uppercase; padding:4px 9px; border-radius:50px; background:rgba(255,140,0,.16); color:var(--orange); border:1px solid rgba(255,140,0,.4)}
+  .card.next .flag.nx{background:var(--orange);color:#1a0e00}
+
+  /* holiday chip */
+  .holi{grid-column:1/-1; display:flex; align-items:center; gap:12px; background:rgba(255,71,87,.06); border:1px dashed rgba(255,71,87,.35); border-radius:14px; padding:12px 16px; color:#ffc7cd; font-size:.86rem}
+  .holi b{color:#ff8994}
+  .holi .em{font-size:1.1rem}
+
+  /* ---------- Calendar view ---------- */
+  .cal{display:none}
+  .cal.show{display:block}
+  .agenda-wrap.hide{display:none}
+  .calgrid{display:grid; grid-template-columns:repeat(7,1fr); gap:7px; margin-top:6px}
+  .cal-dow{text-align:center; font-size:.7rem; font-weight:800; color:var(--muted2); text-transform:uppercase; letter-spacing:.5px; padding:4px 0}
+  .cell{min-height:82px; background:rgba(255,255,255,.02); border:1px solid var(--bd); border-radius:11px; padding:7px 7px 6px; position:relative; transition:.16s}
+  .cell.empty{background:transparent; border-color:transparent}
+  .cell .dn{font-size:.78rem; font-weight:700; color:var(--muted); margin-bottom:5px}
+  .cell.today{border-color:var(--orange)}
+  .cell.today .dn{color:var(--orange)}
+  .cell.wknd .dn{color:var(--muted2)}
+  .ev{display:block; font-size:.66rem; font-weight:800; padding:4px 6px; border-radius:6px; margin-bottom:4px; line-height:1.25; cursor:default}
+  .ev[data-team="aux"]{background:var(--aux-soft); color:#bfefff; border-left:3px solid var(--cyan)}
+  .ev[data-team="pro"]{background:var(--pro-soft); color:#ddc9ff; border-left:3px solid var(--pro)}
+  .ev.next-ev{outline:1.5px solid var(--orange)}
+  .cell .holi-tag{font-size:.6rem;font-weight:800;color:#ff8994;text-transform:uppercase;letter-spacing:.3px}
+  .cnt{display:none}
+  .cal-month{margin-top:30px}
+  .cal-month h2{font-size:1.25rem;font-weight:800;margin-bottom:12px}
+
+  .empty-state{text-align:center;color:var(--muted);padding:50px 20px;font-size:.95rem}
+
+  footer{margin-top:54px; padding-top:22px; border-top:1px solid var(--bd); color:var(--muted2); font-size:.8rem; display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; justify-content:space-between}
+  footer .g{background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-weight:800}
+
+  @media(max-width:720px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .controls{gap:14px}
+    .agenda{grid-template-columns:1fr 1fr}
+    .calgrid{gap:4px}
+    .cell{min-height:64px;padding:5px}
+    .ev{font-size:.58rem;padding:3px 4px}
+  }
+  @media(max-width:460px){
+    .agenda{grid-template-columns:1fr}
+    .cell{min-height:52px}
+    .ev{display:none}
+    .cell .cnt{font-size:.62rem;font-weight:800;padding:3px 6px;border-radius:6px;display:inline-block !important}
+  }
+  .fade{animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+<div class="wrap">
+  <div class="brand"><span class="dot"></span><span>ICONE ialabs</span></div>
+  <h1>Cronograma de <em>Clases IA</em></h1>
+  <p class="sub">Formación en Inteligencia Artificial aplicada · Equipos <b style="color:#bfefff">Auxiliares</b> y <b style="color:#ddc9ff">Profesionales</b> · Agosto — Octubre 2026.</p>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="controls">
+    <div class="chips" id="teamChips">
+      <div class="chip active" data-team="all">Todos</div>
+      <div class="chip" data-team="aux"><span class="swatch" style="background:var(--cyan)"></span>IA Auxiliares</div>
+      <div class="chip" data-team="pro"><span class="swatch" style="background:var(--pro)"></span>IA Profesionales</div>
+    </div>
+    <div class="seg" id="viewSeg">
+      <button data-view="agenda" class="active">📋 Agenda</button>
+      <button data-view="cal">🗓️ Calendario</button>
+    </div>
+  </div>
+
+  <div class="chips" id="monthChips" style="margin-top:14px">
+    <div class="chip active" data-month="all">Todos los meses</div>
+    <div class="chip" data-month="7">Agosto</div>
+    <div class="chip" data-month="8">Septiembre</div>
+    <div class="chip" data-month="9">Octubre</div>
+  </div>
+
+  <div class="legend">
+    <b><span class="swatch" style="background:var(--cyan)"></span> IA Auxiliares</b>
+    <b><span class="swatch" style="background:var(--pro)"></span> IA Profesionales</b>
+    <b><span class="swatch" style="background:var(--orange)"></span> Sesión intensiva / fin de semana</b>
+    <b><span class="swatch" style="background:var(--red)"></span> Festivo (sin clase)</b>
+  </div>
+
+  <div class="agenda-wrap" id="agendaWrap"></div>
+  <div class="cal" id="calWrap"></div>
+
+  <footer>
+    <span>Construido para <b class="g">ICONE ialabs</b> · Ing. Jorge Hugo Pérez</span>
+    <span id="stamp"></span>
+  </footer>
+</div>
+
+<script>
+/* ============ DATOS DEL CRONOGRAMA (transcritos de las 3 imágenes) ============ */
+// team: 'aux' = IA Auxiliares · 'pro' = IA Profesionales
+// Fechas en 2026. start/end en formato 24h.
+const SESSIONS = [
+  // ---- AGOSTO ----
+  {date:'2026-08-03', team:'aux', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-05', team:'aux', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-10', team:'aux', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-12', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-13', team:'aux', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-14', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-18', team:'aux', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-19', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-20', team:'aux', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-21', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-24', team:'aux', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-26', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-27', team:'aux', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-28', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-08-29', team:'aux', h:4, s:'09:00', e:'13:00', intensive:true},
+  {date:'2026-08-31', team:'pro', h:2, s:'18:00', e:'20:00'},
+  // ---- SEPTIEMBRE ----
+  {date:'2026-09-02', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-09-07', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-09-09', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-09-14', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-09-16', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-09-21', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-09-23', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-09-28', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-09-30', team:'pro', h:2, s:'18:00', e:'20:00'},
+  // ---- OCTUBRE ----
+  {date:'2026-10-03', team:'pro', h:5, s:'08:00', e:'13:00', intensive:true},
+  {date:'2026-10-05', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-10-07', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-10-14', team:'pro', h:2, s:'18:00', e:'20:00'},
+  {date:'2026-10-16', team:'pro', h:2, s:'18:00', e:'20:00'},
+];
+// Festivos (sin clase) marcados en las imágenes
+const HOLIDAYS = [
+  {date:'2026-08-07', name:'Batalla de Boyacá'},
+  {date:'2026-08-17', name:'Asunción de la Virgen'},
+];
+
+/* ============ HELPERS ============ */
+const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MES_ABR=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+const DOW=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const DOW_ABR=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const TEAM_NAME={aux:'IA Auxiliares', pro:'IA Profesionales'};
+
+function parse(d){const[y,m,day]=d.split('-').map(Number);return new Date(y,m-1,day);}
+function fmt12(t){let[h,m]=t.split(':').map(Number);const ap=h>=12?'p.m.':'a.m.';h=h%12||12;return `${h}:${m.toString().padStart(2,'0')} ${ap}`;}
+function timeLabel(s,e){return `${fmt12(s)} – ${fmt12(e)}`;}
+function todayMid(){const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate());}
+
+/* estado */
+let state={team:'all', month:'all', view:'agenda'};
+
+/* próxima clase respecto a HOY */
+function nextSession(){
+  const t=todayMid().getTime();
+  const up=SESSIONS.filter(s=>parse(s.date).getTime()>=t).sort((a,b)=>parse(a.date)-parse(b.date));
+  return up[0]||null;
+}
+const NEXT=nextSession();
+
+function filtered(){
+  return SESSIONS.filter(s=>{
+    if(state.team!=='all'&&s.team!==state.team)return false;
+    if(state.month!=='all'&&parse(s.date).getMonth()!==+state.month)return false;
+    return true;
+  });
+}
+
+/* ============ KPIs ============ */
+function weekKey(dstr){const dt=parse(dstr);const off=(dt.getDay()+6)%7;const mon=new Date(dt);mon.setDate(dt.getDate()-off);return `${mon.getFullYear()}-${mon.getMonth()}-${mon.getDate()}`;}
+function weeksFor(team){return new Set(SESSIONS.filter(s=>s.team===team).map(s=>weekKey(s.date))).size;}
+function countFor(team){return SESSIONS.filter(s=>s.team===team).length;}
+function renderKPIs(){
+  const auxH=SESSIONS.filter(s=>s.team==='aux').reduce((a,s)=>a+s.h,0);
+  const proH=SESSIONS.filter(s=>s.team==='pro').reduce((a,s)=>a+s.h,0);
+  let nextTxt='—', cd='';
+  if(NEXT){
+    const d=parse(NEXT.date);
+    nextTxt=`${DOW_ABR[d.getDay()]} ${d.getDate()} ${MES_ABR[d.getMonth()]}`;
+    const days=Math.round((d-todayMid())/86400000);
+    cd = days===0?'¡Hoy!':days===1?'Mañana':`En ${days} días`;
+    nextTxt=`${TEAM_NAME[NEXT.team]}<br>${nextTxt} · ${fmt12(NEXT.s)}`;
+  }
+  const k=[
+    {num:SESSIONS.length, lbl:'Sesiones totales', sub:`${auxH+proH} horas académicas`},
+    {num:`${auxH}<small>h</small>`, lbl:'IA Auxiliares', sub:`<b>${weeksFor('aux')}</b> semanas · ${countFor('aux')} sesiones`},
+    {num:`${proH}<small>h</small>`, lbl:'IA Profesionales', sub:`<b>${weeksFor('pro')}</b> semanas · ${countFor('pro')} sesiones`},
+  ];
+  let html=k.map(x=>`<div class="kpi"><div class="num">${x.num}</div><div class="lbl">${x.lbl}</div>${x.sub?`<div class="sub2">${x.sub}</div>`:''}</div>`).join('');
+  html+=`<div class="kpi next"><div class="num">${nextTxt}</div><div class="cd">${cd?'⏱ '+cd:'Curso finalizado'}</div><div class="lbl" style="margin-top:8px">Próxima clase</div></div>`;
+  document.getElementById('kpis').innerHTML=html;
+}
+
+/* ============ AGENDA ============ */
+function renderAgenda(){
+  const wrap=document.getElementById('agendaWrap');
+  const list=filtered();
+  if(!list.length){wrap.innerHTML='<div class="empty-state">No hay sesiones con este filtro. Prueba otra combinación.</div>';return;}
+  // agrupar por mes
+  const byMonth={};
+  list.forEach(s=>{const m=parse(s.date).getMonth();(byMonth[m]=byMonth[m]||[]).push(s);});
+  const showHoli=(state.team==='all');
+  let html='';
+  Object.keys(byMonth).map(Number).sort((a,b)=>a-b).forEach(m=>{
+    const items=byMonth[m];
+    const hrs=items.reduce((a,s)=>a+s.h,0);
+    // festivos del mes (solo cuando no se filtra por equipo)
+    const holis=showHoli?HOLIDAYS.filter(h=>parse(h.date).getMonth()===m):[];
+    // combinar y ordenar por fecha
+    const rows=[...items.map(s=>({t:'s',d:s.date,s})), ...holis.map(h=>({t:'h',d:h.date,h}))]
+      .sort((a,b)=>parse(a.d)-parse(b.d));
+    html+=`<section class="month fade"><div class="month-h"><h2>${MESES[m]} 2026</h2><span class="mh-meta">${items.length} sesiones · ${hrs} horas</span></div><div class="agenda">`;
+    rows.forEach(r=>{
+      if(r.t==='h'){
+        const d=parse(r.d);
+        html+=`<div class="holi"><span class="em">🎌</span><div><b>Festivo · ${DOW[d.getDay()]} ${d.getDate()}</b> — ${r.h.name}. Sin clase.</div></div>`;
+        return;
+      }
+      const s=r.s, d=parse(s.date);
+      const isNext=NEXT&&s.date===NEXT.date&&s.team===NEXT.team;
+      const flag = isNext?`<span class="flag nx">▶ Próxima</span>`:(s.intensive?`<span class="flag">★ Intensiva</span>`:'');
+      html+=`<article class="card ${isNext?'next':''}" data-team="${s.team}">
+        ${flag}
+        <div class="datebox">
+          <div class="day">${d.getDate()}</div>
+          <div><div class="dm">${MES_ABR[d.getMonth()]} 2026</div><div class="dw">${DOW[d.getDay()]}</div></div>
+        </div>
+        <span class="team"><span class="swatch"></span>${TEAM_NAME[s.team]}</span>
+        <div class="foot">
+          <span class="time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${timeLabel(s.s,s.e)}</span>
+          <span class="hrs">${s.h}h</span>
+        </div>
+      </article>`;
+    });
+    html+='</div></section>';
+  });
+  wrap.innerHTML=html;
+}
+
+/* ============ CALENDARIO ============ */
+function renderCal(){
+  const wrap=document.getElementById('calWrap');
+  const list=filtered();
+  const months=(state.month==='all')?[7,8,9]:[+state.month];
+  const today=todayMid();
+  let html='';
+  months.forEach(m=>{
+    const first=new Date(2026,m,1);
+    const startPad=first.getDay(); // 0=Dom
+    const days=new Date(2026,m+1,0).getDate();
+    html+=`<section class="cal-month fade"><h2>${MESES[m]} 2026</h2><div class="calgrid">`;
+    DOW_ABR.forEach(d=>html+=`<div class="cal-dow">${d}</div>`);
+    for(let i=0;i<startPad;i++)html+='<div class="cell empty"></div>';
+    for(let day=1;day<=days;day++){
+      const ds=`2026-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const dt=new Date(2026,m,day);
+      const wknd=dt.getDay()===0||dt.getDay()===6;
+      const isToday=dt.getTime()===today.getTime();
+      const evs=list.filter(s=>s.date===ds);
+      const holi=HOLIDAYS.find(h=>h.date===ds && state.team==='all');
+      let inner=`<div class="dn">${day}</div>`;
+      if(holi)inner+=`<div class="holi-tag">🎌 Festivo</div>`;
+      evs.forEach(s=>{
+        const isNext=NEXT&&s.date===NEXT.date&&s.team===NEXT.team;
+        inner+=`<span class="ev ${isNext?'next-ev':''}" data-team="${s.team}" title="${TEAM_NAME[s.team]} · ${timeLabel(s.s,s.e)}">${s.team==='aux'?'Aux':'Pro'} ${fmt12(s.s).replace(' a.m.','a').replace(' p.m.','p').replace(':00','')}</span>`;
+      });
+      if(evs.length)inner+=`<span class="cnt ev" data-team="${evs[0].team}">${evs.length} clase${evs.length>1?'s':''}</span>`;
+      html+=`<div class="cell ${wknd?'wknd':''} ${isToday?'today':''}">${inner}</div>`;
+    }
+    html+='</div></section>';
+  });
+  wrap.innerHTML=html;
+}
+
+/* ============ RENDER + EVENTOS ============ */
+function render(){
+  document.getElementById('agendaWrap').classList.toggle('hide', state.view!=='agenda');
+  document.getElementById('calWrap').classList.toggle('show', state.view==='cal');
+  if(state.view==='agenda')renderAgenda(); else renderCal();
+}
+function bindChips(id, key){
+  document.getElementById(id).addEventListener('click',e=>{
+    const c=e.target.closest('.chip'); if(!c)return;
+    document.querySelectorAll(`#${id} .chip`).forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    state[key]=c.dataset[key];
+    render();
+  });
+}
+bindChips('teamChips','team');
+bindChips('monthChips','month');
+document.getElementById('viewSeg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  document.querySelectorAll('#viewSeg button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); state.view=b.dataset.view; render();
+});
+
+renderKPIs(); render();
+document.getElementById('stamp').textContent='Actualizado '+new Date().toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'});
+
+/* ============ PARTÍCULAS ============ */
+(function(){
+  const c=document.getElementById('particles'),x=c.getContext('2d');let w,h,P;
+  function rz(){w=c.width=innerWidth;h=c.height=innerHeight;P=Array.from({length:Math.min(70,Math.floor(w/22))},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.6+.4,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,c:Math.random()>.5?'0,212,255':'123,47,255'}));}
+  rz();addEventListener('resize',rz);
+  (function loop(){x.clearRect(0,0,w,h);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fillStyle=`rgba(${p.c},.5)`;x.fill();});
+  for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){const a=P[i],b=P[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy);if(d<120){x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.strokeStyle=`rgba(0,212,255,${.06*(1-d/120)})`;x.stroke();}}
+  requestAnimationFrame(loop);})();
+})();
+</script>
+</body>
+</html>
