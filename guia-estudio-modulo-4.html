@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía de estudio · Módulo 1 · Mis finanzas personales con IA</title>
+<style>
+  :root{
+    --verde:#009639;--verde-osc:#00722c;--verde-cl:#e7f6ec;--ambar:#f5a623;--ia:#5b6cf5;--ia-cl:#eef0ff;
+    --tinta:#0f1b24;--gris:#5b6b74;--linea:#e3e9ec;--bg:#f4f7f8;--blanco:#fff;
+    --fuente:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    --radio:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--fuente);background:var(--bg);color:var(--tinta);line-height:1.6}
+  #progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--verde),var(--ia));z-index:100;transition:width .1s}
+  header{background:radial-gradient(900px 500px at 85% -30%,#0a3a22,#04160f);color:#fff;padding:26px clamp(18px,5vw,60px) 30px}
+  .htop{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo-chip{background:#fff;border-radius:10px;padding:6px 10px;display:inline-flex}
+  .logo-chip img{height:26px;display:block}
+  .mtag{font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7bffb0}
+  header h1{font-size:clamp(1.6rem,3.6vw,2.6rem);font-weight:800;letter-spacing:-.02em;margin-top:14px;line-height:1.1}
+  header p{color:#bfe9cf;margin-top:8px;max-width:60ch}
+  .actions{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{border:none;border-radius:100px;padding:10px 16px;font-weight:700;font-size:.85rem;cursor:pointer;background:#fff;color:var(--tinta);display:inline-flex;align-items:center;gap:7px}
+  .btn.ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25)}
+  .btn:hover{filter:brightness(.96)}
+  .pbar{margin-top:20px;background:rgba(255,255,255,.15);border-radius:100px;height:12px;overflow:hidden;max-width:520px}
+  .pbar > div{height:100%;width:0;background:linear-gradient(90deg,#3ff0a0,#7bffb0);transition:width .3s}
+  .pmeta{color:#bfe9cf;font-size:.82rem;margin-top:6px}
+
+  .layout{display:grid;grid-template-columns:230px 1fr;gap:30px;max-width:1180px;margin:0 auto;padding:30px clamp(18px,5vw,60px) 80px}
+  @media(max-width:880px){.layout{grid-template-columns:1fr}.toc{position:static!important;display:none}}
+  .toc{position:sticky;top:20px;align-self:start}
+  .toc h4{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);margin-bottom:10px}
+  .toc a{display:block;padding:8px 12px;border-radius:10px;color:var(--gris);text-decoration:none;font-size:.92rem;font-weight:600}
+  .toc a:hover,.toc a.act{background:var(--verde-cl);color:var(--verde-osc)}
+
+  section.blk{background:var(--blanco);border:1px solid var(--linea);border-radius:var(--radio);padding:24px 26px;margin-bottom:20px;scroll-margin-top:20px}
+  .eyebrow{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--verde);background:var(--verde-cl);padding:6px 12px;border-radius:100px}
+  .eyebrow.ia{color:var(--ia);background:var(--ia-cl)}
+  h2{font-size:1.5rem;font-weight:800;letter-spacing:-.01em;margin-top:12px}
+  h3{font-size:1.08rem;font-weight:700;margin-bottom:4px}
+  p{color:var(--gris)}
+  ul.obj{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:14px}
+  ul.obj li{position:relative;padding-left:26px;color:var(--gris)}
+  ul.obj li::before{content:"✓";position:absolute;left:0;color:var(--verde);font-weight:800}
+
+  .concept{border:1px solid var(--linea);border-radius:14px;padding:18px;margin-top:16px}
+  .concept .chead{display:flex;align-items:flex-start;gap:12px;justify-content:space-between}
+  .concept h3{color:var(--tinta)}
+  .concept .pts{list-style:none;margin-top:10px;display:flex;flex-direction:column;gap:7px}
+  .concept .pts li{position:relative;padding-left:22px;color:var(--gris);font-size:.95rem}
+  .concept .pts li::before{content:"";position:absolute;left:0;top:.5em;width:10px;height:10px;border-radius:50%;background:var(--verde-cl);border:2px solid var(--verde)}
+  .master{display:inline-flex;align-items:center;gap:7px;font-size:.8rem;font-weight:700;color:var(--gris);cursor:pointer;white-space:nowrap;user-select:none}
+  .master input{width:18px;height:18px;accent-color:var(--verde)}
+  .note{margin-top:12px}
+  .note label{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ia)}
+  textarea{width:100%;border:1px solid var(--linea);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:.94rem;color:var(--tinta);resize:vertical;margin-top:6px;background:#fbfdfe}
+  textarea:focus{outline:2px solid var(--ia-cl);border-color:var(--ia)}
+
+  .gloss{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+  @media(max-width:680px){.gloss{grid-template-columns:1fr}}
+  .gitem{background:#fbfdfe;border:1px solid var(--linea);border-radius:12px;padding:14px}
+  .gitem b{color:var(--verde-osc)}
+
+  .q{border:1px solid var(--linea);border-radius:12px;padding:14px 16px;margin-top:14px}
+  .q .qh{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .q b{font-size:1rem;color:var(--tinta)}
+  .q .toggle{border:1px solid var(--linea);background:#fff;border-radius:100px;padding:6px 12px;font-size:.78rem;font-weight:700;color:var(--ia);cursor:pointer;white-space:nowrap}
+  .q .ans{display:none;margin-top:10px;background:var(--ia-cl);border-radius:10px;padding:12px;color:var(--tinta);font-size:.94rem}
+  .q.open .ans{display:block}
+
+  .prompt{background:#0a1424;color:#dfe9ff;border:1px solid #223052;border-radius:12px;padding:15px 16px;font-size:.93rem;margin-top:14px;position:relative}
+  .prompt::before{content:"PROMPT";position:absolute;top:-9px;left:14px;background:var(--ia);color:#fff;font-size:.62rem;font-weight:800;letter-spacing:.1em;padding:3px 8px;border-radius:6px}
+  .prompt b{color:#7bffb0}
+  .copy{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#dfe9ff;border-radius:8px;font-size:.72rem;font-weight:700;padding:4px 9px;cursor:pointer}
+
+  .savebar{position:sticky;bottom:0;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);border-top:1px solid var(--linea);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:14px;margin-top:6px;flex-wrap:wrap}
+  .savebar small{color:var(--gris);font-size:.82rem}
+  .savebar .btn{background:var(--verde);color:#fff}
+  footer{max-width:1180px;margin:0 auto;padding:0 clamp(18px,5vw,60px) 60px;color:var(--gris);font-size:.85rem}
+  footer b{color:var(--tinta)}
+  @media print{.toc,.actions,.savebar,.q .toggle,#progress{display:none!important}.q .ans{display:block!important}body{background:#fff}section.blk{break-inside:avoid;box-shadow:none}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header>
+  <div class="htop">
+    <div class="brand">
+      <span class="logo-chip"><img src="https://www.coomeva.com.co/info/coomeva/media/bloque39800.png" alt="Coomeva" onerror="this.parentElement.style.display='none'"></span>
+      <span class="mtag" id="mtag">Guía de estudio · Módulo 1</span>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" onclick="window.print()">🖨️ Imprimir / PDF</button>
+      <button class="btn" id="dlBtn">⬇️ Descargar mis notas</button>
+    </div>
+  </div>
+  <h1 id="titulo"></h1>
+  <p id="tagline"></p>
+  <div class="pbar"><div id="pfill"></div></div>
+  <div class="pmeta" id="pmeta">0 de 0 conceptos marcados como dominados</div>
+</header>
+
+<div class="layout">
+  <nav class="toc">
+    <h4>Contenido</h4>
+    <a href="#s-esencial" class="act">Lo esencial</a>
+    <a href="#s-conceptos">Conceptos clave</a>
+    <a href="#s-glosario">Glosario</a>
+    <a href="#s-quiz">Ponte a prueba</a>
+    <a href="#s-ia">Practica con IA</a>
+    <a href="#s-cuaderno">Mi cuaderno</a>
+  </nav>
+
+  <main>
+    <section class="blk" id="s-esencial">
+      <span class="eyebrow">Lo esencial</span>
+      <h2 id="resumenH">Resumen del módulo</h2>
+      <p id="resumen" style="margin-top:10px"></p>
+      <h3 style="margin-top:18px">¿Qué deberías poder hacer al terminar?</h3>
+      <ul class="obj" id="objetivos"></ul>
+    </section>
+
+    <section class="blk" id="s-conceptos">
+      <span class="eyebrow">Conceptos clave</span>
+      <h2>Estudia y marca lo que ya dominas</h2>
+      <p style="margin-top:8px">Marca cada concepto cuando sientas que lo entiendes. Tu progreso se guarda automáticamente en este navegador.</p>
+      <div id="conceptos"></div>
+    </section>
+
+    <section class="blk" id="s-glosario">
+      <span class="eyebrow">Glosario</span>
+      <h2>Palabras clave en simple</h2>
+      <div class="gloss" id="glosario"></div>
+    </section>
+
+    <section class="blk" id="s-quiz">
+      <span class="eyebrow">Ponte a prueba</span>
+      <h2>Autoevaluación</h2>
+      <p style="margin-top:8px">Responde mentalmente y luego revela la respuesta para comprobar.</p>
+      <div id="quiz"></div>
+    </section>
+
+    <section class="blk" id="s-ia">
+      <span class="eyebrow ia">Practica con IA</span>
+      <h2>Prompts para repasar con la IA</h2>
+      <p style="margin-top:8px">Copia estos prompts en tu asistente de IA para practicar con tus propios datos.</p>
+      <div id="prompts"></div>
+    </section>
+
+    <section class="blk" id="s-cuaderno">
+      <span class="eyebrow ia">Mi cuaderno</span>
+      <h2>Tus notas del módulo</h2>
+      <p style="margin-top:8px">Escribe aquí tus ideas, dudas y aprendizajes. Se guardan solas en tu navegador; puedes descargarlas cuando quieras.</p>
+      <textarea id="cuaderno" rows="8" placeholder="Mis apuntes, dudas y compromisos…"></textarea>
+      <div class="savebar">
+        <small id="savemsg">Tus notas se guardan en este dispositivo.</small>
+        <button class="btn" id="dlBtn2">⬇️ Descargar mis notas</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  <p>Creado por el <b>Ing. Jorge Hugo Pérez</b> — Mentor experto en IA aplicada a los negocios y las finanzas · ICONE ialabs</p>
+  <p style="margin-top:6px">Guía fundamentada en los marcos de competencia financiera OCDE/INFE. · Coomeva</p>
+</footer>
+
+<script>
+/* ====== CONTENIDO DEL MÓDULO ====== */
+const DATA = {
+  modulo:4,
+  storageKey:"gefia-m4",
+  titulo:"Del negocio a la empresa: decisiones con datos e IA",
+  tagline:"De la intuición a los datos. Repasa cómo leer tus indicadores, ponte a prueba y toma tus propias notas.",
+  resumen:"En este módulo aprendes a decidir con datos. Lees en simple tus estados financieros (P&G, flujo de caja y balance), interpretas los indicadores clave (liquidez, rentabilidad y endeudamiento), cumples con formalización, impuestos y seguridad digital, y creas con IA un panel de KPIs con semáforos y alertas para tu empresa.",
+  objetivos:[
+    "Leer en simple el P&G, el flujo de caja y el balance.",
+    "Interpretar tus KPIs: liquidez, rentabilidad y endeudamiento.",
+    "Cumplir con formalización, impuestos y seguridad digital.",
+    "Construir con IA un panel de indicadores con alertas."
+  ],
+  conceptos:[
+    {t:"De la intuición a los datos", d:"Con poca plata todo cabe en la cabeza; al crecer, las decisiones cuestan mucho y los datos protegen.", pts:["Solo intuición: sorpresas de liquidez, sanciones, malas decisiones.","Datos + IA: informes convertidos en indicadores claros.","Anticipas problemas y negocias mejor con bancos.","No necesitas ser contador: basta leer 4 o 5 números clave."]},
+    {t:"Los 3 estados financieros", d:"Juntos cuentan la historia completa de tu empresa: si ganas, si tienes efectivo y si eres sólido.", pts:["Estado de Resultados (P&G): ¿gané o perdí? Ventas − costos − gastos.","Flujo de caja: ¿tengo efectivo? Cuándo entra y sale la plata.","Balance: ¿qué tengo y qué debo? Activos vs. pasivos.","Puedes tener utilidad y aun así quedarte sin caja."]},
+    {t:"Indicadores clave (KPIs)", d:"Son los signos vitales de tu empresa: revisarlos a tiempo evita emergencias.", pts:["Liquidez: ¿puedo pagar lo que debo a corto plazo?","Rentabilidad: ¿cuánto gano por cada peso que vendo?","Endeudamiento: ¿qué parte de la empresa es deuda?","Deuda sana impulsa; excesiva ahoga."]},
+    {t:"Formalización, impuestos y seguridad digital", d:"Estar en regla abre puertas; cumplir a tiempo evita multas; cuidar tus datos evita fraudes.", pts:["Formalización: acceso a crédito, clientes grandes y tranquilidad.","Impuestos: conoce tus obligaciones y provisiona para ellas.","Seguridad digital: cuida claves, desconfía de enlaces y pagos raros.","Usa la IA para entender y organizar, nunca compartas datos sensibles."]}
+  ],
+  glosario:[
+    {t:"Estado de Resultados (P&G)", d:"Informe de ganancias o pérdidas en un periodo: ventas menos costos y gastos."},
+    {t:"Flujo de caja", d:"Movimiento del efectivo: cuándo entra y cuándo sale la plata."},
+    {t:"Balance", d:"Foto de lo que la empresa tiene (activos) y lo que debe (pasivos)."},
+    {t:"Activo", d:"Lo que la empresa posee y le genera valor (bienes, inventario, cuentas por cobrar)."},
+    {t:"Pasivo", d:"Lo que la empresa debe (deudas y obligaciones)."},
+    {t:"Liquidez", d:"Capacidad de pagar tus obligaciones de corto plazo con el efectivo disponible."},
+    {t:"Rentabilidad", d:"Cuánto gana la empresa por cada peso que vende (margen de utilidad)."},
+    {t:"Endeudamiento", d:"Qué parte de la empresa está financiada con deuda."}
+  ],
+  quiz:[
+    {q:"¿Para qué sirve el Estado de Resultados (P&G)?", a:"Para saber si ganaste o perdiste en un periodo: ventas menos costos y gastos igual a utilidad."},
+    {q:"¿Puede una empresa tener utilidad y aun así quedarse sin efectivo?", a:"Sí. La utilidad (P&G) no es lo mismo que el efectivo disponible (flujo de caja); por eso hay que mirar ambos."},
+    {q:"¿Qué mide la liquidez?", a:"La capacidad de pagar las obligaciones de corto plazo con el efectivo y activos disponibles."},
+    {q:"¿Qué muestra el balance?", a:"Lo que la empresa tiene (activos) frente a lo que debe (pasivos) en un momento dado."},
+    {q:"¿Por qué importa la seguridad digital en las finanzas?", a:"Porque el fraude también puede quebrar una empresa: hay que cuidar claves y datos y desconfiar de enlaces o pagos sospechosos."}
+  ],
+  prompts:[
+    "Te paso mis ventas, costos, gastos y deudas. Calcúlame mis KPIs de liquidez, rentabilidad y endeudamiento, ponles un semáforo (verde/amarillo/rojo) y explícame cada uno en simple.",
+    "Con estos datos, créame un panel de indicadores de mi empresa con alertas y 3 recomendaciones priorizadas para mejorar este mes."
+  ]
+};
+
+/* ====== MOTOR DE LA GUÍA (no editar) ====== */
+(function(){
+  var store={};
+  try{ store=JSON.parse(localStorage.getItem(DATA.storageKey)||"{}"); }catch(e){ store={}; }
+  function save(){ try{ localStorage.setItem(DATA.storageKey, JSON.stringify(store)); document.getElementById('savemsg').textContent="Guardado ✓ · "+new Date().toLocaleTimeString(); }catch(e){ document.getElementById('savemsg').textContent="No se pudo guardar aquí; usa 'Descargar mis notas'."; } }
+
+  document.getElementById('titulo').textContent="Módulo "+DATA.modulo+": "+DATA.titulo;
+  document.getElementById('tagline').textContent=DATA.tagline;
+  document.getElementById('mtag').textContent="Guía de estudio · Módulo "+DATA.modulo;
+  document.title="Guía de estudio · Módulo "+DATA.modulo+" · "+DATA.titulo;
+  document.getElementById('resumen').textContent=DATA.resumen;
+
+  var ob=document.getElementById('objetivos');
+  DATA.objetivos.forEach(function(o){ var li=document.createElement('li'); li.textContent=o; ob.appendChild(li); });
+
+  var cc=document.getElementById('conceptos');
+  DATA.conceptos.forEach(function(c,idx){
+    var mKey="m"+idx, nKey="n"+idx;
+    var div=document.createElement('div'); div.className="concept";
+    var pts=c.pts.map(function(p){return '<li>'+p+'</li>';}).join('');
+    div.innerHTML='<div class="chead"><div><h3>'+c.t+'</h3><p style="margin-top:4px">'+c.d+'</p></div>'
+      +'<label class="master"><input type="checkbox" data-m="'+mKey+'"> Ya lo domino</label></div>'
+      +'<ul class="pts">'+pts+'</ul>'
+      +'<div class="note"><label>Mi nota</label><textarea rows="2" data-n="'+nKey+'" placeholder="Anota una duda o una idea sobre este tema…"></textarea></div>';
+    cc.appendChild(div);
+  });
+
+  var gl=document.getElementById('glosario');
+  DATA.glosario.forEach(function(g){ var d=document.createElement('div'); d.className="gitem"; d.innerHTML='<b>'+g.t+'</b><p style="margin-top:4px;font-size:.92rem">'+g.d+'</p>'; gl.appendChild(d); });
+
+  var qz=document.getElementById('quiz');
+  DATA.quiz.forEach(function(q,i){
+    var d=document.createElement('div'); d.className="q";
+    d.innerHTML='<div class="qh"><b>'+(i+1)+'. '+q.q+'</b><button class="toggle">Ver respuesta</button></div><div class="ans">'+q.a+'</div>';
+    d.querySelector('.toggle').addEventListener('click',function(){ d.classList.toggle('open'); this.textContent=d.classList.contains('open')?'Ocultar':'Ver respuesta'; });
+    qz.appendChild(d);
+  });
+
+  var pr=document.getElementById('prompts');
+  DATA.prompts.forEach(function(p){
+    var d=document.createElement('div'); d.className="prompt";
+    d.innerHTML=p+'<button class="copy">Copiar</button>';
+    d.querySelector('.copy').addEventListener('click',function(){ navigator.clipboard&&navigator.clipboard.writeText(p); this.textContent='¡Copiado!'; var b=this; setTimeout(function(){b.textContent='Copiar';},1200); });
+    pr.appendChild(d);
+  });
+
+  // restaurar estado
+  document.querySelectorAll('[data-m]').forEach(function(chk){ if(store[chk.dataset.m]){ chk.checked=true; } chk.addEventListener('change',function(){ store[chk.dataset.m]=chk.checked; save(); progress(); }); });
+  document.querySelectorAll('[data-n]').forEach(function(t){ if(store[t.dataset.n]){ t.value=store[t.dataset.n]; } t.addEventListener('input',function(){ store[t.dataset.n]=t.value; save(); }); });
+  var cuad=document.getElementById('cuaderno'); if(store.cuaderno){ cuad.value=store.cuaderno; } cuad.addEventListener('input',function(){ store.cuaderno=cuad.value; save(); });
+
+  function progress(){
+    var total=DATA.conceptos.length, done=0;
+    DATA.conceptos.forEach(function(_,i){ if(store["m"+i]) done++; });
+    var pct=total?Math.round(done/total*100):0;
+    document.getElementById('pfill').style.width=pct+'%';
+    document.getElementById('pmeta').textContent=done+' de '+total+' conceptos marcados como dominados';
+  }
+  progress();
+
+  // descargar notas
+  function download(){
+    var L=[]; L.push("GUÍA DE ESTUDIO · MÓDULO "+DATA.modulo+" · "+DATA.titulo); L.push("Ing. Jorge Hugo Pérez · ICONE ialabs · Coomeva"); L.push("");
+    DATA.conceptos.forEach(function(c,i){ L.push("["+(store["m"+i]?"x":" ")+"] "+c.t); if(store["n"+i]){ L.push("   Nota: "+store["n"+i]); } });
+    L.push(""); L.push("MI CUADERNO:"); L.push(store.cuaderno||"(sin notas)");
+    var blob=new Blob([L.join("\n")],{type:"text/plain;charset=utf-8"});
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download="notas-modulo-"+DATA.modulo+"-coomeva.txt"; a.click();
+  }
+  document.getElementById('dlBtn').addEventListener('click',download);
+  document.getElementById('dlBtn2').addEventListener('click',download);
+
+  // barra de lectura + toc activo
+  var toc=[...document.querySelectorAll('.toc a')];
+  window.addEventListener('scroll',function(){
+    var h=document.documentElement, sc=h.scrollTop/(h.scrollHeight-h.clientHeight)*100;
+    document.getElementById('progress').style.width=sc+'%';
+    var secs=[...document.querySelectorAll('section.blk')], cur=secs[0].id;
+    secs.forEach(function(s){ if(s.getBoundingClientRect().top<140) cur=s.id; });
+    toc.forEach(function(a){ a.classList.toggle('act', a.getAttribute('href')==='#'+cur); });
+  });
+  toc.forEach(function(a){ a.addEventListener('click',function(e){ e.preventDefault(); document.querySelector(a.getAttribute('href')).scrollIntoView({behavior:'smooth'}); }); });
+})();
+</script>
+</body>
+</html>
