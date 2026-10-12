@@ -184,7 +184,12 @@ function muestra($: EngineInterface, ruta: Ruta, aviso: boolean) {
   const nombre = MODELOS[ruta.nivel].nombre
   // el selector de la app no cambia: esta etiqueta dice qué modelo responde
   $.ui.status(`🧠 Responde: ${nombre} · ${ruta.motivo}`)
-  if (aviso) $.ui.toast(`Ahora responde ${nombre} (${ruta.motivo})`)
+  if (!aviso) return
+  const texto = `Ahora responde ${nombre} (${ruta.motivo})`
+  // 12 s para alcanzar a leerlo desde el celular, donde la etiqueta de abajo no siempre se ve
+  $.ui.toast(texto, { timeoutMs: 12000 })
+  // y una notificación del sistema, por si la pantalla no muestra ni la etiqueta ni el aviso
+  $.ui.notify(texto, { title: 'Enrutador de modelo' }).catch(() => {})
 }
 
 export const register: Register = on => {
