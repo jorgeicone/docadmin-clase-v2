@@ -1,0 +1,7 @@
+{
+  "name": "icone-mods",
+  "owner": { "name": "Jorge Hugo Pérez Gaona" },
+  "plugins": [
+    { "name": "enrutador-modelo", "source": "./mods/enrutador-modelo", "description": "Elige el modelo según la tarea: Fable para arquitectura, Opus para código y criterio, Sonnet para contenido, Haiku para lo simple" }
+  ]
+}
