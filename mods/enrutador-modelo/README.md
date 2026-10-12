@@ -11,6 +11,8 @@ Mod para Claude Code que elige el modelo según la tarea:
 
 Primero clasifica por palabras clave (sin costo). Si no hay coincidencia, le pregunta a Haiku. Ante la duda usa Opus. Los subagentes no cambian.
 
+El selector de modelo de la app no se mueve: el cambio se hace en cada turno. La etiqueta de abajo (`🧠 Responde: Opus · criterio`) dice qué modelo está respondiendo, y un aviso sale cada vez que cambia.
+
 Comandos:
 - `/modelo fable | opus | sonnet | haiku` fija el modelo a mano.
 - `/modelo auto` vuelve al modo automático.

@@ -66,8 +66,9 @@ export const porPalabras = (texto: string): Ruta | undefined => {
 
 function muestra($: EngineInterface, ruta: Ruta, aviso: boolean) {
   const nombre = MODELOS[ruta.nivel].nombre
-  $.ui.status(`🧠 ${nombre} · ${ruta.motivo}`)
-  if (aviso) $.ui.toast(`Modelo: ${nombre} (${ruta.motivo})`)
+  // el selector de la app no cambia: esta etiqueta dice qué modelo responde
+  $.ui.status(`🧠 Responde: ${nombre} · ${ruta.motivo}`)
+  if (aviso) $.ui.toast(`Ahora responde ${nombre} (${ruta.motivo})`)
 }
 
 export const register: Register = on => {
