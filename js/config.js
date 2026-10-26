@@ -2,6 +2,9 @@
 export const SUPABASE_URL  = 'https://nvgkhdrrxqdgxktfkioa.supabase.co';
 export const SUPABASE_ANON = 'sb_publishable_d1RrtE7S-9a8e8mGKRRjxQ_4HU_nkDl';
 export const WORKER_URL    = 'https://claude-proxy.jorgehugoperez.workers.dev';
+// Worker del agente (worker-agente/). Vacío = el chat usa el modo anterior sin herramientas.
+// Tras `npm run deploy` en worker-agente/, pega aquí su URL, p. ej. https://docadmin-agente.<cuenta>.workers.dev
+export const AGENT_URL     = '';
 
 // Convenciones del modelo
 export const ATTENDANCE_STATUS = { P:'Presente', T:'Tarde', A:'Ausente' };

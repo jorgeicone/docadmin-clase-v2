@@ -152,7 +152,7 @@ Puntos que no se pueden omitir:
 
 - El runner **no reanuda `pause_turn`** solo. Tras cada iteración se revisa y se vuelve a empujar el turno (está en el código).
 - Con `eager_input_streaming` el servidor ya no valida el JSON de la tool. El runner con Zod valida antes de ejecutar; si el JSON no parsea, se reintenta una vez.
-- Las tools de escritura **confirman dentro de `run()`**. La confirmación viaja por el mismo SSE: el Worker emite `{confirmar: {...}}`, el navegador responde a `POST /confirmar/:id`, y la promesa se resuelve.
+- **Implementado distinto (ver `worker-agente/`):** las tools de escritura son `proponer_*` y no escriben. Validan contra la base, emiten una propuesta por SSE y el navegador la guarda con la sesión del docente solo cuando pulsa Confirmar. Así el Worker no necesita estado entre peticiones (un `POST /confirmar` podría caer en otra instancia del Worker) y el modelo nunca tiene permiso de escritura.
 
 ### 1.2 Archivos (Excel, PPTX, PDF, DOCX) con Agent Skills
 

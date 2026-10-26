@@ -1,6 +1,6 @@
 // 💬 AI CHAT — conversación con Claude que conoce el curso completo
 import { supabase, currentSession } from './supabase-client.js';
-import { WORKER_URL, sustLabel } from './config.js';
+import { WORKER_URL, AGENT_URL, sustLabel } from './config.js';
 import { toast } from './toast.js';
 
 let messages = [];               // historial de la conversación (formato Anthropic)
@@ -19,6 +19,11 @@ const SUGGESTIONS = [
 ];
 
 export async function mountChat(root, store){
+  // Con el Worker del agente desplegado, el chat usa herramientas y propuestas confirmables
+  if (AGENT_URL){
+    const { mountChatAgente } = await import('./chat-agente.js');
+    return mountChatAgente(root, store);
+  }
   courseId = store.activeCourse.id;
   root.innerHTML = `
     <div class="card">
