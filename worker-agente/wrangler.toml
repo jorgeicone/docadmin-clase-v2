@@ -1,0 +1,20 @@
+name = "docadmin-agente"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+SUPABASE_URL = "https://nvgkhdrrxqdgxktfkioa.supabase.co"
+SUPABASE_ANON = "sb_publishable_d1RrtE7S-9a8e8mGKRRjxQ_4HU_nkDl"
+LEGACY_WORKER_URL = "https://claude-proxy.jorgehugoperez.workers.dev"
+ALLOWED_ORIGINS = "https://jorgeicone.github.io,http://localhost:8765"
+MODEL = "claude-opus-5-5"
+EFFORT = "medium"
+MAX_ITERATIONS = "10"
+# IDs de skills propias subidas con scripts/subir-skill.ts, separadas por coma (opcional)
+CUSTOM_SKILL_IDS = ""
+
+# Secrets (wrangler secret put <NOMBRE>):
+#   ANTHROPIC_API_KEY      clave de la API de Anthropic
+#   SUPABASE_SERVICE_KEY   solo para descontar llamadas del plan (rpc increment_ai_calls)
+#   FILE_SIGNING_SECRET    texto aleatorio largo para firmar enlaces de descarga
